@@ -7,10 +7,12 @@
         <SolidColorBrush x:Key="Foreground" Color="#999999" />
         <SolidColorBrush x:Key="ForegroundHighlighted" Color="#FFFFFF" />
         <Duration x:Key="DropDownAnimation">0:0:0.2</Duration>
+        <!--Menu Item-->
         <Style x:Key="MenuItem" TargetType="Label">
             <Setter Property="Background" Value="{StaticResource Background}" />
             <Setter Property="Foreground" Value="{StaticResource Foreground}" />
-            <Setter Property="Width" Value="80" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Width" Value="{Binding ActualWidth, ElementName=parentElementName}" />
             <Setter Property="MinHeight" Value="26" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -19,37 +21,19 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!--<Style x:Key="DropDownMenu" TargetType="Expander">
-            <Setter Property="Background" Value="{StaticResource Background}" />
-            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
-            <Setter Property="Width" Value="80" />
-            <Setter Property="MinHeight" Value="26" />
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource BackgroundHighlighted}" />
-                    <Setter Property="Foreground" Value="{StaticResource ForegroundHighlighted}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>-->
-        <ControlTemplate x:Key="SimpleExpanderButtonTemp" TargetType="{x:Type ToggleButton}">
+        <!--Simple Expander Button-->
+        <ControlTemplate x:Key="SimpleExpanderButton" TargetType="{x:Type ToggleButton}">
             <Border x:Name="ExpanderButtonBorder">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Rectangle x:Name="BackgroundRectangle" Fill="{StaticResource Background}" Grid.ColumnSpan="2" Height="26" />
-                    <Ellipse Name="Circle" Grid.Column="0" Stroke="{StaticResource Foreground}" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
-                    <Path x:Name="Sign" Grid.Column="0" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{StaticResource Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" Margin="2,0,0,0">
+                    <Ellipse Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
+                    <Path x:Name="Sign" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{TemplateBinding Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <Path.RenderTransform>
                             <RotateTransform Angle="0" />
                         </Path.RenderTransform>
                     </Path>
-                    <ContentPresenter x:Name="HeaderContent" Grid.Column="1" Margin="4,0,0,0" ContentSource="Content" VerticalAlignment="Center" />
                 </Grid>
             </Border>
             <ControlTemplate.Triggers>
-                <!--Change the sign to minus when toggled-->
                 <Trigger Property="IsChecked" Value="True">
                     <Trigger.EnterActions>
                         <BeginStoryboard>
@@ -58,7 +42,7 @@
                          Storyboard.TargetProperty=
                            "(Path.RenderTransform).(RotateTransform.Angle)"
                          To="90"
-                         Duration="{StaticResource DropDownAnimation}"/>
+                         Duration="{StaticResource DropDownAnimation}" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.EnterActions>
@@ -69,26 +53,28 @@
                          Storyboard.TargetProperty=
                            "(Path.RenderTransform).(RotateTransform.Angle)"
                          To="0"
-                         Duration="{StaticResource DropDownAnimation}"/>
+                         Duration="{StaticResource DropDownAnimation}" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.ExitActions>
                 </Trigger>
-                <!-- MouseOver, Pressed behaviours-->
-                <Trigger Property="IsMouseOver" Value="true">
-                    <Setter Property="Stroke" Value="{StaticResource ForegroundHighlighted}" TargetName="Circle" />
-                    <Setter Property="Stroke" Value="{StaticResource ForegroundHighlighted}" TargetName="Sign" />
-                    <Setter Property="Fill" Value="{StaticResource BackgroundHighlighted}" TargetName="BackgroundRectangle" />
-                    <Setter Property="Foreground" Value="{StaticResource ForegroundHighlighted}" />
-                </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <ControlTemplate x:Key="SimpleExpanderTemp" TargetType="{x:Type Expander}">
+        <!--Drop Down Menu-->
+        <ControlTemplate x:Key="DropDownMenu" TargetType="{x:Type Expander}">
             <DockPanel>
-                <ToggleButton x:Name="ExpanderButton" DockPanel.Dock="Top" Template="{StaticResource SimpleExpanderButtonTemp}" Content="{TemplateBinding Header}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Foreground="{StaticResource Foreground}" />
+                <Grid DockPanel.Dock="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Rectangle x:Name="BackgroundRectangle" Fill="{StaticResource Background}" Grid.ColumnSpan="2" Height="26" />
+                    <ToggleButton x:Name="ExpanderButton" Grid.Column="0" Margin="{TemplateBinding Padding}" Template="{StaticResource SimpleExpanderButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{StaticResource Background}" Foreground="{StaticResource Foreground}" />
+                    <ContentPresenter x:Name="HeaderContent" Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
+                </Grid>
                 <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
                     <ContentPresenter.LayoutTransform>
-                        <ScaleTransform ScaleY="0"/>
+                        <ScaleTransform ScaleY="0" />
                     </ContentPresenter.LayoutTransform>
                 </ContentPresenter>
             </DockPanel>
@@ -101,7 +87,7 @@
                              Storyboard.TargetProperty=
                                "(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
                              To="1"
-                             Duration="{StaticResource DropDownAnimation}"/>
+                             Duration="{StaticResource DropDownAnimation}" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.EnterActions>
@@ -112,10 +98,19 @@
                              Storyboard.TargetProperty=
                                "(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
                              To="0"
-                             Duration="{StaticResource DropDownAnimation}"/>
+                             Duration="{StaticResource DropDownAnimation}" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource ForegroundHighlighted}" />
+                    <Setter Property="Fill" Value="{StaticResource BackgroundHighlighted}" TargetName="BackgroundRectangle" />
+                    <Setter Property="Background" Value="{StaticResource BackgroundHighlighted}" TargetName="ExpanderButton" />
+                    <Setter Property="Foreground" Value="{StaticResource ForegroundHighlighted}" TargetName="ExpanderButton" />
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -130,17 +125,16 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
-        <StackPanel Width="80" Margin="0,23,0,0" Background="{StaticResource Background}" HorizontalAlignment="Left">
-            <Label Content="All" Style="{StaticResource MenuItem}" />
-            <Label Content="Predictive" Style="{StaticResource MenuItem}" />
-            <Expander Header="Folder" Template="{StaticResource SimpleExpanderTemp}">
-                <StackPanel>
-                    <Label Content=" School" Style="{StaticResource MenuItem}" />
-                    <Label Content=" Personal" Style="{StaticResource MenuItem}" />
-                    <Label Content=" Work" Style="{StaticResource MenuItem}" />
-                </StackPanel>
-            </Expander>
-            <Label Content="Random" Style="{StaticResource MenuItem}" />
-        </StackPanel>
+        <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Width="150"  HorizontalAlignment="Left">
+            <Grid Name="Menu"  Margin="0,23,0,0" Background="{StaticResource Background}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>
