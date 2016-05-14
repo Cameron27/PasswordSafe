@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Shapes;
 using Newtonsoft.Json.Linq;
 
 namespace MockupApplication
@@ -18,11 +19,11 @@ namespace MockupApplication
             const string json = @"{
 	                            ""filesystem"":
 	                            {
-		                            ""CommonCommonCommon"":{},
+		                            ""Common"":{},
 		                            ""Folders"":
 		                            {
 			                            ""Personal"":{},
-			                            ""Work"":{},
+			                            ""WorkWorkWorkWorkWork"":{},
 			                            ""School"":
 			                            {
 				                            ""High School"":{},
@@ -49,26 +50,12 @@ namespace MockupApplication
                 Padding = new Thickness(5, 5, 5, 5),
                 Style = (Style) FindResource("MenuItem")
             });
-            Menu.Children[0].SetValue(Grid.RowProperty, 0);
-            Menu.Children[1].SetValue(Grid.RowProperty, 1);
-            int gridCount = 2;
             foreach (KeyValuePair<string, JToken> pair in o)
             {
-                Menu.RowDefinitions.Add(new RowDefinition());
-                Menu.RowDefinitions[gridCount].Height = GridLength.Auto;
                 if (!pair.Value.Any())
-                {
-                    Control tempControl = new Label {Content = pair.Key, Style = (Style) FindResource("MenuItem")};
-                    Menu.Children.Add(tempControl);
-                    tempControl.SetValue(Grid.RowProperty, gridCount);
-                }
+                    Menu.Children.Add(new Label {Content = pair.Key, Style = (Style) FindResource("MenuItem")});
                 else
-                {
-                    Control tempControl = MakeDropDownMenu(pair, 1);
-                    Menu.Children.Add(tempControl);
-                    tempControl.SetValue(Grid.RowProperty, gridCount);
-                }
-                gridCount++;
+                    Menu.Children.Add(MakeDropDownMenu(pair, 1));
             }
         }
 
@@ -97,9 +84,119 @@ namespace MockupApplication
             return output;
         }
 
+        /// <summary>
+        ///     Alowes window to be draged or resized
+        /// </summary>
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                if (e.ClickCount == 2)
+                    AdjustWindowSize();
+                else
+                    Application.Current.MainWindow.DragMove();
+        }
+
+        /// <summary>
+        ///     Close button is clicked
+        /// </summary>
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.MainWindow.Close();
         }
+
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Grid g = (Grid) sender;
+
+            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
+            g.ColumnDefinitions[0].MaxWidth = maxW;
+        }
+
+        /// <summary>
+        ///     Maximised button is clicked
+        /// </summary>
+        private void MaximisedButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            AdjustWindowSize();
+        }
+
+        /// <summary>
+        ///     Adjusts the WindowSize to correct parameters when Maximize button is clicked
+        /// </summary>
+        private void AdjustWindowSize()
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        /// <summary>
+        ///     Minimised button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MinimisedButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        #region ResizeWindows
+
+        private bool _resizeInProcess;
+
+        private void Resize_Init(object sender, MouseButtonEventArgs e)
+        {
+            Rectangle senderRect = sender as Rectangle;
+            _resizeInProcess = true;
+            senderRect.CaptureMouse();
+        }
+
+        private void Resize_End(object sender, MouseButtonEventArgs e)
+        {
+            Rectangle senderRect = sender as Rectangle;
+            _resizeInProcess = false;
+            senderRect.ReleaseMouseCapture();
+        }
+
+        private void Resizeing_Form(object sender, MouseEventArgs e)
+        {
+            if (_resizeInProcess)
+            {
+                Rectangle senderRect = sender as Rectangle;
+                Window mainWindow = senderRect.Tag as Window;
+                double width = e.GetPosition(mainWindow).X;
+                double height = e.GetPosition(mainWindow).Y;
+                senderRect.CaptureMouse();
+                if (senderRect.Name.ToLower().Contains("right"))
+                {
+                    width += 5;
+                    if (width > 0)
+                        mainWindow.Width = width;
+                }
+                if (senderRect.Name.ToLower().Contains("left"))
+                {
+                    width -= 5;
+                    mainWindow.Left += width;
+                    width = mainWindow.Width - width;
+                    if (width > 0)
+                        mainWindow.Width = width;
+                }
+                if (senderRect.Name.ToLower().Contains("bottom"))
+                {
+                    height += 5;
+                    if (height > 0)
+                        mainWindow.Height = height;
+                }
+                if (senderRect.Name.ToLower().Contains("top"))
+                {
+                    height -= 5;
+                    mainWindow.Top += height;
+                    height = mainWindow.Height - height;
+                    if (height > 0)
+                        mainWindow.Height = height;
+
+                }
+            }
+        }
+
+        #endregion
     }
 }
