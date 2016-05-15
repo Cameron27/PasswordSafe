@@ -33,38 +33,57 @@ namespace MockupApplication
 	                            }
                             }";
             JObject o = JObject.Parse(json);
-            ConstructMenu((JObject) o["filesystem"]);
+            ConstructFolders((JObject) o["filesystem"]);
         }
 
-        private void ConstructMenu(JObject o)
+        #region Section Resizing
+
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Grid g = (Grid) sender;
+
+            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
+            g.ColumnDefinitions[0].MaxWidth = maxW;
+        }
+
+        #endregion
+
+        #region Construct Folders
+
+        private void ConstructFolders(JObject o)
         {
             Menu.Children.Add(new Label
             {
                 Content = "All",
-                Padding = new Thickness(5, 5, 5, 5),
-                Style = (Style) FindResource("MenuItem")
+                Padding = new Thickness(10, 5, 5, 5),
+                Style = (Style) FindResource("Folder")
             });
             Menu.Children.Add(new Label
             {
                 Content = "Prediction",
-                Padding = new Thickness(5, 5, 5, 5),
-                Style = (Style) FindResource("MenuItem")
+                Padding = new Thickness(10, 5, 5, 5),
+                Style = (Style) FindResource("Folder")
             });
             foreach (KeyValuePair<string, JToken> pair in o)
             {
                 if (!pair.Value.Any())
-                    Menu.Children.Add(new Label {Content = pair.Key, Style = (Style) FindResource("MenuItem")});
+                    Menu.Children.Add(new Label
+                    {
+                        Content = pair.Key,
+                        Padding = new Thickness(10, 5, 5, 5),
+                        Style = (Style) FindResource("Folder")
+                    });
                 else
-                    Menu.Children.Add(MakeDropDownMenu(pair, 1));
+                    Menu.Children.Add(MakeDropDownFolder(pair, 1));
             }
         }
 
-        private Expander MakeDropDownMenu(KeyValuePair<string, JToken> pair, int depth)
+        private Expander MakeDropDownFolder(KeyValuePair<string, JToken> pair, int depth)
         {
             Expander output = new Expander
             {
                 Header = pair.Key,
-                Padding = new Thickness((depth - 1) * 10, 0, 0, 0),
+                Padding = new Thickness((depth - 1) * 10 + 5, 0, 0, 0),
                 Template = (ControlTemplate) FindResource("DropDownMenu")
             };
             StackPanel stackPanel = new StackPanel();
@@ -74,27 +93,19 @@ namespace MockupApplication
                     stackPanel.Children.Add(new Label
                     {
                         Content = pair2.Key,
-                        Padding = new Thickness(depth * 10 + 5, 5, 5, 5),
-                        Style = (Style) FindResource("MenuItem")
+                        Padding = new Thickness(depth * 10 + 10, 5, 5, 5),
+                        Style = (Style) FindResource("Folder")
                     });
                 else
-                    stackPanel.Children.Add(MakeDropDownMenu(pair2, depth + 1));
+                    stackPanel.Children.Add(MakeDropDownFolder(pair2, depth + 1));
             }
             output.Content = stackPanel;
             return output;
         }
 
-        /// <summary>
-        ///     Alowes window to be draged or resized
-        /// </summary>
-        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                if (e.ClickCount == 2)
-                    AdjustWindowSize();
-                else
-                    Application.Current.MainWindow.DragMove();
-        }
+        #endregion
+
+        #region Top Control Buttons
 
         /// <summary>
         ///     Close button is clicked
@@ -102,14 +113,6 @@ namespace MockupApplication
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.MainWindow.Close();
-        }
-
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Grid g = (Grid) sender;
-
-            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
-            g.ColumnDefinitions[0].MaxWidth = maxW;
         }
 
         /// <summary>
@@ -121,14 +124,6 @@ namespace MockupApplication
         }
 
         /// <summary>
-        ///     Adjusts the WindowSize to correct parameters when Maximize button is clicked
-        /// </summary>
-        private void AdjustWindowSize()
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
-        /// <summary>
         ///     Minimised button is clicked
         /// </summary>
         /// <param name="sender"></param>
@@ -137,6 +132,8 @@ namespace MockupApplication
         {
             WindowState = WindowState.Minimized;
         }
+
+        #endregion
 
         #region ResizeWindows
 
@@ -192,9 +189,69 @@ namespace MockupApplication
                     height = mainWindow.Height - height;
                     if (height > 0)
                         mainWindow.Height = height;
-
                 }
             }
+        }
+
+        /// <summary>
+        ///     Adjusts the WindowSize to correct parameters when Maximize button is clicked
+        /// </summary>
+        private void AdjustWindowSize()
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            ChangeResizeRectangles();
+        }
+
+        private void ChangeResizeRectangles()
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                Panel.SetZIndex(TopSizeGrip, -1);
+                Panel.SetZIndex(BottomSizeGrip, -1);
+                Panel.SetZIndex(LeftSizeGrip, -1);
+                Panel.SetZIndex(RightSizeGrip, -1);
+                Panel.SetZIndex(TopLeftSizeGrip, -1);
+                Panel.SetZIndex(TopRightSizeGrip, -1);
+                Panel.SetZIndex(BottomLeftSizeGrip, -1);
+                Panel.SetZIndex(BottomRightSizeGrip, -1);
+            }
+            else
+            {
+                Panel.SetZIndex(TopSizeGrip, 1);
+                Panel.SetZIndex(BottomSizeGrip, 1);
+                Panel.SetZIndex(LeftSizeGrip, 1);
+                Panel.SetZIndex(RightSizeGrip, 1);
+                Panel.SetZIndex(TopLeftSizeGrip, 1);
+                Panel.SetZIndex(TopRightSizeGrip, 1);
+                Panel.SetZIndex(BottomLeftSizeGrip, 1);
+                Panel.SetZIndex(BottomRightSizeGrip, 1);
+            }
+        }
+
+        #endregion
+
+        #region Dragging window
+
+        /// <summary>
+        ///     Alowes window to be dragged or resized
+        /// </summary>
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+                AdjustWindowSize();
+            else
+                DragMove();
+        }
+
+        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+        {
+        }
+
+        /// <summary>
+        ///     Stops window from being dragged
+        /// </summary>
+        private void TitleBar_MouseUp(object sender, MouseButtonEventArgs e)
+        {
         }
 
         #endregion

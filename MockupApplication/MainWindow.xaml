@@ -6,8 +6,10 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mockupApplication="clr-namespace:MockupApplication"
         mc:Ignorable="d" Title="MainWindow" Height="900" Width="1500"
-        WindowStyle="None" ResizeMode="NoResize">
+        WindowStyle="None" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <!-- Region Resources -->
         <SolidColorBrush x:Key="TopBackground" Color="#888888" />
         <SolidColorBrush x:Key="TopBackgroundHighlighted" Color="#555555" />
         <SolidColorBrush x:Key="TopForeground" Color="#FFFFFF" />
@@ -18,21 +20,27 @@
         <SolidColorBrush x:Key="MenuForegroundHighlighted" Color="#FFFFFF" />
         <SolidColorBrush x:Key="MainBackground" Color="#EEEEEE" />
         <Duration x:Key="DropDownAnimation">0:0:0.2</Duration>
-        <!-- Header Button -->
+        <!-- EndRegion -->
+        <!-- Region Header Button -->
         <Style x:Key="HeaderButton" TargetType="Button">
-            <Setter Property="Width" Value="33" />
-            <Setter Property="Height" Value="23" />
-            <Setter Property="Margin" Value="0,0,1,0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Background" Value="{StaticResource TopBackground}" />
             <Setter Property="DockPanel.Dock" Value="Right" />
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" />
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="MainBorder"  Background="{StaticResource TopBackground}" Height="23" Width="33" Margin="0,0,1,0">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" TargetName="MainBorder"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <!-- Header Button Image -->
+        <!-- EndRegion -->
+        <!-- Region Header Button Image -->
         <Style x:Key="HeaderButtonPath" TargetType="Path">
             <Setter Property="Width" Value="33" />
             <Setter Property="Height" Value="23" />
@@ -41,11 +49,25 @@
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button, AncestorLevel=1}, Path=IsMouseOver}" Value="True">
-                    <Setter Property="Stroke" Value="{StaticResource TopBackgroundHighlighted}"></Setter>
+                    <Setter Property="Stroke" Value="{StaticResource TopForegroundHighlighted}"></Setter>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <!-- Resize Rectangles -->
+        <!-- EndRegion -->
+        <!-- Region Dropdown Menu -->
+        <Style x:Key="DropdownMenu" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{StaticResource TopForeground}" />
+            <Setter Property="Background" Value="{StaticResource TopBackground}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource TopBackgroundHighlighted}" />
+                    <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- EndRegion -->
+        <!-- Region Resize Rectangles -->
         <Style x:Key="RectBorderStyle" TargetType="Rectangle">
             <Setter Property="Focusable" Value="False" />
             <Setter Property="Fill" Value="Transparent" />
@@ -55,8 +77,9 @@
             <EventSetter Event="MouseLeftButtonUp" Handler="Resize_End"/>
             <EventSetter Event="MouseMove" Handler="Resizeing_Form"/>
         </Style>
-        <!-- Menu Item -->
-        <Style x:Key="MenuItem" TargetType="Label">
+        <!-- EndRegion -->
+        <!-- Region Folder -->
+        <Style x:Key="Folder" TargetType="Label">
             <Setter Property="Background" Value="{StaticResource MenuBackground}" />
             <Setter Property="Foreground" Value="{StaticResource MenuForeground}" />
             <Setter Property="Width" Value="{Binding ActualWidth, ElementName=parentElementName}" />
@@ -68,11 +91,12 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- Simple Expander Button -->
-        <ControlTemplate x:Key="SimpleExpanderButton" TargetType="{x:Type ToggleButton}">
+        <!-- EndRegion -->
+        <!-- Region Folder Drop Down -->
+        <ControlTemplate x:Key="FolderDropDown" TargetType="{x:Type ToggleButton}">
             <Border x:Name="ExpanderButtonBorder">
                 <Grid>
-                    <Ellipse Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
+                    <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
                     <Path x:Name="Sign" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{TemplateBinding Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <Path.RenderTransform>
                             <RotateTransform Angle="0" />
@@ -107,7 +131,8 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <!-- Drop Down Menu -->
+        <!-- EndRegion -->
+        <!-- Region Drop Down Menu -->
         <ControlTemplate x:Key="DropDownMenu" TargetType="{x:Type Expander}">
             <DockPanel>
                 <Grid DockPanel.Dock="Top">
@@ -116,7 +141,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Rectangle x:Name="BackgroundRectangle" Fill="{StaticResource MenuBackground}" Grid.ColumnSpan="2" Height="26" />
-                    <ToggleButton x:Name="ExpanderButton" Grid.Column="0" Margin="{TemplateBinding Padding}" Template="{StaticResource SimpleExpanderButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{StaticResource MenuBackground}" Foreground="{StaticResource MenuForeground}" />
+                    <ToggleButton x:Name="ExpanderButton" Grid.Column="0" Margin="{TemplateBinding Padding}" Template="{StaticResource FolderDropDown}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{StaticResource MenuBackground}" Foreground="{StaticResource MenuForeground}" />
                     <ContentPresenter x:Name="HeaderContent" Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
                 </Grid>
                 <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
@@ -165,30 +190,32 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+        <!-- EndRegion -->
     </Window.Resources>
     <Grid>
         <!-- Region Resize Rectangles -->
-        <Rectangle x:Name="leftSizeGrip" Width="7" HorizontalAlignment="Left" Cursor="SizeWE" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle x:Name="rightSizeGrip" Width="7" HorizontalAlignment="Right" Cursor="SizeWE" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle x:Name="topSizeGrip" Height="7" VerticalAlignment="Top" Cursor="SizeNS" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle x:Name="bottomSizeGrip" Height="7" VerticalAlignment="Bottom" Cursor="SizeNS" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle Name="topLeftSizeGrip"  Height="7" Width="7" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle Name="bottomRightSizeGrip" Width="7" Height="7" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle Name="topRightSizeGrip" Width="7" Height="7" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW" Style="{StaticResource RectBorderStyle}" />
-        <Rectangle Name="bottomLeftSizeGrip" Width="7" Height="7" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW" Style="{StaticResource RectBorderStyle}" />
-        <!---->
+        <Rectangle x:Name="LeftSizeGrip" Width="7" HorizontalAlignment="Left" Cursor="SizeWE" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="RightSizeGrip" Width="7" HorizontalAlignment="Right" Cursor="SizeWE" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="TopSizeGrip" Height="7" VerticalAlignment="Top" Cursor="SizeNS" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="BottomSizeGrip" Height="7" VerticalAlignment="Bottom" Cursor="SizeNS" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="TopLeftSizeGrip"  Height="7" Width="7" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="BottomRightSizeGrip" Width="7" Height="7" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="TopRightSizeGrip" Width="7" Height="7" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW" Style="{DynamicResource RectBorderStyle}" />
+        <Rectangle x:Name="BottomLeftSizeGrip" Width="7" Height="7" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW" Style="{DynamicResource RectBorderStyle}" />
+        <!-- EndRegion -->
         <Grid SizeChanged="Grid_SizeChanged">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150" MinWidth="100" />
+                <ColumnDefinition Width="150" MinWidth="150" />
                 <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="*" MinWidth="100" />
+                <ColumnDefinition Width="*" MinWidth="150" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="23" />
                 <RowDefinition Height="23" />
+                <RowDefinition Height="23" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <DockPanel x:Name="TitleBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="{StaticResource TopBackground}" MouseLeftButtonDown="TitleBar_MouseDown">
+            <DockPanel x:Name="TitleBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="{StaticResource TopBackground}" MouseLeftButtonDown="TitleBar_MouseDown" MouseLeftButtonUp="TitleBar_MouseUp" MouseMove="TitleBar_MouseMove">
                 <Button x:Name="CloseButton" Style="{StaticResource HeaderButton}" Click="Close_Click">
                     <Path Data="M 10 5 L 23 18 M 23 5 L 10 18" Style="{StaticResource HeaderButtonPath}" />
                 </Button>
@@ -199,20 +226,20 @@
                     <Path Data="M 10 14 L 23 14" Style="{StaticResource HeaderButtonPath}" />
                 </Button>
                 <Image Width="23" Height="23" HorizontalAlignment="Left" Margin="5,0,0,0" />
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{StaticResource TopForeground}">Application Name</TextBlock>
+                <TextBlock x:Name="ApplicationName" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{StaticResource TopForeground}">Application x:Name</TextBlock>
             </DockPanel>
             <Menu x:Name="TopMenu" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{StaticResource TopBackground}">
-                <MenuItem Header="_File" Height="{Binding ActualHeight, ElementName=TopMenu, Mode=OneWay}" Foreground="{StaticResource TopForeground}">
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <MenuItem Header="_Exit" Click="Close_Click" />
+                <MenuItem Header="_File" Height="{Binding ActualHeight, ElementName=TopMenu, Mode=OneWay}" Style="{StaticResource DropdownMenu}">
+                    <MenuItem Header="_Open" Style="{StaticResource DropdownMenu}" />
+                    <MenuItem Header="_Save" Style="{StaticResource DropdownMenu}" />
+                    <MenuItem Header="_Exit" Style="{StaticResource DropdownMenu}" Click="Close_Click" />
                 </MenuItem>
             </Menu>
-            <ScrollViewer x:Name="ScrollViewer" Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-                <StackPanel Name="Menu" Background="{StaticResource MenuBackground}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
+            <ScrollViewer x:Name="ScrollViewer" Grid.Column="0" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+                <StackPanel x:Name="Menu" Background="{StaticResource MenuBackground}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
-            <GridSplitter Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
-            <Grid Grid.Column="2" Grid.Row="2" Background="{StaticResource MainBackground}"></Grid>
+            <GridSplitter Grid.Column="1" Grid.Row="3" MinWidth="100" HorizontalAlignment="Stretch" />
+            <Grid Grid.Column="2" Grid.Row="3" Background="{StaticResource MainBackground}"></Grid>
         </Grid>
     </Grid>
 </Window>
