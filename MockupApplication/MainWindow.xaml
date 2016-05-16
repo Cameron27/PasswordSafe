@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mockupApplication="clr-namespace:MockupApplication"
-        mc:Ignorable="d" Title="MainWindow" Height="900" Width="1500"
+        mc:Ignorable="d" Title="MainWindow" Height="Auto" Width="Auto"
         WindowStyle="None" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
@@ -92,104 +92,114 @@
             </Style.Triggers>
         </Style>
         <!-- EndRegion -->
-        <!-- Region Folder Drop Down -->
-        <ControlTemplate x:Key="FolderDropDown" TargetType="{x:Type ToggleButton}">
-            <Border x:Name="ExpanderButtonBorder">
-                <Grid>
-                    <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
-                    <Path x:Name="Sign" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{TemplateBinding Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-                        <Path.RenderTransform>
-                            <RotateTransform Angle="0" />
-                        </Path.RenderTransform>
-                    </Path>
-                </Grid>
-            </Border>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Trigger.EnterActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="Sign"
+        <!-- Region Drop Down Button -->
+        <Style x:Key="DropDownButton" TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="ExpanderButtonBorder">
+                            <Grid>
+                                <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
+                                <Path x:Name="Sign" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{TemplateBinding Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <RotateTransform Angle="0" />
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Sign"
                          Storyboard.TargetProperty=
                            "(Path.RenderTransform).(RotateTransform.Angle)"
                          To="90"
                          Duration="{StaticResource DropDownAnimation}" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </Trigger.EnterActions>
-                    <Trigger.ExitActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="Sign"
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Sign"
                          Storyboard.TargetProperty=
                            "(Path.RenderTransform).(RotateTransform.Angle)"
                          To="0"
                          Duration="{StaticResource DropDownAnimation}" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </Trigger.ExitActions>
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- EndRegion -->
-        <!-- Region Drop Down Menu -->
-        <ControlTemplate x:Key="DropDownMenu" TargetType="{x:Type Expander}">
-            <DockPanel>
-                <Grid DockPanel.Dock="Top">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Rectangle x:Name="BackgroundRectangle" Fill="{StaticResource MenuBackground}" Grid.ColumnSpan="2" Height="26" />
-                    <ToggleButton x:Name="ExpanderButton" Grid.Column="0" Margin="{TemplateBinding Padding}" Template="{StaticResource FolderDropDown}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{StaticResource MenuBackground}" Foreground="{StaticResource MenuForeground}" />
-                    <ContentPresenter x:Name="HeaderContent" Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
-                </Grid>
-                <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
-                    <ContentPresenter.LayoutTransform>
-                        <ScaleTransform ScaleY="0" />
-                    </ContentPresenter.LayoutTransform>
-                </ContentPresenter>
-            </DockPanel>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsExpanded" Value="True">
-                    <Setter Property="Width" Value="Auto" TargetName="ExpanderContent" />
-                    <Trigger.EnterActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="ExpanderContent"
+        <!-- Region Drop Down Folder -->
+        <Style x:Key="DropDownFolder" TargetType="Expander">
+            <Setter Property="Foreground" Value="{StaticResource MenuForeground}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Rectangle x:Name="BackgroundRectangle" Fill="{StaticResource MenuBackground}" Grid.ColumnSpan="2" Height="26" />
+                                <ToggleButton x:Name="ExpanderButton" Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{StaticResource MenuBackground}" Foreground="{StaticResource MenuForeground}" />
+                                <ContentPresenter x:Name="HeaderContent" Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
+                            </Grid>
+                            <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
+                                <ContentPresenter.LayoutTransform>
+                                    <ScaleTransform ScaleY="0" />
+                                </ContentPresenter.LayoutTransform>
+                            </ContentPresenter>
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter Property="Width" Value="Auto" TargetName="ExpanderContent" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ExpanderContent"
                              Storyboard.TargetProperty=
                                "(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
                              To="1"
                              Duration="{StaticResource DropDownAnimation}" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </Trigger.EnterActions>
-                    <Trigger.ExitActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="ExpanderContent"
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ExpanderContent"
                              Storyboard.TargetProperty=
                                "(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
                              To="0"
                              Duration="{StaticResource DropDownAnimation}" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </Trigger.ExitActions>
-                </Trigger>
-                <Trigger Property="IsExpanded" Value="False">
-                    <Setter Property="Width" Value="0" TargetName="ExpanderContent" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Foreground" Value="{StaticResource MenuForeground}" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource MenuForegroundHighlighted}" />
-                    <Setter Property="Fill" Value="{StaticResource MenuBackgroundHighlighted}" TargetName="BackgroundRectangle" />
-                    <Setter Property="Background" Value="{StaticResource MenuBackgroundHighlighted}" TargetName="ExpanderButton" />
-                    <Setter Property="Foreground" Value="{StaticResource MenuForegroundHighlighted}" TargetName="ExpanderButton" />
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter Property="Width" Value="0" TargetName="ExpanderContent" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource MenuForegroundHighlighted}" />
+                                <Setter Property="Fill" Value="{StaticResource MenuBackgroundHighlighted}" TargetName="BackgroundRectangle" />
+                                <Setter Property="Background" Value="{StaticResource MenuBackgroundHighlighted}" TargetName="ExpanderButton" />
+                                <Setter Property="Foreground" Value="{StaticResource MenuForegroundHighlighted}" TargetName="ExpanderButton" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                    </Setter.Value>
+            </Setter>
+        </Style>
         <!-- EndRegion -->
     </Window.Resources>
     <Grid>
@@ -226,7 +236,7 @@
                     <Path Data="M 10 14 L 23 14" Style="{StaticResource HeaderButtonPath}" />
                 </Button>
                 <Image Width="23" Height="23" HorizontalAlignment="Left" Margin="5,0,0,0" />
-                <TextBlock x:Name="ApplicationName" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{StaticResource TopForeground}">Application x:Name</TextBlock>
+                <TextBlock x:Name="ApplicationName" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{StaticResource TopForeground}">Password Safe</TextBlock>
             </DockPanel>
             <Menu x:Name="TopMenu" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{StaticResource TopBackground}">
                 <MenuItem Header="_File" Height="{Binding ActualHeight, ElementName=TopMenu, Mode=OneWay}" Style="{StaticResource DropdownMenu}">

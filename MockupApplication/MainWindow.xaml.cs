@@ -16,6 +16,8 @@ namespace MockupApplication
         public MainWindow()
         {
             InitializeComponent();
+            Height = (SystemParameters.PrimaryScreenHeight * 0.75);
+            Width = (SystemParameters.PrimaryScreenWidth * 0.75);
             const string json = @"{
 	                            ""filesystem"":
 	                            {
@@ -84,7 +86,7 @@ namespace MockupApplication
             {
                 Header = pair.Key,
                 Padding = new Thickness((depth - 1) * 10 + 5, 0, 0, 0),
-                Template = (ControlTemplate) FindResource("DropDownMenu")
+                Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
             foreach (KeyValuePair<string, JToken> pair2 in (JObject) pair.Value)
