@@ -56,15 +56,29 @@
         <!-- EndRegion -->
         <!-- Region Dropdown Menu -->
         <Style x:Key="DropdownMenu" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="{StaticResource TopForeground}" />
-            <Setter Property="Background" Value="{StaticResource TopBackground}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource TopBackgroundHighlighted}" />
-                    <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" />
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Foreground" Value="{StaticResource TopForeground}"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border Name="Border" >
+                            <Grid>
+                                <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
+                                <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                    <Border Name="SubmenuBorder" SnapsToDevicePixels="True" Background="{StaticResource TopBackground}" BorderThickness="1" >
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TopForegroundHighlighted}" />
+                                <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" TargetName="Border" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <!-- EndRegion -->
         <!-- Region Resize Rectangles -->
@@ -245,6 +259,7 @@
                     <MenuItem Header="_Exit" Style="{StaticResource DropdownMenu}" Click="Close_Click" />
                 </MenuItem>
             </Menu>
+            <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Background="{StaticResource TopBackground}"></Grid>
             <ScrollViewer x:Name="ScrollViewer" Grid.Column="0" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
                 <StackPanel x:Name="Menu" Background="{StaticResource MenuBackground}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>

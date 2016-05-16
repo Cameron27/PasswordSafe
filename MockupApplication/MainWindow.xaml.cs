@@ -16,8 +16,8 @@ namespace MockupApplication
         public MainWindow()
         {
             InitializeComponent();
-            Height = (SystemParameters.PrimaryScreenHeight * 0.75);
-            Width = (SystemParameters.PrimaryScreenWidth * 0.75);
+            Height = SystemParameters.PrimaryScreenHeight*0.75;
+            Width = SystemParameters.PrimaryScreenWidth*0.75;
             const string json = @"{
 	                            ""filesystem"":
 	                            {
@@ -85,7 +85,7 @@ namespace MockupApplication
             Expander output = new Expander
             {
                 Header = pair.Key,
-                Padding = new Thickness((depth - 1) * 10 + 5, 0, 0, 0),
+                Padding = new Thickness((depth - 1)*10 + 5, 0, 0, 0),
                 Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
@@ -95,7 +95,7 @@ namespace MockupApplication
                     stackPanel.Children.Add(new Label
                     {
                         Content = pair2.Key,
-                        Padding = new Thickness(depth * 10 + 10, 5, 5, 5),
+                        Padding = new Thickness(depth*10 + 10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
