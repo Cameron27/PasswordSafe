@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,8 +18,8 @@ namespace MockupApplication
         public MainWindow()
         {
             InitializeComponent();
-            Height = SystemParameters.PrimaryScreenHeight*0.75;
-            Width = SystemParameters.PrimaryScreenWidth*0.75;
+            Height = SystemParameters.PrimaryScreenHeight * 0.75;
+            Width = SystemParameters.PrimaryScreenWidth * 0.75;
             const string json = @"{
 	                            ""filesystem"":
 	                            {
@@ -37,18 +39,6 @@ namespace MockupApplication
             JObject o = JObject.Parse(json);
             ConstructFolders((JObject) o["filesystem"]);
         }
-
-        #region Section Resizing
-
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Grid g = (Grid) sender;
-
-            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
-            g.ColumnDefinitions[0].MaxWidth = maxW;
-        }
-
-        #endregion
 
         #region Construct Folders
 
@@ -85,7 +75,7 @@ namespace MockupApplication
             Expander output = new Expander
             {
                 Header = pair.Key,
-                Padding = new Thickness((depth - 1)*10 + 5, 0, 0, 0),
+                Padding = new Thickness((depth - 1) * 10 + 5, 0, 0, 0),
                 Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
@@ -95,7 +85,7 @@ namespace MockupApplication
                     stackPanel.Children.Add(new Label
                     {
                         Content = pair2.Key,
-                        Padding = new Thickness(depth*10 + 10, 5, 5, 5),
+                        Padding = new Thickness(depth * 10 + 10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
@@ -137,25 +127,36 @@ namespace MockupApplication
 
         #endregion
 
-        #region ResizeWindows
+        #region Resize Window
+
+        /// <summary>
+        ///     Adjusts grid settings for min and max sizes when overall window size changes
+        /// </summary>
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Grid g = (Grid) sender;
+
+            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
+            g.ColumnDefinitions[0].MaxWidth = maxW;
+        }
 
         private bool _resizeInProcess;
 
-        private void Resize_Init(object sender, MouseButtonEventArgs e)
+        private void ResizeRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Rectangle senderRect = sender as Rectangle;
             _resizeInProcess = true;
             senderRect.CaptureMouse();
         }
 
-        private void Resize_End(object sender, MouseButtonEventArgs e)
+        private void ResizeRectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Rectangle senderRect = sender as Rectangle;
             _resizeInProcess = false;
             senderRect.ReleaseMouseCapture();
         }
 
-        private void Resizeing_Form(object sender, MouseEventArgs e)
+        private void ResizeRectangle_MouseMove(object sender, MouseEventArgs e)
         {
             if (_resizeInProcess)
             {
@@ -234,28 +235,88 @@ namespace MockupApplication
 
         #region Dragging window
 
-        /// <summary>
-        ///     Alowes window to be dragged or resized
-        /// </summary>
-        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        private bool _mRestoreIfMove;
+
+        private void rctHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
+            {
                 AdjustWindowSize();
-            else
+
+                return;
+            }
+
+            if (WindowState == WindowState.Maximized)
+            {
+                _mRestoreIfMove = true;
+                return;
+            }
+
+            DragMove();
+
+            if (WindowState == WindowState.Normal && Math.Abs(GetMousePosition().Y) <= 0)
+            {
+                AdjustWindowSize();
+            }
+        }
+
+
+        private void rctHeader_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _mRestoreIfMove = false;
+        }
+
+
+        private void rctHeader_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_mRestoreIfMove)
+            {
+                _mRestoreIfMove = false;
+
+                double percentHorizontal = e.GetPosition(this).X / ActualWidth;
+                double targetHorizontal = RestoreBounds.Width * percentHorizontal;
+
+                double percentVertical = e.GetPosition(this).Y / ActualHeight;
+                double targetVertical = RestoreBounds.Height * percentVertical;
+
+                WindowState = WindowState.Normal;
+
+                Win32Point lMousePosition;
+                GetCursorPos(out lMousePosition);
+
+                Left = lMousePosition.X - targetHorizontal;
+                Top = lMousePosition.Y - targetVertical;
+
                 DragMove();
+            }
         }
 
-        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(out Win32Point lpPoint);
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Win32Point
         {
+            public int X;
+            public int Y;
+
+            public Win32Point(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
         }
 
-        /// <summary>
-        ///     Stops window from being dragged
-        /// </summary>
-        private void TitleBar_MouseUp(object sender, MouseButtonEventArgs e)
+        public static Point GetMousePosition()
         {
+            Win32Point w32Mouse;
+            GetCursorPos(out w32Mouse);
+            return new Point(w32Mouse.X, w32Mouse.Y);
         }
-
-        #endregion
     }
+
+    #endregion
 }

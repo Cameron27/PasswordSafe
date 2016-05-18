@@ -21,8 +21,8 @@
         <SolidColorBrush x:Key="MainBackground" Color="#EEEEEE" />
         <Duration x:Key="DropDownAnimation">0:0:0.2</Duration>
         <!-- EndRegion -->
-        <!-- Region Header Button -->
-        <Style x:Key="HeaderButton" TargetType="Button">
+        <!-- Region Title Bar Button -->
+        <Style x:Key="TitleBarButton" TargetType="Button">
             <Setter Property="DockPanel.Dock" Value="Right" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -40,8 +40,8 @@
             </Setter>
         </Style>
         <!-- EndRegion -->
-        <!-- Region Header Button Image -->
-        <Style x:Key="HeaderButtonPath" TargetType="Path">
+        <!-- Region Title Bar Button Image -->
+        <Style x:Key="TitleBarButtonPath" TargetType="Path">
             <Setter Property="Width" Value="33" />
             <Setter Property="Height" Value="23" />
             <Setter Property="Stroke" Value="{StaticResource TopForeground}" />
@@ -54,26 +54,23 @@
             </Style.Triggers>
         </Style>
         <!-- EndRegion -->
-        <!-- Region Dropdown Menu -->
-        <Style x:Key="DropdownMenu" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="{StaticResource TopForeground}"></Setter>
+        <!-- Region Menu Bar -->
+        <Style x:Key="MenuBarHeading" TargetType="MenuItem" >
+            <Setter Property="Width" Value="Auto" />
+            <Setter Property="Height" Value="23" />
+            <Setter Property="Background" Value="{StaticResource TopBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource TopForeground}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
-                        <Border Name="Border" >
-                            <Grid>
-                                <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
-                                <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                    <Border Name="SubmenuBorder" SnapsToDevicePixels="True" Background="{StaticResource TopBackground}" BorderThickness="1" >
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
-                                    </Border>
-                                </Popup>
-                            </Grid>
-                        </Border>
+                        <Grid Name="Border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" ContentSource="Header" Margin="5,0,5,0"/>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource TopForegroundHighlighted}" />
-                                <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}" TargetName="Border" />
+                                <Setter Property="Background" Value="{StaticResource TopBackgroundHighlighted}"/>
+
+                                <Setter Property="Foreground" Value="{StaticResource TopForegroundHighlighted}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -87,9 +84,9 @@
             <Setter Property="Fill" Value="Transparent" />
             <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Panel.ZIndex" Value="1"></Setter>
-            <EventSetter Event="MouseLeftButtonDown" Handler="Resize_Init"/>
-            <EventSetter Event="MouseLeftButtonUp" Handler="Resize_End"/>
-            <EventSetter Event="MouseMove" Handler="Resizeing_Form"/>
+            <EventSetter Event="MouseLeftButtonDown" Handler="ResizeRectangle_MouseLeftButtonDown"/>
+            <EventSetter Event="MouseLeftButtonUp" Handler="ResizeRectangle_MouseLeftButtonUp"/>
+            <EventSetter Event="MouseMove" Handler="ResizeRectangle_MouseMove"/>
         </Style>
         <!-- EndRegion -->
         <!-- Region Folder -->
@@ -111,7 +108,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="ExpanderButtonBorder">
+                        <Border x:Name="Border">
                             <Grid>
                                 <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{TemplateBinding Background}" />
                                 <Path x:Name="Sign" Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" Stroke="{TemplateBinding Foreground}" Width="12" Height="12" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
@@ -239,28 +236,31 @@
                 <RowDefinition Height="23" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <DockPanel x:Name="TitleBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="{StaticResource TopBackground}" MouseLeftButtonDown="TitleBar_MouseDown" MouseLeftButtonUp="TitleBar_MouseUp" MouseMove="TitleBar_MouseMove">
-                <Button x:Name="CloseButton" Style="{StaticResource HeaderButton}" Click="Close_Click">
-                    <Path Data="M 10 5 L 23 18 M 23 5 L 10 18" Style="{StaticResource HeaderButtonPath}" />
+            <DockPanel x:Name="TitleBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="{StaticResource TopBackground}" MouseLeftButtonDown="rctHeader_MouseLeftButtonDown" MouseLeftButtonUp="rctHeader_MouseLeftButtonUp" MouseMove="rctHeader_MouseMove">
+                <Button x:Name="CloseButton" Style="{StaticResource TitleBarButton}" Click="Close_Click">
+                    <Path Data="M 10 5 L 23 18 M 23 5 L 10 18" Style="{StaticResource TitleBarButtonPath}" />
                 </Button>
-                <Button x:Name="MaxButton" Style="{StaticResource HeaderButton}" RenderOptions.EdgeMode="Aliased" Click="MaximisedButton_Clicked">
-                    <Path Data="M 12 7 V 5 H 23 V 16 H 21 M 10 7 H 21 V 18 H 10 V 6.5" Style="{StaticResource HeaderButtonPath}" />
+                <Button x:Name="MaxButton" Style="{StaticResource TitleBarButton}" RenderOptions.EdgeMode="Aliased" Click="MaximisedButton_Clicked">
+                    <Path Data="M 12 7 V 5 H 23 V 16 H 21 M 10 7 H 21 V 18 H 10 V 6.5" Style="{StaticResource TitleBarButtonPath}" />
                 </Button>
-                <Button x:Name="MinButton" Style="{StaticResource HeaderButton}" RenderOptions.EdgeMode="Aliased" Click="MinimisedButton_Clicked" >
-                    <Path Data="M 10 14 L 23 14" Style="{StaticResource HeaderButtonPath}" />
+                <Button x:Name="MinButton" Style="{StaticResource TitleBarButton}" RenderOptions.EdgeMode="Aliased" Click="MinimisedButton_Clicked" >
+                    <Path Data="M 10 14 L 23 14" Style="{StaticResource TitleBarButtonPath}" />
                 </Button>
                 <Image Width="23" Height="23" HorizontalAlignment="Left" Margin="5,0,0,0" />
                 <TextBlock x:Name="ApplicationName" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{StaticResource TopForeground}">Password Safe</TextBlock>
             </DockPanel>
-            <Menu x:Name="TopMenu" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{StaticResource TopBackground}">
-                <MenuItem Header="_File" Height="{Binding ActualHeight, ElementName=TopMenu, Mode=OneWay}" Style="{StaticResource DropdownMenu}">
-                    <MenuItem Header="_Open" Style="{StaticResource DropdownMenu}" />
-                    <MenuItem Header="_Save" Style="{StaticResource DropdownMenu}" />
-                    <MenuItem Header="_Exit" Style="{StaticResource DropdownMenu}" Click="Close_Click" />
+            <Menu x:Name="MenuBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{StaticResource TopBackground}">
+                <MenuItem Header="_File" Style="{StaticResource MenuBarHeading}">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save">
+                        <MenuItem Header="Save_Normal"/>
+                        <MenuItem Header="Save_As"/>
+                    </MenuItem>
+                    <MenuItem Header="_Exit" Click="Close_Click" />
                 </MenuItem>
             </Menu>
             <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Background="{StaticResource TopBackground}"></Grid>
-            <ScrollViewer x:Name="ScrollViewer" Grid.Column="0" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+            <ScrollViewer x:Name="Folders" Grid.Column="0" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
                 <StackPanel x:Name="Menu" Background="{StaticResource MenuBackground}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
             <GridSplitter Grid.Column="1" Grid.Row="3" MinWidth="100" HorizontalAlignment="Stretch" />
