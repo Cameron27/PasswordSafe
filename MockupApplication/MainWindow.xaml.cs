@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
 
@@ -21,6 +22,7 @@ namespace MockupApplication
             InitializeComponent();
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
+            //TODO Learn how to actually use JSON
             const string json = @"{
 	                            ""filesystem"":
 	                            {
@@ -28,7 +30,7 @@ namespace MockupApplication
 		                            ""Folders"":
 		                            {
 			                            ""Personal"":{},
-			                            ""WorkWorkWorkWorkWork"":{},
+			                            ""Work"":{},
 			                            ""School"":
 			                            {
 				                            ""High School"":{},
@@ -114,156 +116,6 @@ namespace MockupApplication
 
             double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
             g.ColumnDefinitions[0].MaxWidth = maxW;
-        }
-
-        private bool _resizeInProcess;
-
-        private void ResizeRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Rectangle senderRect = sender as Rectangle;
-            _resizeInProcess = true;
-            senderRect.CaptureMouse();
-        }
-
-        private void ResizeRectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Rectangle senderRect = sender as Rectangle;
-            _resizeInProcess = false;
-            senderRect.ReleaseMouseCapture();
-        }
-
-        private void ResizeRectangle_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_resizeInProcess)
-            {
-                Rectangle senderRect = sender as Rectangle;
-                Window mainWindow = senderRect.Tag as Window;
-                double width = e.GetPosition(mainWindow).X;
-                double height = e.GetPosition(mainWindow).Y;
-                senderRect.CaptureMouse();
-                if (senderRect.Name.ToLower().Contains("right"))
-                {
-                    width += 5;
-                    if (width > 0)
-                        mainWindow.Width = width;
-                }
-                if (senderRect.Name.ToLower().Contains("left"))
-                {
-                    width -= 5;
-                    mainWindow.Left += width;
-                    width = mainWindow.Width - width;
-                    if (width > 0)
-                        mainWindow.Width = width;
-                }
-                if (senderRect.Name.ToLower().Contains("bottom"))
-                {
-                    height += 5;
-                    if (height > 0)
-                        mainWindow.Height = height;
-                }
-                if (senderRect.Name.ToLower().Contains("top"))
-                {
-                    height -= 5;
-                    mainWindow.Top += height;
-                    height = mainWindow.Height - height;
-                    if (height > 0)
-                        mainWindow.Height = height;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Adjusts the WindowSize to correct parameters when Maximize button is clicked
-        /// </summary>
-        private void AdjustWindowSize()
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
-        #endregion
-
-        #region Dragging window
-
-        private bool _mRestoreIfMove;
-
-        private void rctHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                AdjustWindowSize();
-
-                return;
-            }
-
-            if (WindowState == WindowState.Maximized)
-            {
-                _mRestoreIfMove = true;
-                return;
-            }
-
-            DragMove();
-
-            if (WindowState == WindowState.Normal && Math.Abs(GetMousePosition().Y) <= 0)
-            {
-                AdjustWindowSize();
-            }
-        }
-
-
-        private void rctHeader_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            _mRestoreIfMove = false;
-        }
-
-
-        private void rctHeader_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_mRestoreIfMove)
-            {
-                _mRestoreIfMove = false;
-
-                double percentHorizontal = e.GetPosition(this).X / ActualWidth;
-                double targetHorizontal = RestoreBounds.Width * percentHorizontal;
-
-                double percentVertical = e.GetPosition(this).Y / ActualHeight;
-                double targetVertical = RestoreBounds.Height * percentVertical;
-
-                WindowState = WindowState.Normal;
-
-                Win32Point lMousePosition;
-                GetCursorPos(out lMousePosition);
-
-                Left = lMousePosition.X - targetHorizontal;
-                Top = lMousePosition.Y - targetVertical;
-
-                DragMove();
-            }
-        }
-
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetCursorPos(out Win32Point lpPoint);
-
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct Win32Point
-        {
-            public int X;
-            public int Y;
-
-            public Win32Point(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-        }
-
-        public static Point GetMousePosition()
-        {
-            Win32Point w32Mouse;
-            GetCursorPos(out w32Mouse);
-            return new Point(w32Mouse.X, w32Mouse.Y);
         }
 
         #endregion
