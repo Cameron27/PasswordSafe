@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
 
 namespace MockupApplication
@@ -13,7 +14,7 @@ namespace MockupApplication
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         public MainWindow()
         {
@@ -38,6 +39,11 @@ namespace MockupApplication
                             }";
             JObject o = JObject.Parse(json);
             ConstructFolders((JObject) o["filesystem"]);
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.Close();
         }
 
         #region Construct Folders
@@ -93,36 +99,6 @@ namespace MockupApplication
             }
             output.Content = stackPanel;
             return output;
-        }
-
-        #endregion
-
-        #region Top Control Buttons
-
-        /// <summary>
-        ///     Close button is clicked
-        /// </summary>
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.MainWindow.Close();
-        }
-
-        /// <summary>
-        ///     Maximised button is clicked
-        /// </summary>
-        private void MaximisedButton_Clicked(object sender, RoutedEventArgs e)
-        {
-            AdjustWindowSize();
-        }
-
-        /// <summary>
-        ///     Minimised button is clicked
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MinimisedButton_Clicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
         }
 
         #endregion
@@ -202,33 +178,6 @@ namespace MockupApplication
         private void AdjustWindowSize()
         {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-            ChangeResizeRectangles();
-        }
-
-        private void ChangeResizeRectangles()
-        {
-            if (WindowState == WindowState.Maximized)
-            {
-                Panel.SetZIndex(TopSizeGrip, -1);
-                Panel.SetZIndex(BottomSizeGrip, -1);
-                Panel.SetZIndex(LeftSizeGrip, -1);
-                Panel.SetZIndex(RightSizeGrip, -1);
-                Panel.SetZIndex(TopLeftSizeGrip, -1);
-                Panel.SetZIndex(TopRightSizeGrip, -1);
-                Panel.SetZIndex(BottomLeftSizeGrip, -1);
-                Panel.SetZIndex(BottomRightSizeGrip, -1);
-            }
-            else
-            {
-                Panel.SetZIndex(TopSizeGrip, 1);
-                Panel.SetZIndex(BottomSizeGrip, 1);
-                Panel.SetZIndex(LeftSizeGrip, 1);
-                Panel.SetZIndex(RightSizeGrip, 1);
-                Panel.SetZIndex(TopLeftSizeGrip, 1);
-                Panel.SetZIndex(TopRightSizeGrip, 1);
-                Panel.SetZIndex(BottomLeftSizeGrip, 1);
-                Panel.SetZIndex(BottomRightSizeGrip, 1);
-            }
         }
 
         #endregion
@@ -316,7 +265,7 @@ namespace MockupApplication
             GetCursorPos(out w32Mouse);
             return new Point(w32Mouse.X, w32Mouse.Y);
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }
