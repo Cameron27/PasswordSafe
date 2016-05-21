@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Shapes;
+using System.Windows.Media;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
@@ -43,10 +40,43 @@ namespace MockupApplication
             ConstructFolders((JObject) o["filesystem"]);
         }
 
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            MetroWindow settingsWindow = new Settings();
+            settingsWindow.Owner = this;
+            settingsWindow.Closed += (o, args) => settingsWindow = null;
+            settingsWindow.Left = Left + ActualWidth / 2.0;
+            settingsWindow.Top = Top + ActualHeight / 2.0;
+            settingsWindow.Show();
+        }
+
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.MainWindow.Close();
         }
+
+        #region Resize Window
+
+        /// <summary>
+        ///     Adjusts grid settings for min and max sizes when overall window size changes
+        /// </summary>
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Grid g = (Grid) sender;
+            double column2MinWidth = g.ColumnDefinitions[0].MinWidth;
+
+            //Adjust the max width of the first column to enforce the min width of the second column
+            g.ColumnDefinitions[0].MaxWidth = e.NewSize.Width - column2MinWidth - g.ColumnDefinitions[1].ActualWidth;
+
+            //Adjusts the width of the first column if the second column becomes too small from resizing
+            if (g.ActualWidth - (g.ColumnDefinitions[0].ActualWidth + g.ColumnDefinitions[1].ActualWidth) < column2MinWidth)
+            {
+                double newColumn0Width = g.ActualWidth - g.ColumnDefinitions[1].ActualWidth - column2MinWidth;
+                g.ColumnDefinitions[0].Width = new GridLength(newColumn0Width);
+            }
+        }
+
+        #endregion
 
         #region Construct Folders
 
@@ -101,21 +131,6 @@ namespace MockupApplication
             }
             output.Content = stackPanel;
             return output;
-        }
-
-        #endregion
-
-        #region Resize Window
-
-        /// <summary>
-        ///     Adjusts grid settings for min and max sizes when overall window size changes
-        /// </summary>
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Grid g = (Grid) sender;
-
-            double maxW = e.NewSize.Width - g.ColumnDefinitions[2].MinWidth - g.ColumnDefinitions[1].ActualWidth;
-            g.ColumnDefinitions[0].MaxWidth = maxW;
         }
 
         #endregion
