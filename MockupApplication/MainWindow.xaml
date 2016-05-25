@@ -107,7 +107,7 @@
         <Style x:Key="DropDownFolder" TargetType="Expander">
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
-            <Setter Property="MinHeight" Value="26"></Setter>
+            <Setter Property="MinHeight" Value="26" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Expander">
@@ -118,9 +118,9 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Fill="{DynamicResource WhiteBrush}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" />
-                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" />
-                                <ToggleButton Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" />
-                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
+                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" MouseEnter="Test" MouseLeave="Test2" />
+                                <ToggleButton Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" MouseEnter="Test" MouseLeave="Test2" />
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" MouseEnter="Test" MouseLeave="Test2" />
                             </Grid>
                             <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
                                 <ContentPresenter.LayoutTransform>
@@ -163,7 +163,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource HighlightBrush}" />
+                    <!--<Setter Property="Background" Value="{DynamicResource HighlightBrush}" />-->
                     <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
                 </Trigger>
             </Style.Triggers>
@@ -201,7 +201,7 @@
             <ScrollViewer x:Name="Folders" Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
                 <StackPanel x:Name="Menu" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
-            <GridSplitter Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
+            <GridSplitter Background="{DynamicResource GrayBrush9}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" Grid.Row="2">
                 <Label Name="TestLabel" Content="Test Label" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
             </Grid>

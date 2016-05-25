@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 
@@ -15,8 +14,10 @@ namespace MockupApplication
         public Settings()
         {
             InitializeComponent();
+
             if (ThemeManager.DetectAppStyle(Application.Current).Item1 == ThemeManager.GetAppTheme("BaseDark"))
                 DarkModeToggle.IsChecked = true;
+            AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
         }
 
         private void AccentSelector_Changed(object sender, SelectionChangedEventArgs e)
@@ -32,7 +33,8 @@ namespace MockupApplication
         private void DarkModeToggle_Clicked(object sender, RoutedEventArgs e)
         {
             Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
-            ThemeManager.ChangeAppStyle(Application.Current, theme.Item2, ThemeManager.GetAppTheme("Base" + (DarkModeToggle.IsChecked == true ? "Dark" : "Light")));            
+            ThemeManager.ChangeAppStyle(Application.Current, theme.Item2,
+                ThemeManager.GetAppTheme("Base" + (DarkModeToggle.IsChecked == true ? "Dark" : "Light")));
         }
     }
 }

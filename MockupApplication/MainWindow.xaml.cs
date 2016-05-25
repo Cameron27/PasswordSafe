@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
-using MahApps.Metro;
+using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
 
@@ -42,6 +44,9 @@ namespace MockupApplication
 
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "Settings"))
+                return; //Check if a settings window is already open
+
             MetroWindow settingsWindow = new Settings();
             settingsWindow.Owner = this;
             settingsWindow.Closed += (o, args) => settingsWindow = null;
@@ -69,7 +74,8 @@ namespace MockupApplication
             g.ColumnDefinitions[0].MaxWidth = e.NewSize.Width - column2MinWidth - g.ColumnDefinitions[1].ActualWidth;
 
             //Adjusts the width of the first column if the second column becomes too small from resizing
-            if (g.ActualWidth - (g.ColumnDefinitions[0].ActualWidth + g.ColumnDefinitions[1].ActualWidth) < column2MinWidth)
+            if (g.ActualWidth - (g.ColumnDefinitions[0].ActualWidth + g.ColumnDefinitions[1].ActualWidth) <
+                column2MinWidth)
             {
                 double newColumn0Width = g.ActualWidth - g.ColumnDefinitions[1].ActualWidth - column2MinWidth;
                 g.ColumnDefinitions[0].Width = new GridLength(newColumn0Width);
@@ -77,6 +83,52 @@ namespace MockupApplication
         }
 
         #endregion
+
+        private void Test(object sender, MouseEventArgs e)
+        {
+            // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
+            if (sender is Rectangle)
+            {
+                Rectangle temp = (Rectangle) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
+            }
+            else if (sender is ToggleButton)
+            {
+                ToggleButton temp = (ToggleButton) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
+            }
+            else
+            {
+                ContentPresenter temp = (ContentPresenter) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
+            }
+        }
+
+        private void Test2(object sender, MouseEventArgs e)
+        {
+            // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
+            if (sender is Rectangle)
+            {
+                Rectangle temp = (Rectangle) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
+            }
+            else if (sender is ToggleButton)
+            {
+                ToggleButton temp = (ToggleButton) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
+            }
+            else
+            {
+                ContentPresenter temp = (ContentPresenter) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
+            }
+        }
 
         #region Construct Folders
 
