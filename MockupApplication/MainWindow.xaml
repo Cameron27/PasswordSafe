@@ -163,7 +163,6 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <!--<Setter Property="Background" Value="{DynamicResource HighlightBrush}" />-->
                     <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
                 </Trigger>
             </Style.Triggers>
@@ -201,9 +200,10 @@
             <ScrollViewer x:Name="Folders" Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
                 <StackPanel x:Name="Menu" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
-            <GridSplitter Background="{DynamicResource GrayBrush9}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
+            <GridSplitter Background="{DynamicResource WhiteBrush}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" Grid.Row="2">
                 <Label Name="TestLabel" Content="Test Label" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
+                <local:AccountTile HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" BorderThickness="1" BorderBrush="Black" Width="200" Height="150" Content1="Hi" Content2="Bye"/>
             </Grid>
         </Grid>
     </Grid>
