@@ -84,7 +84,7 @@ namespace MockupApplication
 
         #endregion
 
-        private void Test(object sender, MouseEventArgs e)
+        private void Folder_MouseEnter(object sender, MouseEventArgs e)
         {
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
@@ -107,7 +107,7 @@ namespace MockupApplication
             }
         }
 
-        private void Test2(object sender, MouseEventArgs e)
+        private void Folder_MouseLeave(object sender, MouseEventArgs e)
         {
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
@@ -134,13 +134,13 @@ namespace MockupApplication
 
         private void ConstructFolders(JObject o)
         {
-            Menu.Children.Add(new Label
+            Folders.Children.Add(new Label
             {
                 Content = "All",
                 Padding = new Thickness(10, 5, 5, 5),
                 Style = (Style) FindResource("Folder")
             });
-            Menu.Children.Add(new Label
+            Folders.Children.Add(new Label
             {
                 Content = "Prediction",
                 Padding = new Thickness(10, 5, 5, 5),
@@ -149,14 +149,14 @@ namespace MockupApplication
             foreach (KeyValuePair<string, JToken> pair in o)
             {
                 if (!pair.Value.Any())
-                    Menu.Children.Add(new Label
+                    Folders.Children.Add(new Label
                     {
                         Content = pair.Key,
                         Padding = new Thickness(10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
-                    Menu.Children.Add(MakeDropDownFolder(pair, 1));
+                    Folders.Children.Add(MakeDropDownFolder(pair, 1));
             }
         }
 

@@ -9,9 +9,30 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:AccountTile}">
                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid>
-                            <Label Name="Test1" Content="{TemplateBinding Content1}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <Label Name="Test2" Content="{TemplateBinding Content2}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <Grid Height="180" Width="300">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="60" />
+                            </Grid.RowDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Account:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="1" Grid.Row="0" Content="{TemplateBinding Account}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="1" Content="Username:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="1" Grid.Row="1" Content="{TemplateBinding Username}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="2" Content="Password:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="1" Grid.Row="2" Content="{TemplateBinding Password}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="3" Content="URL:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="1" Grid.Row="3" Content="{TemplateBinding Url}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="4" Content="Notes:" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <ScrollViewer Grid.Column="1" Grid.Row="4" VerticalScrollBarVisibility="Visible" Width="Auto">
+                                <TextBlock TextWrapping="Wrap" Text="{TemplateBinding Notes}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5" Width="Auto" />
+                            </ScrollViewer>
                         </Grid>
                     </Border>
                 </ControlTemplate>

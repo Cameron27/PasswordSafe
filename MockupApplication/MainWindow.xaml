@@ -118,9 +118,9 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Fill="{DynamicResource WhiteBrush}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" />
-                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" MouseEnter="Test" MouseLeave="Test2" />
-                                <ToggleButton Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" MouseEnter="Test" MouseLeave="Test2" />
-                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" MouseEnter="Test" MouseLeave="Test2" />
+                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
+                                <ToggleButton Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
                             </Grid>
                             <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
                                 <ContentPresenter.LayoutTransform>
@@ -197,13 +197,13 @@
                 </MenuItem>
             </Menu>
             <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{DynamicResource AccentColorBrush}"></Grid>
-            <ScrollViewer x:Name="Folders" Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-                <StackPanel x:Name="Menu" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
+            <ScrollViewer Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+                <StackPanel x:Name="Folders" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
             <GridSplitter Background="{DynamicResource WhiteBrush}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" Grid.Row="2">
                 <Label Name="TestLabel" Content="Test Label" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
-                <local:AccountTile HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" BorderThickness="1" BorderBrush="Black" Width="200" Height="150" Content1="Hi" Content2="Bye"/>
+                <local:AccountTile HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" BorderThickness="1" BorderBrush="Black" Account="Test" Username="RealUserName" Password="password" Url="www.test.com" Notes="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi rutrum est eget turpis mattis, eu scelerisque massa convallis. Proin nulla augue, commodo ac elit vel, dignissim laoreet arcu. Nunc sagittis turpis vitae pulvinar iaculis. Nunc eget orci id nulla mollis hendrerit. Fusce euismod purus a odio bibendum consectetur. Duis ut nisl dui. Pellentesque egestas, metus eu eleifend posuere, arcu magna imperdiet velit, sed iaculis orci risus sit amet leo. Integer laoreet, purus non sagittis mollis, nulla metus dapibus mauris, ut consectetur est dui a nulla. Cras maximus suscipit orci vel mattis. Sed sollicitudin porttitor lobortis. Cras ac ante semper, suscipit."/>
             </Grid>
         </Grid>
     </Grid>
