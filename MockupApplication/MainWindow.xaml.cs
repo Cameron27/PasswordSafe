@@ -22,24 +22,10 @@ namespace MockupApplication
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
             //TODO Learn how to actually use JSON
-            const string json = @"{
-	                            ""filesystem"":
-	                            {
-		                            ""Common"":{},
-		                            ""Folders"":
-		                            {
-			                            ""Personal"":{},
-			                            ""Work"":{},
-			                            ""School"":
-			                            {
-				                            ""High School"":{},
-				                            ""Uni"":{}
-			                            }
-		                            }
-	                            }
-                            }";
+            const string json = Account.Jsonfile;
             JObject o = JObject.Parse(json);
             ConstructFolders((JObject) o["filesystem"]);
+            ConstructAccountEntries((JArray) o["accounts"]);
         }
 
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
@@ -83,6 +69,8 @@ namespace MockupApplication
         }
 
         #endregion
+
+        #region Highlighting Folders
 
         private void Folder_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -129,6 +117,49 @@ namespace MockupApplication
                     (Brush) Application.Current.Resources["AccentColorBrush"];
             }
         }
+
+        #endregion
+
+        #region Construct Account Entries
+
+        private void ConstructAccountEntries(JArray o)
+        {
+            foreach (JToken account in o)
+            {
+                AccountNameColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["accountname"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                UsernameColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["username"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                EmailColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["email"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                PasswordColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["password"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                UrlColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["url"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                NotesColumn.Children.Add(new TextBlock
+                {
+                    Text = (string) account["notes"],
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+            }
+        }
+
+        #endregion
 
         #region Construct Folders
 

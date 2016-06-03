@@ -168,6 +168,12 @@
             </Style.Triggers>
         </Style>
         <!-- EndRegion -->
+        <!--Region Account List View-->
+        <Style x:Key="AccountListViewLabel" TargetType="TextBlock">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
+        <!--EndRegion-->
     </controls:MetroWindow.Resources>
     <controls:MetroWindow.RightWindowCommands>
         <controls:WindowCommands>
@@ -200,10 +206,26 @@
             <ScrollViewer Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
                 <StackPanel x:Name="Folders" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
             </ScrollViewer>
-            <GridSplitter Background="{DynamicResource WhiteBrush}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
-            <Grid Grid.Column="2" Grid.Row="2">
-                <Label Name="TestLabel" Content="Test Label" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" />
-                <local:AccountTile HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" BorderThickness="1" BorderBrush="Black" Account="Test" Username="RealUserName" Password="password" Url="www.test.com" Notes="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi rutrum est eget turpis mattis, eu scelerisque massa convallis. Proin nulla augue, commodo ac elit vel, dignissim laoreet arcu. Nunc sagittis turpis vitae pulvinar iaculis. Nunc eget orci id nulla mollis hendrerit. Fusce euismod purus a odio bibendum consectetur. Duis ut nisl dui. Pellentesque egestas, metus eu eleifend posuere, arcu magna imperdiet velit, sed iaculis orci risus sit amet leo. Integer laoreet, purus non sagittis mollis, nulla metus dapibus mauris, ut consectetur est dui a nulla. Cras maximus suscipit orci vel mattis. Sed sollicitudin porttitor lobortis. Cras ac ante semper, suscipit."/>
+            <GridSplitter Background="{DynamicResource GrayBrush9}" Grid.Column="1" Grid.Row="2" MinWidth="100" HorizontalAlignment="Stretch" />
+            <Grid Grid.Column="2" Grid.Row="2" Background="{DynamicResource GrayBrush9}">
+                <ScrollViewer>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Name="AccountNameColumn" Grid.Column="0" />
+                        <StackPanel Name="UsernameColumn" Grid.Column="1" />
+                        <StackPanel Name="EmailColumn" Grid.Column="2" />
+                        <StackPanel Name="PasswordColumn" Grid.Column="3" />
+                        <StackPanel Name="UrlColumn" Grid.Column="4" />
+                        <StackPanel Name="NotesColumn" Grid.Column="5" />
+                    </Grid>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Grid>

@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:MockupApplication">
 
-
     <Style TargetType="{x:Type local:AccountTile}">
         <Setter Property="Template">
             <Setter.Value>
@@ -12,7 +11,7 @@
                         <Grid Height="180" Width="300">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30" />
@@ -22,17 +21,31 @@
                                 <RowDefinition Height="60" />
                             </Grid.RowDefinitions>
                             <Label Grid.Column="0" Grid.Row="0" Content="Account:" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <Label Grid.Column="1" Grid.Row="0" Content="{TemplateBinding Account}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{TemplateBinding Account}" VerticalAlignment="Center" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Margin="5,0,5,0" />
                             <Label Grid.Column="0" Grid.Row="1" Content="Username:" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <Label Grid.Column="1" Grid.Row="1" Content="{TemplateBinding Username}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{TemplateBinding Username}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="5,0,5,0" />
                             <Label Grid.Column="0" Grid.Row="2" Content="Password:" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <Label Grid.Column="1" Grid.Row="2" Content="{TemplateBinding Password}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{TemplateBinding Password}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="5,0,5,0" />
                             <Label Grid.Column="0" Grid.Row="3" Content="URL:" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <Label Grid.Column="1" Grid.Row="3" Content="{TemplateBinding Url}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Grid.Row="3" Text="{TemplateBinding Url}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="5,0,5,0" />
                             <Label Grid.Column="0" Grid.Row="4" Content="Notes:" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <ScrollViewer Grid.Column="1" Grid.Row="4" VerticalScrollBarVisibility="Visible" Width="Auto">
-                                <TextBlock TextWrapping="Wrap" Text="{TemplateBinding Notes}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5" Width="Auto" />
+                            <ScrollViewer Grid.Column="1" Grid.Row="4" VerticalScrollBarVisibility="Visible" Width="Auto" Margin="5,0,5,0">
+                                <TextBlock TextWrapping="Wrap" Text="{TemplateBinding Notes}" HorizontalAlignment="Left" VerticalAlignment="Top" />
                             </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type local:AccountTile2}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:AccountTile2}">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Height="180" Width="300">
+                            <TextBlock Text="{TemplateBinding Account}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" FontSize="{DynamicResource MenuFontSize}" TextTrimming="CharacterEllipsis" MaxWidth="150" />
                         </Grid>
                     </Border>
                 </ControlTemplate>

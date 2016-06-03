@@ -6,12 +6,12 @@ namespace MockupApplication
     /// <summary>
     ///     Tile used to display an account entry
     /// </summary>
-    public class AccountTile : Control
+    public class AccountTile2 : Control
     {
-        static AccountTile()
+        static AccountTile2()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(AccountTile),
-                new FrameworkPropertyMetadata(typeof(AccountTile)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(AccountTile2),
+                new FrameworkPropertyMetadata(typeof(AccountTile2)));
         }
 
         #region Properties
