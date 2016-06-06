@@ -1,0 +1,79 @@
+﻿{
+  "Folders": [
+    {
+      "Name": "Common",
+      "Path": "/Common",
+      "Children": [ ]
+    },
+    {
+      "Name": "Folders",
+      "Path": "/Folders",
+      "Children": [
+        {
+          "Name": "Personal",
+          "Path": "/Folders/Personal",
+          "Children": [ ]
+        },
+        {
+          "Name": "Work",
+          "Path": "/Folders/Work",
+          "Children": [ ]
+        },
+        {
+          "Name": "School",
+          "Path": "/Folders/School",
+          "Children": [
+            {
+              "Name": "Highschool",
+              "Path": "/Folders/School/Highschool",
+              "Children": [ ]
+            },
+            {
+              "Name": "Uni",
+              "Path": "/Folders/School/Uni",
+              "Children": [ ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Accounts": [
+    {
+      "Id": 234,
+      "AccountName": "Gmail",
+      "Username": "cam2772@gmail.com",
+      "Email": "",
+      "Password": "password",
+      "Url": "www.google.com",
+      "Notes": "This is google"
+    },
+    {
+      "Id": 3451,
+      "AccountName": "Steam",
+      "Username": "Dark_Omega27",
+      "Email": "cam2772@gmail",
+      "Password": "password",
+      "Url": "store.steampowered.com",
+      "Notes": ""
+    },
+    {
+      "Id": 65,
+      "AccountName": "reddit",
+      "Username": "redditusername",
+      "Email": "cam2772@gmail.com",
+      "Password": "password",
+      "Url": "www.reddit.com",
+      "Notes": ""
+    },
+    {
+      "Id": 987,
+      "AccountName": "Uni",
+      "Username": "cms60",
+      "Email": "cms60@students.waikato.ac.nz",
+      "Password": "password",
+      "Url": "www.google.com",
+      "Notes": ""
+    }
+  ]
+}

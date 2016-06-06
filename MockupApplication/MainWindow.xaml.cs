@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +8,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
-using Newtonsoft.Json.Linq;
+using MockupApplication.Data;
+using Newtonsoft.Json;
 
 namespace MockupApplication
 {
@@ -21,11 +23,14 @@ namespace MockupApplication
             InitializeComponent();
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
-            //TODO Learn how to actually use JSON
-            const string json = Account.Jsonfile;
-            JObject o = JObject.Parse(json);
-            ConstructFolders((JObject) o["filesystem"]);
-            ConstructAccountEntries((JArray) o["accounts"]);
+
+            //Will need to change for actual
+            string json = File.ReadAllText(@"Resources/UserData.json"); //TODO Find out what imbedded resource is
+            RootObject data = JsonConvert.DeserializeObject<RootObject>(json);
+
+            ConstructFolders(data.Folders);
+
+            ConstructAccountEntries(data.Accounts);
         }
 
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
@@ -65,6 +70,47 @@ namespace MockupApplication
             {
                 double newColumn0Width = g.ActualWidth - g.ColumnDefinitions[1].ActualWidth - column2MinWidth;
                 g.ColumnDefinitions[0].Width = new GridLength(newColumn0Width);
+            }
+        }
+
+        #endregion
+
+        #region Construct Account Entries
+
+        private void ConstructAccountEntries(List<Account> accounts)
+        {
+            foreach (Account account in accounts)
+            {
+                AccountNameColumn.Children.Add(new TextBlock
+                {
+                    Text = account.AccountName,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                UsernameColumn.Children.Add(new TextBlock
+                {
+                    Text = account.Username,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                EmailColumn.Children.Add(new TextBlock
+                {
+                    Text = account.Email,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                PasswordColumn.Children.Add(new TextBlock
+                {
+                    Text = account.Password,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                UrlColumn.Children.Add(new TextBlock
+                {
+                    Text = account.Url,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
+                NotesColumn.Children.Add(new TextBlock
+                {
+                    Text = account.Notes,
+                    Style = (Style) FindResource("AccountListViewLabel")
+                });
             }
         }
 
@@ -120,50 +166,9 @@ namespace MockupApplication
 
         #endregion
 
-        #region Construct Account Entries
-
-        private void ConstructAccountEntries(JArray o)
-        {
-            foreach (JToken account in o)
-            {
-                AccountNameColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["accountname"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                UsernameColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["username"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                EmailColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["email"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                PasswordColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["password"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                UrlColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["url"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                NotesColumn.Children.Add(new TextBlock
-                {
-                    Text = (string) account["notes"],
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-            }
-        }
-
-        #endregion
-
         #region Construct Folders
 
-        private void ConstructFolders(JObject o)
+        private void ConstructFolders(List<Folder> folders)
         {
             Folders.Children.Add(new Label
             {
@@ -177,40 +182,40 @@ namespace MockupApplication
                 Padding = new Thickness(10, 5, 5, 5),
                 Style = (Style) FindResource("Folder")
             });
-            foreach (KeyValuePair<string, JToken> pair in o)
+            foreach (Folder folder in folders)
             {
-                if (!pair.Value.Any())
+                if (folder.Children.Count == 0)
                     Folders.Children.Add(new Label
                     {
-                        Content = pair.Key,
+                        Content = folder.Name,
                         Padding = new Thickness(10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
-                    Folders.Children.Add(MakeDropDownFolder(pair, 1));
+                    Folders.Children.Add(MakeDropDownFolder(folder));
             }
         }
 
-        private Expander MakeDropDownFolder(KeyValuePair<string, JToken> pair, int depth)
+        private Expander MakeDropDownFolder(Folder folder)
         {
             Expander output = new Expander
             {
-                Header = pair.Key,
-                Padding = new Thickness((depth - 1) * 10 + 5, 0, 0, 0),
+                Header = folder.Name,
+                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
                 Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
-            foreach (KeyValuePair<string, JToken> pair2 in (JObject) pair.Value)
+            foreach (Folder childFolder in folder.Children)
             {
-                if (!pair2.Value.Any())
+                if (childFolder.Children.Count == 0)
                     stackPanel.Children.Add(new Label
                     {
-                        Content = pair2.Key,
-                        Padding = new Thickness(depth * 10 + 10, 5, 5, 5),
+                        Content = childFolder.Name,
+                        Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
-                    stackPanel.Children.Add(MakeDropDownFolder(pair2, depth + 1));
+                    stackPanel.Children.Add(MakeDropDownFolder(childFolder));
             }
             output.Content = stackPanel;
             return output;
