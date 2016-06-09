@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MockupApplication
 {
     namespace Data
     {
-
         public class Folder
         {
             public string Name { get; set; }
@@ -25,6 +20,7 @@ namespace MockupApplication
             public string Password { get; set; }
             public string Url { get; set; }
             public string Notes { get; set; }
+            public string Path { get; set; }
         }
 
         public class RootObject
@@ -32,6 +28,5 @@ namespace MockupApplication
             public List<Folder> Folders { get; set; }
             public List<Account> Accounts { get; set; }
         }
-
     }
 }

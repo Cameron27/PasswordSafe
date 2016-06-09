@@ -25,7 +25,7 @@ namespace MockupApplication
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
 
             //Will need to change for actual
-            string json = File.ReadAllText(@"Resources/UserData.json"); //TODO Find out what imbedded resource is
+            string json = File.ReadAllText(@"Resources/Database.json"); //TODO Find out what imbedded resource is
             RootObject data = JsonConvert.DeserializeObject<RootObject>(json);
 
             ConstructFolders(data.Folders);
@@ -98,7 +98,7 @@ namespace MockupApplication
                 });
                 PasswordColumn.Children.Add(new TextBlock
                 {
-                    Text = account.Password,
+                    Text = "*******",
                     Style = (Style) FindResource("AccountListViewLabel")
                 });
                 UrlColumn.Children.Add(new TextBlock
