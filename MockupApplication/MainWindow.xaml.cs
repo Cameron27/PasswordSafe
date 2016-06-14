@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using MockupApplication.Data;
@@ -124,20 +123,23 @@ namespace MockupApplication
             if (sender is Rectangle)
             {
                 Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["HighlightBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else if (sender is ToggleButton)
             {
                 ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["HighlightBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else
             {
                 ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["HighlightBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
         }
 
@@ -147,20 +149,23 @@ namespace MockupApplication
             if (sender is Rectangle)
             {
                 Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["AccentColorBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else if (sender is ToggleButton)
             {
                 ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["AccentColorBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else
             {
                 ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
-                    (Brush) Application.Current.Resources["AccentColorBrush"];
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                    .Last()
+                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
         }
 

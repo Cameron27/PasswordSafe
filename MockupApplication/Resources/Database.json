@@ -1,83 +1,83 @@
 ﻿{
   "Folders": [
     {
-      "Name": "Common",
-      "Path": "/Common",
-      "Children": [ ]
+      "name": "Common",
+      "path": "/Common",
+      "children": [ ]
     },
     {
-      "Name": "Folders",
-      "Path": "/Folders",
-      "Children": [
+      "name": "Folders",
+      "path": "/Folders",
+      "children": [
         {
-          "Name": "Personal",
-          "Path": "/Folders/Personal",
-          "Children": [ ]
+          "name": "Personal",
+          "path": "/Folders/Personal",
+          "children": [ ]
         },
         {
-          "Name": "Work",
-          "Path": "/Folders/Work",
-          "Children": [ ]
+          "name": "Work",
+          "path": "/Folders/Work",
+          "children": [ ]
         },
         {
-          "Name": "School",
-          "Path": "/Folders/School",
-          "Children": [
+          "name": "School",
+          "path": "/Folders/School",
+          "children": [
             {
-              "Name": "Highschool",
-              "Path": "/Folders/School/Highschool",
-              "Children": [ ]
+              "name": "Highschool",
+              "path": "/Folders/School/Highschool",
+              "children": [ ]
             },
             {
-              "Name": "Uni",
-              "Path": "/Folders/School/Uni",
-              "Children": [ ]
+              "name": "Uni",
+              "path": "/Folders/School/Uni",
+              "children": [ ]
             }
           ]
         }
       ]
     }
   ],
-  "Accounts": [
+  "accounts": [
     {
       "Id": 234,
-      "AccountName": "Gmail",
-      "Username": "cam2772@gmail.com",
-      "Email": "",
-      "Password": "password",
-      "Url": "www.google.com",
-      "Notes": "One of my most important accounts",
-      "Path": "/Folders/Personal" 
+      "accountName": "Gmail",
+      "username": "cam2772@gmail.com",
+      "email": "",
+      "password": "password",
+      "url": "www.google.com",
+      "notes": "One of my most important accounts",
+      "path": "/Folders/Personal" 
     },
     {
       "Id": 3451,
-      "AccountName": "Steam",
-      "Username": "Dark_Omega27",
-      "Email": "cam2772@gmail",
-      "Password": "password",
-      "Url": "store.steampowered.com",
-      "Notes": "Cool place to buy games",
-      "Path": "/Folders/Personal" 
+      "accountName": "Steam",
+      "username": "Dark_Omega27",
+      "email": "cam2772@gmail",
+      "password": "password",
+      "url": "store.steampowered.com",
+      "notes": "Cool place to buy games",
+      "path": "/Folders/Personal" 
     },
     {
       "Id": 65,
-      "AccountName": "reddit",
-      "Username": "redditusername",
-      "Email": "cam2772@gmail.com",
-      "Password": "password",
-      "Url": "www.reddit.com",
-      "Notes": "The front page of the internet",
-      "Path": "/Folders/Personal" 
+      "accountName": "reddit",
+      "username": "redditusername",
+      "email": "cam2772@gmail.com",
+      "password": "password",
+      "url": "www.reddit.com",
+      "notes": "The front page of the internet",
+      "path": "/Folders/Personal" 
     },
     {
       "Id": 987,
-      "AccountName": "Uni",
-      "Username": "cms60",
-      "Email": "cms60@students.waikato.ac.nz",
-      "Password": "password",
-      "Url": "www.google.com",
-      "Notes": "I have this",
-      "Path": "/Folders/School/Uni" 
+      "accountName": "Uni",
+      "username": "cms60",
+      "email": "cms60@students.waikato.ac.nz",
+      "password": "password",
+      "url": "www.google.com",
+      "notes": "I have this",
+      "path": "/Folders/School/Uni" 
     }
   ]
 }
