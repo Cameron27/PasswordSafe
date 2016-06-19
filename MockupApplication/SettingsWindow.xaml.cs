@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
@@ -10,9 +11,9 @@ namespace MockupApplication
     /// <summary>
     ///     Interaction logic for Settings.xaml
     /// </summary>
-    public partial class Settings : MetroWindow
+    public partial class SettingsWindow : MetroWindow
     {
-        public Settings()
+        public SettingsWindow()
         {
             InitializeComponent();
 
@@ -20,6 +21,7 @@ namespace MockupApplication
                 DarkModeToggle.IsChecked = true;
             AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
+            FontSizeSelector.Text = Application.Current.Resources["MainFontSize"].ToString();
 
         }
 
@@ -43,6 +45,18 @@ namespace MockupApplication
         private void FontSelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             Application.Current.Resources["MainFont"] = FontSelector.SelectedItem as FontFamily;
+        }
+
+        private void FontSizeSelector_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            double temp;
+            if (double.TryParse(FontSizeSelector.Text, out temp) && temp <= 32 && temp > 0)
+            {
+                Application.Current.Resources["MainFontSize"] = temp;
+            }
+
         }
     }
 }

@@ -1,83 +1,84 @@
 ﻿{
-  "Folders": [
-    {
-      "name": "Common",
-      "path": "/Common",
-      "children": [ ]
-    },
-    {
-      "name": "Folders",
-      "path": "/Folders",
-      "children": [
+    "folders": [
         {
-          "name": "Personal",
-          "path": "/Folders/Personal",
-          "children": [ ]
+            "name": "Common",
+            "path": "/Common",
+            "children": [ ]
         },
         {
-          "name": "Work",
-          "path": "/Folders/Work",
-          "children": [ ]
-        },
-        {
-          "name": "School",
-          "path": "/Folders/School",
-          "children": [
-            {
-              "name": "Highschool",
-              "path": "/Folders/School/Highschool",
-              "children": [ ]
-            },
-            {
-              "name": "Uni",
-              "path": "/Folders/School/Uni",
-              "children": [ ]
-            }
-          ]
+            "name": "Folders",
+            "path": "/Folders",
+            "children": [
+                {
+                    "name": "Personal",
+                    "path": "/Folders/Personal",
+                    "children": [ ]
+                },
+                {
+                    "name": "Work",
+                    "path": "/Folders/Work",
+                    "children": [ ]
+                },
+                {
+                    "name": "School",
+                    "path": "/Folders/School",
+                    "children": [
+                        {
+                            "name": "Highschool",
+                            "path": "/Folders/School/Highschool",
+                            "children": [ ]
+                        },
+                        {
+                            "name": "University",
+                            "path": "/Folders/School/Uni",
+                            "children": [ ]
+
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "accounts": [
-    {
-      "Id": 234,
-      "accountName": "Gmail",
-      "username": "cam2772@gmail.com",
-      "email": "",
-      "password": "password",
-      "url": "www.google.com",
-      "notes": "One of my most important accounts",
-      "path": "/Folders/Personal" 
-    },
-    {
-      "Id": 3451,
-      "accountName": "Steam",
-      "username": "Dark_Omega27",
-      "email": "cam2772@gmail",
-      "password": "password",
-      "url": "store.steampowered.com",
-      "notes": "Cool place to buy games",
-      "path": "/Folders/Personal" 
-    },
-    {
-      "Id": 65,
-      "accountName": "reddit",
-      "username": "redditusername",
-      "email": "cam2772@gmail.com",
-      "password": "password",
-      "url": "www.reddit.com",
-      "notes": "The front page of the internet",
-      "path": "/Folders/Personal" 
-    },
-    {
-      "Id": 987,
-      "accountName": "Uni",
-      "username": "cms60",
-      "email": "cms60@students.waikato.ac.nz",
-      "password": "password",
-      "url": "www.google.com",
-      "notes": "I have this",
-      "path": "/Folders/School/Uni" 
-    }
-  ]
+    ],
+    "accounts": [
+        {
+            "id": 234,
+            "accountName": "Gmail",
+            "username": "cam2772@gmail.com",
+            "email": "",
+            "password": "password",
+            "url": "www.google.com",
+            "notes": "One of my most important accounts",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 3451,
+            "accountName": "Steam",
+            "username": "Dark_Omega27",
+            "email": "cam2772@gmail",
+            "password": "password",
+            "url": "store.steampowered.com",
+            "notes": "Cool place to buy games",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 65,
+            "accountName": "reddit",
+            "username": "redditusername",
+            "email": "cam2772@gmail.com",
+            "password": "password",
+            "url": "www.reddit.com",
+            "notes": "The front page of the internet",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 987,
+            "accountName": "Uni",
+            "username": "cms60",
+            "email": "cms60@students.waikato.ac.nz",
+            "password": "password",
+            "url": "www.google.com",
+            "notes": "I have this",
+            "path": "/Folders/School/Uni"
+        }
+    ]
 }

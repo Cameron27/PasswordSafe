@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using MockupApplication.Data;
@@ -24,7 +25,7 @@ namespace MockupApplication
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
 
             //Will need to change for actual
-            string json = File.ReadAllText(@"Resources/Database.json"); //TODO Find out what imbedded resource is
+            string json = File.ReadAllText(@"Resources/Database.json");
             RootObject data = JsonConvert.DeserializeObject<RootObject>(json);
 
             ConstructFolders(data.Folders);
@@ -37,7 +38,7 @@ namespace MockupApplication
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "Settings"))
                 return; //Check if a settings window is already open
 
-            MetroWindow settingsWindow = new Settings();
+            MetroWindow settingsWindow = new SettingsWindow();
             settingsWindow.Owner = this;
             settingsWindow.Closed += (o, args) => settingsWindow = null;
             settingsWindow.Left = Left + ActualWidth / 2.0;
@@ -119,27 +120,25 @@ namespace MockupApplication
 
         private void Folder_MouseEnter(object sender, MouseEventArgs e)
         {
+            //TODO Change this back to something that works
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
                 Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
             }
             else if (sender is ToggleButton)
             {
                 ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
             }
             else
             {
                 ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["HighlightBrush"];
             }
         }
 
@@ -149,23 +148,20 @@ namespace MockupApplication
             if (sender is Rectangle)
             {
                 Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
             }
             else if (sender is ToggleButton)
             {
                 ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
             }
             else
             {
                 ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
+                ((Grid) temp.Parent).Children.OfType<Rectangle>().Last().Fill =
+                    (Brush) Application.Current.Resources["AccentColorBrush"];
             }
         }
 

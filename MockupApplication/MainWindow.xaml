@@ -13,7 +13,8 @@
     ResizeMode="CanResize"
     GlowBrush="{DynamicResource AccentColorBrush}"
     NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-    FontFamily="{DynamicResource MainFont}">
+    FontFamily="{DynamicResource MainFont}"
+    FontSize="{DynamicResource MainFontSize}">
     <!--Going to have to redesign all fixed heights if I allow the font to change-->
     <controls:MetroWindow.Resources>
         <!-- Region Resources -->
@@ -40,6 +41,7 @@
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
             <Setter Property="Width" Value="{Binding ActualWidth, ElementName=parentElementName}" />
+            <Setter Property="MinHeight" Value="26" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Label">
@@ -109,6 +111,7 @@
         <Style x:Key="DropDownFolder" TargetType="Expander">
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
+            <Setter Property="MinHeight" Value="26" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Expander">
@@ -118,10 +121,10 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Rectangle Fill="{DynamicResource WhiteBrush}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" />
-                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" Height="{TemplateBinding MinHeight}" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
+                                <Rectangle Fill="{DynamicResource WhiteBrush}" Grid.Column="0" Grid.ColumnSpan="2" MinHeight="{TemplateBinding MinHeight}" />
+                                <Rectangle Fill="{TemplateBinding Background}" Grid.Column="0" Grid.ColumnSpan="2" MinHeight="{TemplateBinding MinHeight}" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
                                 <ToggleButton Grid.Column="0" Margin="{TemplateBinding Padding}" Style="{StaticResource DropDownButton}" IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" OverridesDefaultStyle="True" Padding="1.5,0" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
-                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" Margin="0,5,5,5" MouseEnter="Folder_MouseEnter" MouseLeave="Folder_MouseLeave" />
                             </Grid>
                             <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
                                 <ContentPresenter.LayoutTransform>
@@ -207,7 +210,7 @@
     </controls:MetroWindow.Resources>
     <controls:MetroWindow.RightWindowCommands>
         <controls:WindowCommands>
-            <Button Content="Settings" Click="OpenSettings_Click"/>
+            <Button Content="Settings" FontSize="12" Click="OpenSettings_Click"/>
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
     <Grid>
