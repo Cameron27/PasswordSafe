@@ -237,10 +237,11 @@
             </Menu>
             <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{DynamicResource AccentColorBrush}"></Grid>
             <ScrollViewer Grid.Column="0" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-                <StackPanel x:Name="Folders" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" />
+                <StackPanel x:Name="Folders" Background="{DynamicResource AccentColorBrush}" MinWidth="{Binding ViewportWidth, ElementName=ScrollViewer, Mode=OneWay}" Width="Auto" SnapsToDevicePixels="True" />
             </ScrollViewer>
             <GridSplitter Background="{DynamicResource GrayBrush7}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" Grid.Row="2" Background="{DynamicResource GrayBrush9}">
+                <!--TODO look into using a Datagrid-->
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid>
                         <Grid.ColumnDefinitions>

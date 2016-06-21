@@ -35,15 +35,20 @@
 
                         }
                     ]
+                },
+                {
+                    "name": "Long folder name for testing",
+                    "path": "/Folders/Long folder name for testing",
+                    "children": [ ]
                 }
             ]
         }
     ],
     "accounts": [
         {
-            "id": 234,
+            "id": 0,
             "accountName": "Gmail",
-            "username": "cam2772@gmail.com",
+            "username": "example@gmail.com",
             "email": "",
             "password": "password",
             "url": "www.google.com",
@@ -51,34 +56,244 @@
             "path": "/Folders/Personal"
         },
         {
-            "id": 3451,
+            "id": 1,
             "accountName": "Steam",
-            "username": "Dark_Omega27",
-            "email": "cam2772@gmail",
+            "username": "Gameplayer",
+            "email": "example@gmail.com",
             "password": "password",
             "url": "store.steampowered.com",
             "notes": "Cool place to buy games",
             "path": "/Folders/Personal"
         },
         {
-            "id": 65,
+            "id": 2,
             "accountName": "reddit",
             "username": "redditusername",
-            "email": "cam2772@gmail.com",
+            "email": "example@gmail.com",
             "password": "password",
             "url": "www.reddit.com",
             "notes": "The front page of the internet",
             "path": "/Folders/Personal"
         },
         {
-            "id": 987,
+            "id": 3,
             "accountName": "Uni",
             "username": "cms60",
-            "email": "cms60@students.waikato.ac.nz",
+            "email": "example@students.waikato.ac.nz",
             "password": "password",
             "url": "www.google.com",
             "notes": "I have this",
             "path": "/Folders/School/Uni"
+        },
+        {
+            "id": 4,
+            "accountName": "School",
+            "username": "2csalisb@hbhs.school.nz",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.google.com",
+            "notes": "An email address for school",
+            "path": "/Folders/School/Highschool"
+        },
+        {
+            "id": 5,
+            "accountName": "Ampdfds",
+            "username": "Tyeje",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "Ijknsd fh auiaq r aaw ww",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 6,
+            "accountName": "Hosdne",
+            "username": "Biaas",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 7,
+            "accountName": "Rloehcr",
+            "username": "Piw",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 8,
+            "accountName": "Drwq",
+            "username": "Rksdio",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 9,
+            "accountName": "Plobe",
+            "username": "Ekljsdi",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 10,
+            "accountName": "Bebed",
+            "username": "Whjdt",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "Xuhef awrdhaua iuwd ahrua ahurfhauhr",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 11,
+            "accountName": "Ppoekw",
+            "username": "Ujsd",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 12,
+            "accountName": "Meew",
+            "username": "Chusdf",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 13,
+            "accountName": "Yplejer",
+            "username": "Lsdhr",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 14,
+            "accountName": "Pmelr",
+            "username": "Mjhdr",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "Hdru gr awuhawiorhaiu ra uirar",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 15,
+            "accountName": "Lorjae",
+            "username": "Xjgfe",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "Udj",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 16,
+            "accountName": "Eerow",
+            "username": "Qjsdhf",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 17,
+            "accountName": "Beopme",
+            "username": "Dhsgf",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 18,
+            "accountName": "Baksn",
+            "username": "Bohto",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 19,
+            "accountName": "Qndf",
+            "username": "Pjksdnf",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 20,
+            "accountName": "Bsdf",
+            "username": "Vewior",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 21,
+            "accountName": "Hfslf",
+            "username": "Powejknr",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "Poen ioer er",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 22,
+            "accountName": "Wsndf",
+            "username": "Jtgfq",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 23,
+            "accountName": "Plsirfs",
+            "username": "User",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
+        },
+        {
+            "id": 24,
+            "accountName": "Beal",
+            "username": "Esvds",
+            "email": "example@gmail.com",
+            "password": "password",
+            "url": "www.example.com",
+            "notes": "",
+            "path": "/Folders/Personal"
         }
     ]
 }
