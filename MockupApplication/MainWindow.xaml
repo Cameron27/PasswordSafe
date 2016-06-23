@@ -241,47 +241,112 @@
             </ScrollViewer>
             <GridSplitter Background="{DynamicResource GrayBrush7}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" Grid.Row="2" Background="{DynamicResource GrayBrush9}">
-                <!--TODO look into using a Datagrid-->
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" MinWidth="50" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Rectangle Grid.Column="0" Grid.ColumnSpan="11" Grid.Row="0" Fill="{DynamicResource WhiteBrush}" />
-                        <Rectangle Grid.Column="0" Grid.ColumnSpan="11" Grid.Row="0" Fill="{DynamicResource GrayBrush8}" />
-                        <TextBlock Text="Account Name" Grid.Column="0" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <GridSplitter Grid.Column="1" Grid.Row="0" Style="{StaticResource ColumnSpliter}" />
-                        <TextBlock Text="Username" Grid.Column="2" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <GridSplitter Grid.Column="3" Grid.Row="0" Style="{StaticResource ColumnSpliter}" />
-                        <TextBlock Text="Email" Grid.Column="4" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <GridSplitter Grid.Column="5" Grid.Row="0" Style="{StaticResource ColumnSpliter}" />
-                        <TextBlock Text="Password" Grid.Column="6" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <GridSplitter Grid.Column="7" Grid.Row="0" Style="{StaticResource ColumnSpliter}" />
-                        <TextBlock Text="Url" Grid.Column="8" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <GridSplitter Grid.Column="9" Grid.Row="0" Style="{StaticResource ColumnSpliter}" />
-                        <TextBlock Text="Notes" Grid.Column="10" Grid.Row="0" Style="{StaticResource AccountListViewHeader}" />
-                        <StackPanel Name="AccountNameColumn" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" />
-                        <StackPanel Name="UsernameColumn" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" />
-                        <StackPanel Name="EmailColumn" Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" />
-                        <StackPanel Name="PasswordColumn" Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="1" />
-                        <StackPanel Name="UrlColumn" Grid.Column="8" Grid.ColumnSpan="2" Grid.Row="1" />
-                        <StackPanel Name="NotesColumn" Grid.Column="10" Grid.Row="1" />
-                    </Grid>
-                </ScrollViewer>
+                <DataGrid Name="AccountList" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeRows="False" ColumnWidth="*" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Account">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding AccountName}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Username">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Username}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Email">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Email}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Password">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="*******" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="URL">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Url}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Notes">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Notes}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Underline" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </Grid>
     </Grid>

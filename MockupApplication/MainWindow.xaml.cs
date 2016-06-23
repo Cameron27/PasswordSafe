@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using MockupApplication.Data;
@@ -76,41 +75,9 @@ namespace MockupApplication
 
         #region Construct Account Entries
 
-        private void ConstructAccountEntries(List<Account> accounts)
+        private void ConstructAccountEntries(IEnumerable<Account> accounts)
         {
-            foreach (Account account in accounts)
-            {
-                AccountNameColumn.Children.Add(new TextBlock
-                {
-                    Text = account.AccountName,
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                UsernameColumn.Children.Add(new TextBlock
-                {
-                    Text = account.Username,
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                EmailColumn.Children.Add(new TextBlock
-                {
-                    Text = account.Email,
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                PasswordColumn.Children.Add(new TextBlock
-                {
-                    Text = "*******",
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                UrlColumn.Children.Add(new TextBlock
-                {
-                    Text = account.Url,
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-                NotesColumn.Children.Add(new TextBlock
-                {
-                    Text = account.Notes,
-                    Style = (Style) FindResource("AccountListViewLabel")
-                });
-            }
+            AccountList.ItemsSource = accounts;
         }
 
         #endregion
