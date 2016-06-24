@@ -46,7 +46,7 @@ namespace MockupApplication
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.MainWindow.Close();
+            Close();
         }
 
         #region Resize Window
