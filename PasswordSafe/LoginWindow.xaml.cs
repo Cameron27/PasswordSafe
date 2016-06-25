@@ -4,14 +4,14 @@ using System.Windows;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 
-namespace MockupApplication
+namespace PasswordSafe
 {
     /// <summary>
     ///     Interaction logic for Login.xaml
     /// </summary>
-    public partial class Login : MetroWindow
+    public partial class LoginWindow : MetroWindow
     {
-        public Login()
+        public LoginWindow()
         {
             InitializeComponent();
             string[] files = Directory.GetFiles(@"Resources", "*.json");

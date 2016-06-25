@@ -7,10 +7,10 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
-using MockupApplication.Data;
+using PasswordSafe.Data;
 using Newtonsoft.Json;
 
-namespace MockupApplication
+namespace PasswordSafe
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
@@ -56,7 +56,7 @@ namespace MockupApplication
         /// </summary>
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Grid g = (Grid) sender;
+            Grid g = (Grid)sender;
             double column2MinWidth = g.ColumnDefinitions[0].MinWidth;
 
             //Adjust the max width of the first column to enforce the min width of the second column
@@ -90,22 +90,22 @@ namespace MockupApplication
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
-                Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                Rectangle temp = (Rectangle)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else if (sender is ToggleButton)
             {
-                ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                ToggleButton temp = (ToggleButton)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else
             {
-                ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                ContentPresenter temp = (ContentPresenter)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
@@ -116,22 +116,22 @@ namespace MockupApplication
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
-                Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                Rectangle temp = (Rectangle)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else if (sender is ToggleButton)
             {
-                ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                ToggleButton temp = (ToggleButton)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else
             {
-                ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
+                ContentPresenter temp = (ContentPresenter)sender;
+                ((Grid)temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
@@ -147,13 +147,13 @@ namespace MockupApplication
             {
                 Content = "All",
                 Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style) FindResource("Folder")
+                Style = (Style)FindResource("Folder")
             });
             Folders.Children.Add(new Label
             {
                 Content = "Prediction",
                 Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style) FindResource("Folder")
+                Style = (Style)FindResource("Folder")
             });
             foreach (Folder folder in folders)
             {
@@ -162,7 +162,7 @@ namespace MockupApplication
                     {
                         Content = folder.Name,
                         Padding = new Thickness(10, 5, 5, 5),
-                        Style = (Style) FindResource("Folder")
+                        Style = (Style)FindResource("Folder")
                     });
                 else
                     Folders.Children.Add(MakeDropDownFolder(folder));
@@ -175,7 +175,7 @@ namespace MockupApplication
             {
                 Header = folder.Name,
                 Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
-                Style = (Style) FindResource("DropDownFolder")
+                Style = (Style)FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
             foreach (Folder childFolder in folder.Children)
@@ -185,7 +185,7 @@ namespace MockupApplication
                     {
                         Content = childFolder.Name,
                         Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
-                        Style = (Style) FindResource("Folder")
+                        Style = (Style)FindResource("Folder")
                     });
                 else
                     stackPanel.Children.Add(MakeDropDownFolder(childFolder));

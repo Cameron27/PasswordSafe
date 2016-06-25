@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MockupApplication")]
+[assembly: AssemblyTitle("PasswordSafe")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("INFRA3")]
-[assembly: AssemblyProduct("MockupApplication")]
-[assembly: AssemblyCopyright("Copyright © INFRA3 2016")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("PasswordSafe")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

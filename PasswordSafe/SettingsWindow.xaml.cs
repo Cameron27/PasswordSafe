@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 
-namespace MockupApplication
+namespace PasswordSafe
 {
     /// <summary>
     ///     Interaction logic for Settings.xaml
     /// </summary>
-    public partial class Settings : MetroWindow
+    public partial class SettingsWindow : MetroWindow
     {
-        public Settings()
+        public SettingsWindow()
         {
             InitializeComponent();
 
@@ -20,7 +23,7 @@ namespace MockupApplication
                 DarkModeToggle.IsChecked = true;
             AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
-
+            FontSizeSelector.Value = (double) Application.Current.Resources["MainFontSize"];
         }
 
         private void AccentSelector_Changed(object sender, SelectionChangedEventArgs e)
@@ -33,16 +36,35 @@ namespace MockupApplication
             }
         }
 
-        private void DarkModeToggle_Clicked(object sender, RoutedEventArgs e)
+        private void DarkModeToggle_IsCheckedChanged(object sender, EventArgs e)
         {
-            Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
-            ThemeManager.ChangeAppStyle(Application.Current, theme.Item2,
-                ThemeManager.GetAppTheme("Base" + (DarkModeToggle.IsChecked == true ? "Dark" : "Light")));
+            Thread changeAppThemeThread = new Thread(ChangeAppTheme);
+            changeAppThemeThread.Start();
         }
 
         private void FontSelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             Application.Current.Resources["MainFont"] = FontSelector.SelectedItem as FontFamily;
+        }
+
+        private void FontSizeSelector_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            if (FontSizeSelector.Value <= 32 && FontSizeSelector.Value > 0)
+            {
+                Application.Current.Resources["MainFontSize"] = FontSizeSelector.Value;
+            }
+        }
+
+        private void ChangeAppTheme()
+        {
+            Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                new Action(
+                    () =>
+                        ThemeManager.ChangeAppStyle(Application.Current, theme.Item2,
+                            ThemeManager.GetAppTheme("Base" + (DarkModeToggle.IsChecked == true ? "Dark" : "Light")))));
         }
     }
 }

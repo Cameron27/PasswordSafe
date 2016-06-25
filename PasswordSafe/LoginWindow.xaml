@@ -1,11 +1,11 @@
 ﻿<controls:MetroWindow 
-    x:Class="MockupApplication.Login"
+    x:Class="PasswordSafe.LoginWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared"
     xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
-    xmlns:local="clr-namespace:MockupApplication"
+    xmlns:local="clr-namespace:PasswordSafe"
     Title="Password Safe"
     Height="268" Width="300"
     WindowStartupLocation="CenterScreen"

@@ -1,9 +1,11 @@
-﻿<controls:MetroWindow x:Class="MockupApplication.SettingsWindow"
+﻿<controls:MetroWindow
+    x:Class="PasswordSafe.SettingsWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared"
     xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
+    xmlns:local="clr-namespace:PasswordSafe"
     Title="Settings"
     SizeToContent="WidthAndHeight"
     ResizeMode="NoResize"
@@ -30,7 +32,7 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
         <Label Content="Dark Mode" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-        <controls:ToggleSwitch Name="DarkModeToggle" Grid.Row="1" Grid.Column="1" FontSize="12" FontFamily="{DynamicResource DefaultFont}" OffLabel="" OnLabel="" Click="DarkModeToggle_Clicked" Margin="0,0,0,0" />
+        <controls:ToggleSwitch Name="DarkModeToggle" Grid.Row="1" Grid.Column="1" FontSize="12" FontFamily="{DynamicResource DefaultFont}" OffLabel="" OnLabel="" IsCheckedChanged="DarkModeToggle_IsCheckedChanged" Margin="0,0,0,0" />
         <Label Content="Font" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
         <ComboBox Name="FontSelector" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="FontSelector_Changed" ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" Height="Auto" Width="100" />
         <Label Content="Font Size" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" />
