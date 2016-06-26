@@ -42,10 +42,10 @@ namespace PasswordSafe
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "MainWindow"))
                 return; //Check if a settings window is already open
 
-            MetroWindow settingsWindow = new MainWindow();
-            settingsWindow.Left = Left + ActualWidth / 2.0;
-            settingsWindow.Top = Top + ActualHeight / 2.0;
-            settingsWindow.Show();
+            MetroWindow mainWindow = new MainWindow();
+            mainWindow.Left = Left + ActualWidth / 2.0;
+            mainWindow.Top = Top + ActualHeight / 2.0;
+            mainWindow.Show();
             Close();
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -7,8 +8,8 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
-using PasswordSafe.Data;
 using Newtonsoft.Json;
+using PasswordSafe.Data;
 
 namespace PasswordSafe
 {
@@ -17,6 +18,8 @@ namespace PasswordSafe
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        public static RootObject data;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -25,7 +28,7 @@ namespace PasswordSafe
 
             //Will need to change for actual
             string json = File.ReadAllText(@"Resources/Database.json");
-            RootObject data = JsonConvert.DeserializeObject<RootObject>(json);
+            data = JsonConvert.DeserializeObject<RootObject>(json);
 
             ConstructFolders(data.Folders);
 
@@ -34,7 +37,7 @@ namespace PasswordSafe
 
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "Settings"))
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "SettingsWindow"))
                 return; //Check if a settings window is already open
 
             MetroWindow settingsWindow = new SettingsWindow();
@@ -56,7 +59,7 @@ namespace PasswordSafe
         /// </summary>
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Grid g = (Grid)sender;
+            Grid g = (Grid) sender;
             double column2MinWidth = g.ColumnDefinitions[0].MinWidth;
 
             //Adjust the max width of the first column to enforce the min width of the second column
@@ -82,56 +85,78 @@ namespace PasswordSafe
 
         #endregion
 
+        #region Entry Editor
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow"))
+                return; //Check if a settings window is already open
+
+            MetroWindow entryEditorWindow = new EntryEditorWindow();
+            entryEditorWindow.Owner = this;
+            entryEditorWindow.Left = Left + ActualWidth / 2.0;
+            entryEditorWindow.Top = Top + ActualHeight / 2.0;
+            entryEditorWindow.Show();
+        }
+
+        #endregion
+
         #region Highlighting Folders
 
+        /// <summary>
+        ///     Highlights folder if it is hovered over
+        /// </summary>
         private void Folder_MouseEnter(object sender, MouseEventArgs e)
         {
             //TODO Change this back to something that works
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
-                Rectangle temp = (Rectangle)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                Rectangle temp = (Rectangle) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else if (sender is ToggleButton)
             {
-                ToggleButton temp = (ToggleButton)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                ToggleButton temp = (ToggleButton) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
             else
             {
-                ContentPresenter temp = (ContentPresenter)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                ContentPresenter temp = (ContentPresenter) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "HighlightBrush");
             }
         }
 
+        /// <summary>
+        ///     Unhighlights folder when mouse if removed from it
+        /// </summary>
         private void Folder_MouseLeave(object sender, MouseEventArgs e)
         {
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
-                Rectangle temp = (Rectangle)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                Rectangle temp = (Rectangle) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else if (sender is ToggleButton)
             {
-                ToggleButton temp = (ToggleButton)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                ToggleButton temp = (ToggleButton) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
             else
             {
-                ContentPresenter temp = (ContentPresenter)sender;
-                ((Grid)temp.Parent).Children.OfType<Rectangle>()
+                ContentPresenter temp = (ContentPresenter) sender;
+                ((Grid) temp.Parent).Children.OfType<Rectangle>()
                     .Last()
                     .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
             }
@@ -147,13 +172,13 @@ namespace PasswordSafe
             {
                 Content = "All",
                 Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style)FindResource("Folder")
+                Style = (Style) FindResource("Folder")
             });
             Folders.Children.Add(new Label
             {
                 Content = "Prediction",
                 Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style)FindResource("Folder")
+                Style = (Style) FindResource("Folder")
             });
             foreach (Folder folder in folders)
             {
@@ -162,7 +187,7 @@ namespace PasswordSafe
                     {
                         Content = folder.Name,
                         Padding = new Thickness(10, 5, 5, 5),
-                        Style = (Style)FindResource("Folder")
+                        Style = (Style) FindResource("Folder")
                     });
                 else
                     Folders.Children.Add(MakeDropDownFolder(folder));
@@ -175,7 +200,7 @@ namespace PasswordSafe
             {
                 Header = folder.Name,
                 Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
-                Style = (Style)FindResource("DropDownFolder")
+                Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
             foreach (Folder childFolder in folder.Children)
@@ -185,7 +210,7 @@ namespace PasswordSafe
                     {
                         Content = childFolder.Name,
                         Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
-                        Style = (Style)FindResource("Folder")
+                        Style = (Style) FindResource("Folder")
                     });
                 else
                     stackPanel.Children.Add(MakeDropDownFolder(childFolder));

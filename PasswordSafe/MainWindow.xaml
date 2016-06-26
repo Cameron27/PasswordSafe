@@ -15,7 +15,6 @@
     NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
     FontFamily="{DynamicResource MainFont}"
     FontSize="{DynamicResource MainFontSize}">
-    <!--Going to have to redesign all fixed heights if I allow the font to change-->
     <controls:MetroWindow.Resources>
         <!-- Region Resources -->
         <Duration x:Key="DropDownAnimation">0:0:0.2</Duration>
@@ -26,14 +25,14 @@
             <Setter Property="Height" Value="23" />
             <Setter Property="Padding" Value="10,0,10,0" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsSubmenuOpen" Value="True">
-                    <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
-                </Trigger>
-            </Style.Triggers>
         </Style>
         <Style x:Key="SubMenu" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="{DynamicResource BlackBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource HighlightBrush}"></Setter>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <!-- EndRegion -->
         <!-- Region Folder -->
@@ -233,6 +232,9 @@
                         <MenuItem Header="Save _As" Style="{StaticResource SubMenu}" />
                     </MenuItem>
                     <MenuItem Header="_Exit" Click="Close_Click" Style="{StaticResource SubMenu}" />
+                </MenuItem>
+                <MenuItem Header="_Entries" Style="{StaticResource TopLevelMenu}">
+                    <MenuItem Header="_Add Entry" Style="{StaticResource SubMenu}" Click="MenuItem_OnClick" />
                 </MenuItem>
             </Menu>
             <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{DynamicResource AccentColorBrush}"></Grid>

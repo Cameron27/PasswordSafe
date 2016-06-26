@@ -23,7 +23,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Content="Accent" Grid.Row="0" Grid.Column="0" Margin="5" />
+        <Label Content="Accent" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <ComboBox Name="AccentSelector" Grid.Row="0" Grid.Column="1" Margin="5" SelectionChanged="AccentSelector_Changed" ItemsSource="{x:Static metro:ThemeManager.Accents}" Height="Auto" Width="100">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -31,11 +31,11 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Label Content="Dark Mode" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+        <Label Content="Dark Mode" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <controls:ToggleSwitch Name="DarkModeToggle" Grid.Row="1" Grid.Column="1" FontSize="12" FontFamily="{DynamicResource DefaultFont}" OffLabel="" OnLabel="" IsCheckedChanged="DarkModeToggle_IsCheckedChanged" Margin="0,0,0,0" />
-        <Label Content="Font" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
+        <Label Content="Font" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <ComboBox Name="FontSelector" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="FontSelector_Changed" ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" Height="Auto" Width="100" />
-        <Label Content="Font Size" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" />
+        <Label Content="Font Size" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Margin="5"  Minimum="1" Maximum="32" HasDecimals="False" KeyUp="FontSizeSelector_KeyUp" Height="Auto" Width="100" />
     </Grid>
 </controls:MetroWindow>
