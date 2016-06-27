@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
 namespace PasswordSafe
@@ -50,7 +51,7 @@ namespace PasswordSafe
             public List<Folder> Folders { get; set; }
 
             [JsonProperty("accounts")]
-            public List<Account> Accounts { get; set; }
+            public ObservableCollection<Account> Accounts { get; set; }
         }
     }
 }

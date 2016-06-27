@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
@@ -18,7 +18,7 @@ namespace PasswordSafe
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public static RootObject data;
+        public static RootObject SafeData;
 
         public MainWindow()
         {
@@ -28,11 +28,11 @@ namespace PasswordSafe
 
             //Will need to change for actual
             string json = File.ReadAllText(@"Resources/Database.json");
-            data = JsonConvert.DeserializeObject<RootObject>(json);
+            SafeData = JsonConvert.DeserializeObject<RootObject>(json);
 
-            ConstructFolders(data.Folders);
+            ConstructFolders(SafeData.Folders);
 
-            ConstructAccountEntries(data.Accounts);
+            ConstructAccountEntries();
         }
 
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
@@ -78,9 +78,9 @@ namespace PasswordSafe
 
         #region Construct Account Entries
 
-        private void ConstructAccountEntries(IEnumerable<Account> accounts)
+        private void ConstructAccountEntries()
         {
-            AccountList.ItemsSource = accounts;
+            AccountList.ItemsSource = SafeData.Accounts;
         }
 
         #endregion
