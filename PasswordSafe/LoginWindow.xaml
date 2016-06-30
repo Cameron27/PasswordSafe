@@ -17,7 +17,7 @@
     <Grid>
         <Label Content="PASSWORD SAFE" Height="45" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,10,10,0" FontSize="30" FontWeight="Bold" />
         <Label Content="Master Password:" Height="25" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,60,0,0" FontWeight="Bold" />
-        <TextBox Name="PasswordIput"  Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,90,10,0" TextWrapping="Wrap" KeyUp="PasswordIput_KeyUp" />
+        <TextBox Name="PasswordIput"  Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,90,10,0" TextWrapping="Wrap" KeyUp="LoginOnEnterPressed" />
         <Label Content="Safe:" Height="25" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,120,0,0" FontWeight="Bold" />
         <ComboBox Name="SafeSelector" Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,150,10,0" />
         <Button Name="LoginButton" Content="Login" Click="LoginButton_Click" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25" Width="100" Margin="0,190,120,10" />

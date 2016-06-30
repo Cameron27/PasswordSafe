@@ -26,6 +26,9 @@ namespace PasswordSafe
             FontSizeSelector.Value = (double) Application.Current.Resources["MainFontSize"];
         }
 
+        /// <summary>
+        ///     Changes the programs AccentColor
+        /// </summary>
         private void AccentSelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             Accent selectedAccent = AccentSelector.SelectedItem as Accent;
@@ -36,17 +39,27 @@ namespace PasswordSafe
             }
         }
 
+        /// <summary>
+        ///     Creates a new thread that toggles the program between light and dark mode
+        /// </summary>
         private void DarkModeToggle_IsCheckedChanged(object sender, EventArgs e)
         {
+            //Creates a new thread to make the change smoother, still results in stuttering
             Thread changeAppThemeThread = new Thread(ChangeAppTheme);
             changeAppThemeThread.Start();
         }
 
+        /// <summary>
+        ///     Changes the programs font
+        /// </summary>
         private void FontSelector_Changed(object sender, SelectionChangedEventArgs e)
         {
             Application.Current.Resources["MainFont"] = FontSelector.SelectedItem as FontFamily;
         }
 
+        /// <summary>
+        ///     Applies the font size change when enter is pressed
+        /// </summary>
         private void FontSizeSelector_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
@@ -57,9 +70,13 @@ namespace PasswordSafe
             }
         }
 
+        /// <summary>
+        ///     Toggles the program between light and dark mode
+        /// </summary>
         private void ChangeAppTheme()
         {
             Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
+            //Runs the change back in the main threat
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background,
                 new Action(
                     () =>

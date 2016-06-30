@@ -234,7 +234,8 @@
                     <MenuItem Header="_Exit" Click="Close_Click" Style="{StaticResource SubMenu}" />
                 </MenuItem>
                 <MenuItem Header="_Entries" Style="{StaticResource TopLevelMenu}">
-                    <MenuItem Header="_Add Entry" Style="{StaticResource SubMenu}" Click="MenuItem_OnClick" />
+                    <MenuItem Header="_Add Entry" Style="{StaticResource SubMenu}" Click="AddEntry_OnClick" />
+                    <MenuItem Header="_Edit Entry" Style="{StaticResource SubMenu}" Click="EditEntry_OnClick" />
                 </MenuItem>
             </Menu>
             <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Background="{DynamicResource AccentColorBrush}"></Grid>

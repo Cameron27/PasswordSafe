@@ -21,22 +21,34 @@ namespace PasswordSafe
             SafeSelector.SelectedIndex = 0;
         }
 
+        /// <summary>
+        ///     Logs into the password safe
+        /// </summary>
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             LoginToSafe();
         }
 
-        private void PasswordIput_KeyUp(object sender, KeyEventArgs e)
+        /// <summary>
+        ///     Logs into the password safe when enter is presses
+        /// </summary>
+        private void LoginOnEnterPressed(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
                 LoginToSafe();
         }
 
+        /// <summary>
+        ///     Closes the window
+        /// </summary>
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        ///     Logs into the password safe
+        /// </summary>
         private void LoginToSafe()
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "MainWindow"))

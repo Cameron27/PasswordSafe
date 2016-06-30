@@ -29,7 +29,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Content="ADD ENTRY:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" FontWeight="Bold" Margin="10" />
+        <Label Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" FontWeight="Bold" Margin="10" />
         <Label Content="Account:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,5,0" />
         <TextBox Name="AccountEntry" Grid.Row="1" Grid.Column="1" Width="250" Margin="5,5,10,5" />
         <Label Content="Username:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,5,0" />
@@ -42,7 +42,7 @@
         <TextBox Name="UrlEntry" Grid.Row="5" Grid.Column="1" Width="250" Margin="5,5,10,5" />
         <Label Content="Notes:" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,5,0" />
         <TextBox Name="NotesEntry" Grid.Row="6" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5" TextWrapping="WrapWithOverflow" />
-        <Button Name="CreateButton" Content="Create" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25" HorizontalAlignment="Right" Margin="10,10,120,10" Click="CreateButton_Click" />
-        <Button Name="CancelButton" Content="Cancel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25" HorizontalAlignment="Right" Margin="10,10,10,10" Click="CancelButton_Click" />
+        <Button Name="ComfirmButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25" HorizontalAlignment="Right" Margin="10,10,120,10" Click="CreateButton_Click" />
+        <Button Name="CancelButton" IsCancel="True"  Content="Cancel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25" HorizontalAlignment="Right" Margin="10,10,10,10" Click="CancelButton_Click" />
     </Grid>
 </controls:MetroWindow>

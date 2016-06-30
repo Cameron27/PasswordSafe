@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
@@ -19,6 +19,7 @@ namespace PasswordSafe
     public partial class MainWindow : MetroWindow
     {
         public static RootObject SafeData;
+        private static ObservableCollection<Account> _accountFilter;
 
         public MainWindow()
         {
@@ -35,6 +36,11 @@ namespace PasswordSafe
             ConstructAccountEntries();
         }
 
+        #region Settings
+
+        /// <summary>
+        ///     Opens the settings window
+        /// </summary>
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "SettingsWindow"))
@@ -47,10 +53,19 @@ namespace PasswordSafe
             settingsWindow.Show();
         }
 
+        #endregion
+
+        #region Controls
+
+        /// <summary>
+        ///     Closes the window
+        /// </summary>
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
+
+        #endregion
 
         #region Resize Window
 
@@ -78,25 +93,65 @@ namespace PasswordSafe
 
         #region Construct Account Entries
 
+        /// <summary>
+        ///     Fills AccountList DataGrid with all the accounts
+        /// </summary>
         private void ConstructAccountEntries()
         {
-            AccountList.ItemsSource = SafeData.Accounts;
+            _accountFilter = new ObservableCollection<Account>();
+            SafeData.Accounts.ForEach(x => _accountFilter.Add(x));
+            AccountList.ItemsSource = _accountFilter;
         }
 
         #endregion
 
         #region Entry Editor
 
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        ///     Creates a new instance of EntryEditorWindow to create a new Account
+        /// </summary>
+        private void AddEntry_OnClick(object sender, RoutedEventArgs e)
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow"))
-                return; //Check if a settings window is already open
+                return; //Check if a entry editor window is already open
 
-            MetroWindow entryEditorWindow = new EntryEditorWindow();
-            entryEditorWindow.Owner = this;
-            entryEditorWindow.Left = Left + ActualWidth / 2.0;
-            entryEditorWindow.Top = Top + ActualHeight / 2.0;
-            entryEditorWindow.Show();
+            Account newAccount = new Account();
+            EntryEditorWindow entryEditorWindow = new EntryEditorWindow(true, newAccount)
+            {
+                Owner = this,
+                Left = Left + ActualWidth / 2.0,
+                Top = Top + ActualHeight / 2.0
+            };
+            if (entryEditorWindow.ShowDialog() == true)
+            {
+                SafeData.Accounts.Add(entryEditorWindow.AccountBeingEdited);
+                ConstructAccountEntries();
+            }
+        }
+
+        /// <summary>
+        ///     Creates a new instance of EntryEditorWindow to edit the currently selected Account on the AccountList DataGrid
+        /// </summary>
+        private void EditEntry_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow") ||
+                AccountList.SelectedItem == null)
+                return; //Check if a editor window window is already open or no account is selected
+
+            Account editedAccount = (Account) AccountList.SelectedItem;
+            EntryEditorWindow entryEditorWindow = new EntryEditorWindow(false, editedAccount)
+            {
+                Owner = this,
+                Left = Left + ActualWidth / 2.0,
+                Top = Top + ActualHeight / 2.0
+            };
+            if (entryEditorWindow.ShowDialog() == true)
+            {
+                SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == entryEditorWindow.AccountBeingEdited.Id)] =
+                    entryEditorWindow.AccountBeingEdited;
+                //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
+                ConstructAccountEntries();
+            }
         }
 
         #endregion
@@ -108,7 +163,6 @@ namespace PasswordSafe
         /// </summary>
         private void Folder_MouseEnter(object sender, MouseEventArgs e)
         {
-            //TODO Change this back to something that works
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
             {
@@ -166,8 +220,13 @@ namespace PasswordSafe
 
         #region Construct Folders
 
+        /// <summary>
+        ///     Create the folders in the folder menu
+        /// </summary>
+        /// <param name="folders">The list of folders to use to create the folder menu</param>
         private void ConstructFolders(List<Folder> folders)
         {
+            //Two default folders
             Folders.Children.Add(new Label
             {
                 Content = "All",
@@ -180,7 +239,8 @@ namespace PasswordSafe
                 Padding = new Thickness(10, 5, 5, 5),
                 Style = (Style) FindResource("Folder")
             });
-            foreach (Folder folder in folders)
+
+            foreach (Folder folder in folders) //Creates a folder for every folder in the SafeData
             {
                 if (folder.Children.Count == 0)
                     Folders.Children.Add(new Label
@@ -194,12 +254,18 @@ namespace PasswordSafe
             }
         }
 
+        /// <summary>
+        ///     Creates a expander control from a folder input
+        /// </summary>
+        /// <param name="folder">Folder to create expander from</param>
+        /// <returns>Dropdown folder</returns>
         private Expander MakeDropDownFolder(Folder folder)
         {
             Expander output = new Expander
             {
                 Header = folder.Name,
                 Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
+                //Sets padding based on indentation
                 Style = (Style) FindResource("DropDownFolder")
             };
             StackPanel stackPanel = new StackPanel();
@@ -210,6 +276,7 @@ namespace PasswordSafe
                     {
                         Content = childFolder.Name,
                         Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
+                        //Sets padding based on indentation
                         Style = (Style) FindResource("Folder")
                     });
                 else

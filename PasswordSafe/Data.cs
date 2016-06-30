@@ -51,7 +51,7 @@ namespace PasswordSafe
             public List<Folder> Folders { get; set; }
 
             [JsonProperty("accounts")]
-            public ObservableCollection<Account> Accounts { get; set; }
+            public List<Account> Accounts { get; set; }
         }
     }
 }
