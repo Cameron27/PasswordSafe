@@ -17,9 +17,10 @@
     <Grid>
         <Label Content="PASSWORD SAFE" Height="45" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,10,10,0" FontSize="30" FontWeight="Bold" />
         <Label Content="Master Password:" Height="25" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,60,0,0" FontWeight="Bold" />
-        <TextBox Name="PasswordIput"  Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,90,10,0" TextWrapping="Wrap" KeyUp="LoginOnEnterPressed" />
+        <TextBox Name="PasswordIput"  Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,90,10,0" TextWrapping="Wrap" KeyDown="LoginOnEnterPressed" />
         <Label Content="Safe:" Height="25" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,120,0,0" FontWeight="Bold" />
-        <ComboBox Name="SafeSelector" Height="25" Width="280" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,150,10,0" />
+        <Button Name="NewSafe" Content="Create New Safe" Height="26" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="190,150,0,0" Click="NewSafe_Click"/>
+        <ComboBox Name="SafeSelector" Height="25" Width="175" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,150,115,0" />
         <Button Name="LoginButton" Content="Login" Click="LoginButton_Click" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25" Width="100" Margin="0,190,120,10" />
         <Button Name="ExitButton" Content="Exit" Click="ExitButton_Click" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25" Width="100" Margin="0,190,10,10" />
     </Grid>

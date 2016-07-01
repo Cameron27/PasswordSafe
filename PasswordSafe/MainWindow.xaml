@@ -14,7 +14,8 @@
     GlowBrush="{DynamicResource AccentColorBrush}"
     NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
     FontFamily="{DynamicResource MainFont}"
-    FontSize="{DynamicResource MainFontSize}">
+    FontSize="{DynamicResource MainFontSize}"
+    KeyDown="SaveOnCtrlSPress">
     <controls:MetroWindow.Resources>
         <!-- Region Resources -->
         <Duration x:Key="DropDownAnimation">0:0:0.2</Duration>
@@ -227,10 +228,7 @@
             <Menu x:Name="MenuBar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="{DynamicResource AccentColorBrush}">
                 <MenuItem Header="_File" Style="{StaticResource TopLevelMenu}">
                     <MenuItem Header="_Open" Style="{StaticResource SubMenu}" />
-                    <MenuItem Header="_Save" Style="{StaticResource SubMenu}">
-                        <MenuItem Header="Save _Normal" Style="{StaticResource SubMenu}" />
-                        <MenuItem Header="Save _As" Style="{StaticResource SubMenu}" />
-                    </MenuItem>
+                    <MenuItem Header="_Save" Style="{StaticResource SubMenu}" Click="Save_Click" />
                     <MenuItem Header="_Exit" Click="Close_Click" Style="{StaticResource SubMenu}" />
                 </MenuItem>
                 <MenuItem Header="_Entries" Style="{StaticResource TopLevelMenu}">

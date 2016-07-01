@@ -60,7 +60,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Applies the font size change when enter is pressed
         /// </summary>
-        private void FontSizeSelector_KeyUp(object sender, KeyEventArgs e)
+        private void ApplyFontChangeOnEnterPress(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
 

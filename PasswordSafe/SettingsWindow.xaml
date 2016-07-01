@@ -36,6 +36,6 @@
         <Label Content="Font" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <ComboBox Name="FontSelector" Grid.Row="2" Grid.Column="1" Margin="5" SelectionChanged="FontSelector_Changed" ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" Height="Auto" Width="100" />
         <Label Content="Font Size" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Margin="5"  Minimum="1" Maximum="32" HasDecimals="False" KeyUp="FontSizeSelector_KeyUp" Height="Auto" Width="100" />
+        <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Margin="5"  Minimum="1" Maximum="32" HasDecimals="False" KeyDown="ApplyFontChangeOnEnterPress" Height="Auto" Width="100" />
     </Grid>
 </controls:MetroWindow>

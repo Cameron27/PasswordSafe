@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -20,16 +21,25 @@ namespace PasswordSafe
     {
         public static RootObject SafeData;
         private static ObservableCollection<Account> _accountFilter;
+        private static bool _needsSaving;
+        private static string _openFile;
 
-        public MainWindow()
+        public MainWindow(string openFile)
         {
             InitializeComponent();
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
+            _openFile = openFile;
 
-            //Will need to change for actual
-            string json = File.ReadAllText(@"Resources/Database.json");
-            SafeData = JsonConvert.DeserializeObject<RootObject>(json);
+            if (File.ReadAllText($"Resources/{_openFile}") != "")
+            {
+                string json = File.ReadAllText($"Resources/{_openFile}");
+                SafeData = JsonConvert.DeserializeObject<RootObject>(json);
+            }
+            else
+            {
+                SafeData = new RootObject {Folders = new List<Folder>(), Accounts = new List<Account>()};
+            }
 
             ConstructFolders(SafeData.Folders);
 
@@ -51,18 +61,6 @@ namespace PasswordSafe
             settingsWindow.Left = Left + ActualWidth / 2.0;
             settingsWindow.Top = Top + ActualHeight / 2.0;
             settingsWindow.Show();
-        }
-
-        #endregion
-
-        #region Controls
-
-        /// <summary>
-        ///     Closes the window
-        /// </summary>
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
 
         #endregion
@@ -105,6 +103,41 @@ namespace PasswordSafe
 
         #endregion
 
+        #region Controls
+
+        /// <summary>
+        ///     Closes the window
+        /// </summary>
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_needsSaving) return;
+            Thread save = new Thread(Save);
+            save.Start();
+        }
+
+        private void SaveOnCtrlSPress(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.Control || e.Key != Key.S || !_needsSaving) return;
+            Thread save = new Thread(Save);
+            save.Start();
+        }
+
+        private void Save()
+        {
+            _needsSaving = false;
+            string jsonText = JsonConvert.SerializeObject(SafeData);
+            File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
+            File.WriteAllText($"Resources\\{_openFile}", jsonText);
+            File.Delete($"Resources\\{_openFile}.bak");
+        }
+
+        #endregion
+
         #region Entry Editor
 
         /// <summary>
@@ -122,11 +155,10 @@ namespace PasswordSafe
                 Left = Left + ActualWidth / 2.0,
                 Top = Top + ActualHeight / 2.0
             };
-            if (entryEditorWindow.ShowDialog() == true)
-            {
-                SafeData.Accounts.Add(entryEditorWindow.AccountBeingEdited);
-                ConstructAccountEntries();
-            }
+            if (entryEditorWindow.ShowDialog() != true) return;
+            _needsSaving = true;
+            SafeData.Accounts.Add(entryEditorWindow.AccountBeingEdited);
+            ConstructAccountEntries();
         }
 
         /// <summary>
@@ -145,13 +177,12 @@ namespace PasswordSafe
                 Left = Left + ActualWidth / 2.0,
                 Top = Top + ActualHeight / 2.0
             };
-            if (entryEditorWindow.ShowDialog() == true)
-            {
-                SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == entryEditorWindow.AccountBeingEdited.Id)] =
-                    entryEditorWindow.AccountBeingEdited;
-                //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
-                ConstructAccountEntries();
-            }
+            if (entryEditorWindow.ShowDialog() != true) return;
+            _needsSaving = true;
+            SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == entryEditorWindow.AccountBeingEdited.Id)] =
+                entryEditorWindow.AccountBeingEdited;
+            //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
+            ConstructAccountEntries();
         }
 
         #endregion
