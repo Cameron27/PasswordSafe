@@ -40,7 +40,7 @@ namespace PasswordSafe
             AccountEntry.Text = account.AccountName;
             UsernameEntry.Text = account.Username;
             EmailEntry.Text = account.Email;
-            PasswordEntry.Text = account.Password;
+            PasswordEntry.Password = account.Password;
             UrlEntry.Text = account.Url;
             NotesEntry.Text = account.Notes;
         }
@@ -77,7 +77,7 @@ namespace PasswordSafe
             AccountBeingEdited.AccountName = AccountEntry.Text;
             AccountBeingEdited.Username = UsernameEntry.Text;
             AccountBeingEdited.Email = EmailEntry.Text;
-            AccountBeingEdited.Password = PasswordEntry.Text;
+            AccountBeingEdited.Password = PasswordEntry.Password;
             AccountBeingEdited.Url = UrlEntry.Text;
             AccountBeingEdited.Notes = NotesEntry.Text;
 

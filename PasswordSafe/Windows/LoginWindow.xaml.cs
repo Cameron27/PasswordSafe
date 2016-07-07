@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using MahApps.Metro.Controls;
 
 namespace PasswordSafe
@@ -14,7 +13,7 @@ namespace PasswordSafe
         public LoginWindow()
         {
             InitializeComponent();
-
+            PasswordInput.Focus();
             LoadSafeOptions(null);
         }
 
@@ -55,7 +54,7 @@ namespace PasswordSafe
             string name = fileNameDialogBox.Input.Text;
             if (SafeSelector.Items.Cast<string>().Any(x => x == name))
             {
-                ErrorMessage error = new ErrorMessage("A safe with that name already exists")
+                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists")
                 {
                     Owner = this,
                     Left = Left + ActualWidth / 2.0,
@@ -66,7 +65,7 @@ namespace PasswordSafe
             }
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                ErrorMessage error = new ErrorMessage("That is not a valid file name")
+                ErrorMessageDialogBox error = new ErrorMessageDialogBox("That is not a valid file name")
                 {
                     Owner = this,
                     Left = Left + ActualWidth / 2.0,
@@ -83,23 +82,6 @@ namespace PasswordSafe
         ///     Logs into the password safe
         /// </summary>
         private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            LoginToSafe();
-        }
-
-        /// <summary>
-        ///     Logs into the password safe when enter is presses
-        /// </summary>
-        private void LoginOnEnterPressed(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-                LoginToSafe();
-        }
-
-        /// <summary>
-        ///     Logs into the password safe
-        /// </summary>
-        private void LoginToSafe()
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "MainWindow"))
                 return; //Check if a settings window is already open

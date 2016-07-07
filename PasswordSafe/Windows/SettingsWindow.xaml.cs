@@ -77,7 +77,7 @@ namespace PasswordSafe
         {
             Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
             //Runs the change back in the main threat
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                 new Action(
                     () =>
                         ThemeManager.ChangeAppStyle(Application.Current, theme.Item2,
