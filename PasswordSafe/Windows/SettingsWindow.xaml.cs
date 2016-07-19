@@ -29,7 +29,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Changes the programs AccentColor
         /// </summary>
-        private void AccentSelector_Changed(object sender, SelectionChangedEventArgs e)
+        private void ChangeProgramsAccent(object sender, SelectionChangedEventArgs e)
         {
             Accent selectedAccent = AccentSelector.SelectedItem as Accent;
             if (selectedAccent != null)
@@ -42,7 +42,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Creates a new thread that toggles the program between light and dark mode
         /// </summary>
-        private void DarkModeToggle_IsCheckedChanged(object sender, EventArgs e)
+        private void ToggleDarkMode(object sender, EventArgs e)
         {
             //Creates a new thread to make the change smoother, still results in stuttering
             Thread changeAppThemeThread = new Thread(ChangeAppTheme);
@@ -52,7 +52,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Changes the programs font
         /// </summary>
-        private void FontSelector_Changed(object sender, SelectionChangedEventArgs e)
+        private void ChangeProgramsFont(object sender, SelectionChangedEventArgs e)
         {
             Application.Current.Resources["MainFont"] = FontSelector.SelectedItem as FontFamily;
         }

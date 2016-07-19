@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -32,8 +33,8 @@ namespace PasswordSafe
         public MainWindow(string openFile)
         {
             InitializeComponent();
-            Height = SystemParameters.PrimaryScreenHeight*0.75;
-            Width = SystemParameters.PrimaryScreenWidth*0.75;
+            Height = SystemParameters.PrimaryScreenHeight * 0.75;
+            Width = SystemParameters.PrimaryScreenWidth * 0.75;
             _openFile = openFile;
 
             if (File.ReadAllText($"Resources/{_openFile}") != "")
@@ -73,15 +74,12 @@ namespace PasswordSafe
         /// <summary>
         ///     Opens the settings window
         /// </summary>
-        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        private void OpenSettingsOnClick(object sender, RoutedEventArgs e)
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "SettingsWindow"))
                 return; //Check if a settings window is already open
 
-            MetroWindow settingsWindow = new SettingsWindow();
-            settingsWindow.Owner = this;
-            settingsWindow.Left = Left + ActualWidth/2.0;
-            settingsWindow.Top = Top + ActualHeight/2.0;
+            SettingsWindow settingsWindow = new SettingsWindow {Owner = this};
             settingsWindow.Show();
         }
 
@@ -92,7 +90,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Adjusts grid settings for min and max sizes when overall window size changes
         /// </summary>
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void AdjustRegionSizeLimitsOnWindowSizeCharge(object sender, SizeChangedEventArgs e)
         {
             Grid g = (Grid) sender;
             double column2MinWidth = g.ColumnDefinitions[0].MinWidth;
@@ -111,166 +109,87 @@ namespace PasswordSafe
 
         #endregion
 
-        #region Construct Account Entries
+        #region Commands
 
         /// <summary>
-        ///     Fills AccountList DataGrid with all the accounts
+        ///     Checks for global key press events
         /// </summary>
-        private void ConstructAccountEntries()
+        private void GlobalHotkeys(object sender, KeyEventArgs e)
         {
-            _accountFilter = new ObservableCollection<Account>();
-            SafeData.Accounts.ForEach(x => _accountFilter.Add(x));
-            AccountList.ItemsSource = _accountFilter;
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                //Starts a new thread to safe the safe when ctrl + s is pressed
+                if (e.Key == Key.S && _needsSaving)
+                {
+                    StartSaveThread();
+                }
+                //Creates a new instance of AccountEditorWindow to create a new account when ctrl + n is pressed
+                else if (e.Key == Key.N)
+                {
+                    NewAccount();
+                }
+                //Creates a new instance of AccountEditorWindow to edit the currently selected account when ctrl + e is pressed
+                else if (e.Key == Key.E)
+                {
+                    EditAccount();
+                }
+            }
         }
 
-        #endregion
-
-        #region Controls
+        /// <summary>
+        ///     Checks for the other global key press events casue this is needed for some reason
+        /// </summary>
+        private void GlobalHotkeys2(object sender, KeyEventArgs e)
+        {
+            //Deletes the selected account if the delete key is pressed
+            if (e.Key == Key.Delete)
+                DeleteAccount();
+        }
 
         /// <summary>
         ///     Closes the window
         /// </summary>
-        private void Close_Click(object sender, RoutedEventArgs e)
+        private void CloseOnClick(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
         /// <summary>
-        ///     Starts a new thread to safe the safe
+        ///     Saves the safe
         /// </summary>
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private void SaveOnClick(object sender, RoutedEventArgs e)
         {
             if (!_needsSaving) return;
 
             StartSaveThread();
         }
 
-        /// <summary>
-        ///     Checks for global key press events
-        /// </summary>
-        private void MetroWindow_KeyDown(object sender, KeyEventArgs e)
-        {
-            //Starts a new thread to safe the safe when ctrl + s is pressed
-            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S && _needsSaving)
-            {
-                StartSaveThread();
-            }
-
-        }
-
-        /// <summary>
-        ///     Checks for the other global key press events casue this is needed for some reason
-        /// </summary>
-        private void MetroWindow_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            //Deletes the selected account if the delete key is pressed
-            if (e.Key == Key.Delete)
-                DeleteEntry();
-        }
-
-        /// <summary>
-        ///     Starts a new thread to save the safe
-        /// </summary>
-        private void StartSaveThread()
-        {
-            if (_saveThread != null && _clearClipboardThread.IsAlive)
-                _saveThread.Abort();
-
-            _saveThread = new Thread(Save);
-            _saveThread.Start();
-        }
-
-        /// <summary>
-        ///     Saves the safe
-        /// </summary>
-        private void Save()
-        {
-            _needsSaving = false;
-            string jsonText = JsonConvert.SerializeObject(SafeData);
-            File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
-            File.WriteAllText($"Resources\\{_openFile}", jsonText);
-            File.Delete($"Resources\\{_openFile}.bak");
-            Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
-        }
-
         #endregion
 
-        #region Entry Modification
+        #region Buttons
 
         /// <summary>
-        ///     Creates a new instance of EntryEditorWindow to create a new Account
+        ///     Creates a new instance of AccountEditorWindow to create a new account when the button is clicked
         /// </summary>
-        private void AddEntry_Click(object sender, RoutedEventArgs e)
+        private void NewAccountOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow"))
-                return; //Check if a entry editor window is already open
-
-            Account newAccount = new Account();
-            EntryEditorWindow entryEditorWindow = new EntryEditorWindow(true, newAccount)
-            {
-                Owner = this,
-                Left = Left + ActualWidth/2.0,
-                Top = Top + ActualHeight/2.0
-            };
-            if (entryEditorWindow.ShowDialog() != true) return;
-            _needsSaving = true;
-            SafeData.Accounts.Add(entryEditorWindow.AccountBeingEdited);
-            ConstructAccountEntries();
+            NewAccount();
         }
 
         /// <summary>
-        ///     Creates a new instance of EntryEditorWindow to edit the currently selected Account on the AccountList DataGrid
+        ///     Creates a new instance of AccountEditorWindow to edit the currently selected account when the button is pressed
         /// </summary>
-        private void EditEntry_Click(object sender, RoutedEventArgs e)
+        private void EditAccountOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow") ||
-                AccountList.SelectedItem == null)
-                return; //Check if a editor window window is already open or no account is selected
-
-            Account editedAccount = (Account) AccountList.SelectedItem;
-            EntryEditorWindow entryEditorWindow = new EntryEditorWindow(false, editedAccount)
-            {
-                Owner = this,
-                Left = Left + ActualWidth/2.0,
-                Top = Top + ActualHeight/2.0
-            };
-            if (entryEditorWindow.ShowDialog() != true) return;
-            _needsSaving = true;
-            SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == entryEditorWindow.AccountBeingEdited.Id)] =
-                entryEditorWindow.AccountBeingEdited;
-            //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
-            ConstructAccountEntries();
+            EditAccount();
         }
 
         /// <summary>
-        ///     Deletes the currently highlighted account
+        ///     Deletes the currently highlighted account when the button is clicked
         /// </summary>
-        private void DeleteEntry_Click(object sender, RoutedEventArgs e)
+        private void DeleteAccountOnClick(object sender, RoutedEventArgs e)
         {
-            DeleteEntry();
-        }
-
-        /// <summary>
-        ///     Deletes the currently highlighted account
-        /// </summary>
-        private void DeleteEntry()
-        {
-            //Asks the user if they are sure they want to delete the account
-            QuestionDialogBox deleteAccountDialogBox =
-                new QuestionDialogBox("Are you sure you want to delete this account?", false)
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth/2.0,
-                    Top = Top + ActualHeight/2.0
-                };
-
-            if (deleteAccountDialogBox.ShowDialog() == true)
-            {
-                Account editedAccount = (Account) AccountList.SelectedItem;
-                SafeData.Accounts.Remove(SafeData.Accounts.Find(x => x.Id == editedAccount.Id));
-                ConstructAccountEntries();
-                _needsSaving = true;
-            }
+            DeleteAccount();
         }
 
         #endregion
@@ -280,7 +199,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Highlights folder if it is hovered over
         /// </summary>
-        private void Folder_MouseEnter(object sender, MouseEventArgs e)
+        private void HighlightFolderWhenMouseEnters(object sender, MouseEventArgs e)
         {
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
@@ -309,7 +228,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Unhighlights folder when mouse if removed from it
         /// </summary>
-        private void Folder_MouseLeave(object sender, MouseEventArgs e)
+        private void UnhighlightFolderWhenMouseLeaves(object sender, MouseEventArgs e)
         {
             // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
             if (sender is Rectangle)
@@ -383,7 +302,7 @@ namespace PasswordSafe
             Expander output = new Expander
             {
                 Header = folder.Name,
-                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1)*10 + 5, 0, 0, 0),
+                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
                 //Sets padding based on indentation
                 Style = (Style) FindResource("DropDownFolder")
             };
@@ -394,7 +313,7 @@ namespace PasswordSafe
                     stackPanel.Children.Add(new Label
                     {
                         Content = childFolder.Name,
-                        Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1)*10 + 10, 5, 5, 5),
+                        Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
                         //Sets padding based on indentation
                         Style = (Style) FindResource("Folder")
                     });
@@ -407,7 +326,85 @@ namespace PasswordSafe
 
         #endregion
 
-        #region DataGrid
+        #region Account modification
+
+        /// <summary>
+        ///     Creates a new instance of AccountEditorWindow to create a new account
+        /// </summary>
+        private void NewAccount()
+        {
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow"))
+                return; //Check if a account editor window is already open
+
+            Account newAccount = new Account();
+            AccountEditorWindow accountEditorWindow = new AccountEditorWindow(true, newAccount) {Owner = this};
+            if (accountEditorWindow.ShowDialog() != true) return;
+            _needsSaving = true;
+            SafeData.Accounts.Add(accountEditorWindow.AccountBeingEdited);
+            ConstructAccountEntries();
+        }
+
+        /// <summary>
+        ///     Creates a new instance of AccountEditorWindow to edit the currently selected account
+        /// </summary>
+        private void EditAccount()
+        {
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow") ||
+                AccountList.SelectedItem == null)
+                return; //Check if a editor window window is already open or no account is selected
+
+            Account editedAccount = (Account)AccountList.SelectedItem;
+            AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) { Owner = this };
+            if (accountEditorWindow.ShowDialog() != true) return;
+            _needsSaving = true;
+            SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)] =
+                accountEditorWindow.AccountBeingEdited;
+            //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
+            ConstructAccountEntries();
+        }
+
+        /// <summary>
+        ///     Deletes the currently highlighted account(s)
+        /// </summary>
+        private void DeleteAccount()
+        {
+            if (AccountList.SelectedItems.Count == 0) return;
+            //Asks the user if they are sure they want to delete the account
+            QuestionDialogBox deleteAccountDialogBox =
+                new QuestionDialogBox(
+                    $"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?",
+                    false)
+                {
+                    Owner = this,
+                    Left = Left + ActualWidth / 2.0,
+                    Top = Top + ActualHeight / 2.0
+                };
+
+            if (deleteAccountDialogBox.ShowDialog() == true)
+            {
+                IList accountsToDelete = AccountList.SelectedItems;
+                foreach (Account account in accountsToDelete)
+                {
+                    SafeData.Accounts.Remove(SafeData.Accounts.Find(x => x.Id == account.Id));
+                }
+                ConstructAccountEntries();
+                _needsSaving = true;
+            }
+        }
+
+        #endregion
+
+        #region Construct DataGrid
+
+        /// <summary>
+        ///     Fills AccountList DataGrid with all the accounts
+        /// </summary>
+        private void ConstructAccountEntries()
+        {
+            _accountFilter = new ObservableCollection<Account>();
+            SafeData.Accounts.ForEach(x => _accountFilter.Add(x));
+            AccountList.ItemsSource = _accountFilter;
+        }
 
         /// <summary>
         ///     Create a column for the AccountList datagrid
@@ -417,11 +414,21 @@ namespace PasswordSafe
         private void ConstructAccountListColumn(string header, string binding)
         {
             DataTemplate dataTemplate = new DataTemplate {DataType = typeof(string)};
-            FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock));
+
+            FrameworkElementFactory grid = new FrameworkElementFactory(typeof(Grid));
+            //Containment for the background and label
+
+            FrameworkElementFactory background = new FrameworkElementFactory(typeof(Rectangle));
+            //Used to provide something to click to trigger editing
+            background.SetValue(StyleProperty, FindResource("CellBackground"));
+            grid.AppendChild(background);
+
+            FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock)); //The main display
             content.SetBinding(TextBlock.TextProperty, new Binding(binding));
             content.SetValue(StyleProperty, FindResource("CellTextBlock"));
-            content.AddHandler(MouseDownEvent, new MouseButtonEventHandler(DataGridCellLabel_MouseDown));
-            dataTemplate.VisualTree = content;
+            grid.AppendChild(content);
+
+            dataTemplate.VisualTree = grid;
 
             AccountList.Columns.Add(new DataGridTemplateColumn
             {
@@ -432,21 +439,47 @@ namespace PasswordSafe
         }
 
         /// <summary>
-        ///     Copies the content of the clicked cell to the clipboard
+        ///     Creates a new instance of AccountEditorWindow to edit an account when it is double clicked
         /// </summary>
-        private void DataGridCellLabel_MouseDown(object sender, MouseButtonEventArgs e)
+        private void EditAccountOnDoubleLeftClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+                EditAccount();
+        }
+
+        /// <summary>
+        ///     Copies the content of a cell to the clipboard
+        /// </summary>
+        private void CopyCellOnClick(object sender, RoutedEventArgs e)
+        {
+            CopyCell(((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget as TextBlock);
+        }
+
+        /// <summary>
+        ///     Copies the content of a cell to the clipboard when the label is double clicked
+        /// </summary>
+        private void CopyCellOnLeftClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
             {
-                Clipboard.SetText(((TextBlock) sender).Text);
-
-                //Terminates any currently running ClearClipboard threads
-                if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
-                    _clearClipboardThread.Abort();
-
-                _clearClipboardThread = new Thread(ClearClipboard);
-                _clearClipboardThread.Start();
+                CopyCell((TextBlock) sender);
             }
+        }
+
+        /// <summary>
+        ///     Copies the content of the cell to the clipboard
+        /// </summary>
+        /// <param name="cell">The cell to copy the data from</param>
+        private void CopyCell(TextBlock cell)
+        {
+            Clipboard.SetText(cell.Text);
+
+            //Terminates any currently running ClearClipboard threads
+            if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
+                _clearClipboardThread.Abort();
+
+            _clearClipboardThread = new Thread(ClearClipboard);
+            _clearClipboardThread.Start();
         }
 
         /// <summary>
@@ -471,7 +504,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Runs final commands before closing
         /// </summary>
-        private void MetroWindow_Closing(object sender, CancelEventArgs e)
+        private void MetroWindowClosing(object sender, CancelEventArgs e)
         {
             //Terminates the _clearClipboardThread if it is running
             if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
@@ -485,8 +518,8 @@ namespace PasswordSafe
                     "Do you want to save before you quit?", true)
                 {
                     Owner = this,
-                    Left = Left + ActualWidth/2.0,
-                    Top = Top + ActualHeight/2.0
+                    Left = Left + ActualWidth / 2.0,
+                    Top = Top + ActualHeight / 2.0
                 };
 
                 if (saveBeforeQuitDialogBox.ShowDialog() == true)
@@ -494,6 +527,35 @@ namespace PasswordSafe
                     Save();
                 }
             }
+        }
+
+        #endregion
+
+        #region Saving
+
+        /// <summary>
+        ///     Starts a new thread to save the safe
+        /// </summary>
+        private void StartSaveThread()
+        {
+            if (_saveThread != null && _clearClipboardThread.IsAlive)
+                _saveThread.Abort();
+
+            _saveThread = new Thread(Save);
+            _saveThread.Start();
+        }
+
+        /// <summary>
+        ///     Saves the safe
+        /// </summary>
+        private void Save()
+        {
+            _needsSaving = false;
+            string jsonText = JsonConvert.SerializeObject(SafeData);
+            File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
+            File.WriteAllText($"Resources\\{_openFile}", jsonText);
+            File.Delete($"Resources\\{_openFile}.bak");
+            Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
         }
 
         #endregion

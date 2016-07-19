@@ -4,9 +4,9 @@
         <Label Width="Auto" Height="25" Margin="10,60,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Master Password:" FontWeight="Bold" />
         <PasswordBox Name="PasswordInput" Width="280" Height="25" Margin="10,90,10,0" HorizontalAlignment="Center" VerticalAlignment="Top" />
         <Label Width="Auto" Height="25" Margin="10,120,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Safe:" FontWeight="Bold" />
-        <Button Name="NewSafe" Width="100" Height="26" Margin="190,150,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="NewSafe_Click" Content="Create New Safe" />
+        <Button Name="NewSafe" Width="100" Height="26" Margin="190,150,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="NewSafeOnClick" Content="Create New Safe" />
         <ComboBox Name="SafeSelector" Width="175" Height="25" Margin="10,150,115,0" HorizontalAlignment="Center" VerticalAlignment="Top" />
-        <Button Name="LoginButton" Width="100" Height="25" Margin="0,190,120,10" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LoginButton_Click" Content="Login" IsDefault="True" />
-        <Button Name="ExitButton" Width="100" Height="25" Margin="0,190,10,10" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ExitButton_Click" Content="Exit" />
+        <Button Name="LoginButton" Width="100" Height="25" Margin="0,190,120,10" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LoginOnClick" Content="Login" IsDefault="True" />
+        <Button Name="ExitButton" Width="100" Height="25" Margin="0,190,10,10" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ExitOnClick" Content="Exit" />
     </Grid>
 </controls:MetroWindow>

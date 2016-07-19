@@ -7,23 +7,23 @@ using PasswordSafe.Data;
 namespace PasswordSafe
 {
     /// <summary>
-    ///     Interaction logic for EntryEditorWindow.xaml
+    ///     Interaction logic for AccountEditorWindow.xaml
     /// </summary>
-    public partial class EntryEditorWindow : MetroWindow
+    public partial class AccountEditorWindow : MetroWindow
     {
-        public EntryEditorWindow(bool addEntry, Account accountToModify)
+        public AccountEditorWindow(bool addAccount, Account accountToModify)
         {
             InitializeComponent();
             AccountBeingEdited = accountToModify;
-            if (addEntry)
+            if (addAccount)
             {
-                Header.Content = "ADD ENTRY:";
+                Header.Content = "ADD ACCOUNT:";
                 ComfirmButton.Content = "Create";
                 AccountBeingEdited.Id = -1; //-1 is used so it can be realised the ID is not set
             }
             else
             {
-                Header.Content = "EDIT ENTRY:";
+                Header.Content = "EDIT ACCOUNT:";
                 ComfirmButton.Content = "Apply";
                 SetTextBoxValues(accountToModify);
             }
@@ -37,18 +37,18 @@ namespace PasswordSafe
         /// <param name="account">The account that the values are taken from</param>
         private void SetTextBoxValues(Account account)
         {
-            AccountEntry.Text = account.AccountName;
-            UsernameEntry.Text = account.Username;
-            EmailEntry.Text = account.Email;
-            PasswordEntry.Password = account.Password;
-            UrlEntry.Text = account.Url;
-            NotesEntry.Text = account.Notes;
+            AccountField.Text = account.AccountName;
+            UsernameField.Text = account.Username;
+            EmailField.Text = account.Email;
+            PasswordField.Password = account.Password;
+            UrlField.Text = account.Url;
+            NotesField.Text = account.Notes;
         }
 
         /// <summary>
         ///     Sets values of accountBeingEdited to be equal to the values in the input boxes then closes the window
         /// </summary>
-        private void ComfirmButton_Click(object sender, RoutedEventArgs e)
+        private void ComfirmOnClick(object sender, RoutedEventArgs e)
         {
             Confirm();
         }
@@ -74,12 +74,12 @@ namespace PasswordSafe
                     AccountBeingEdited.Id = MainWindow.SafeData.Accounts.Last().Id + 1;
                 else
                     AccountBeingEdited.Id = 0;
-            AccountBeingEdited.AccountName = AccountEntry.Text;
-            AccountBeingEdited.Username = UsernameEntry.Text;
-            AccountBeingEdited.Email = EmailEntry.Text;
-            AccountBeingEdited.Password = PasswordEntry.Password;
-            AccountBeingEdited.Url = UrlEntry.Text;
-            AccountBeingEdited.Notes = NotesEntry.Text;
+            AccountBeingEdited.AccountName = AccountField.Text;
+            AccountBeingEdited.Username = UsernameField.Text;
+            AccountBeingEdited.Email = EmailField.Text;
+            AccountBeingEdited.Password = PasswordField.Password;
+            AccountBeingEdited.Url = UrlField.Text;
+            AccountBeingEdited.Notes = NotesField.Text;
 
             DialogResult = true;
             Close();
@@ -88,7 +88,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Closes the window without updating the account's data
         /// </summary>
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelOnClick(object sender, RoutedEventArgs e)
         {
             Close();
         }

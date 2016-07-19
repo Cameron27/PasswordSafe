@@ -37,40 +37,25 @@ namespace PasswordSafe
         /// <summary>
         ///     Shows a dialog box to get the name for the new safe and creates it
         /// </summary>
-        private void NewSafe_Click(object sender, RoutedEventArgs e)
+        private void NewSafeOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "EntryEditorWindow"))
-                return; //Check if a entry editor window is already open
+            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow"))
+                return; //Check if a account editor window is already open
 
-            TextInputDialogBox fileNameDialogBox = new TextInputDialogBox("Please enter the name for your new Safe:",
-                "Create", "Cancel")
-            {
-                Owner = this,
-                Left = Left + ActualWidth / 2.0,
-                Top = Top + ActualHeight / 2.0
-            };
+            TextInputDialogBox fileNameDialogBox = new TextInputDialogBox("Please enter the name for your new Safe:", "Create",
+                "Cancel") {Owner = this,};
 
             if (fileNameDialogBox.ShowDialog() != true || fileNameDialogBox.Input.Text == "") return;
             string name = fileNameDialogBox.Input.Text;
             if (SafeSelector.Items.Cast<string>().Any(x => x == name))
             {
-                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists")
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth / 2.0,
-                    Top = Top + ActualHeight / 2.0
-                };
+                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists") {Owner = this};
                 error.ShowDialog();
                 return;
             }
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                ErrorMessageDialogBox error = new ErrorMessageDialogBox("That is not a valid file name")
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth / 2.0,
-                    Top = Top + ActualHeight / 2.0
-                };
+                ErrorMessageDialogBox error = new ErrorMessageDialogBox("That is not a valid file name") {Owner = this};
                 error.ShowDialog();
                 return;
             }
@@ -81,7 +66,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Logs into the password safe
         /// </summary>
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void LoginOnClick(object sender, RoutedEventArgs e)
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "MainWindow"))
                 return; //Check if a settings window is already open
@@ -94,7 +79,7 @@ namespace PasswordSafe
         /// <summary>
         ///     Closes the window
         /// </summary>
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        private void ExitOnClick(object sender, RoutedEventArgs e)
         {
             Close();
         }
