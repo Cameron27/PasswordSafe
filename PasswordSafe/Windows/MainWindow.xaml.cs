@@ -109,7 +109,7 @@ namespace PasswordSafe
 
         #endregion
 
-        #region Commands
+        #region Hotkeys
 
         /// <summary>
         ///     Checks for global key press events
@@ -146,13 +146,9 @@ namespace PasswordSafe
                 DeleteAccount();
         }
 
-        /// <summary>
-        ///     Closes the window
-        /// </summary>
-        private void CloseOnClick(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        #endregion
+
+        #region Buttons
 
         /// <summary>
         ///     Saves the safe
@@ -164,9 +160,13 @@ namespace PasswordSafe
             StartSaveThread();
         }
 
-        #endregion
-
-        #region Buttons
+        /// <summary>
+        ///     Closes the window
+        /// </summary>
+        private void CloseOnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
 
         /// <summary>
         ///     Creates a new instance of AccountEditorWindow to create a new account when the button is clicked
@@ -190,6 +190,30 @@ namespace PasswordSafe
         private void DeleteAccountOnClick(object sender, RoutedEventArgs e)
         {
             DeleteAccount();
+        }
+
+        /// <summary>
+        ///     Hides and unhides columns when the context menu is checked and unchecked
+        /// </summary>
+        private void AdjustColumnVisibilityOnClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItemClicked = (MenuItem) sender ;
+
+            if (menuItemClicked.IsChecked)
+                AccountList.Columns.Single(x => (string) x.Header == (string)menuItemClicked.Header).Visibility =
+                    Visibility.Visible;
+            else
+            {
+                List<MenuItem> allMenuItems = new List<MenuItem>();
+                allMenuItems.AddRange(((ContextMenu) menuItemClicked.Parent).Items.OfType<MenuItem>());
+                //Prevents the last column from being unchecked leaving the whole DataGrid blank
+                if (allMenuItems.Count(x => x.IsChecked) != 0)
+                    AccountList.Columns.Single(x => (string)x.Header == (string)menuItemClicked.Header).Visibility =
+                        Visibility.Collapsed;
+                else
+                    menuItemClicked.IsChecked = true;
+            }
+
         }
 
         #endregion
@@ -326,7 +350,7 @@ namespace PasswordSafe
 
         #endregion
 
-        #region Account modification
+        #region Account Modification
 
         /// <summary>
         ///     Creates a new instance of AccountEditorWindow to create a new account
@@ -353,8 +377,8 @@ namespace PasswordSafe
                 AccountList.SelectedItem == null)
                 return; //Check if a editor window window is already open or no account is selected
 
-            Account editedAccount = (Account)AccountList.SelectedItem;
-            AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) { Owner = this };
+            Account editedAccount = (Account) AccountList.SelectedItem;
+            AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
             SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)] =
@@ -434,7 +458,8 @@ namespace PasswordSafe
             {
                 Header = header,
                 SortMemberPath = binding,
-                CellTemplate = dataTemplate
+                CellTemplate = dataTemplate,
+                HeaderStyle = (Style) FindResource("ColumnHeader")
             });
         }
 
@@ -452,7 +477,7 @@ namespace PasswordSafe
         /// </summary>
         private void CopyCellOnClick(object sender, RoutedEventArgs e)
         {
-            CopyCell(((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget as TextBlock);
+            CopyCell((TextBlock) ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget);
         }
 
         /// <summary>

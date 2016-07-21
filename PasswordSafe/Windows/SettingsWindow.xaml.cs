@@ -67,6 +67,7 @@ namespace PasswordSafe
             if (FontSizeSelector.Value <= 32 && FontSizeSelector.Value > 0)
             {
                 Application.Current.Resources["MainFontSize"] = FontSizeSelector.Value;
+                Application.Current.Resources["LargerFontSize"] = FontSizeSelector.Value + 2;
             }
         }
 

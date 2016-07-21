@@ -10,6 +10,8 @@
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="MainFont">Arial</FontFamily>
             <system:Double x:Key="MainFontSize">12</system:Double>
+            <!--  This is always 2 larger than the main font size  -->
+            <system:Double x:Key="LargerFontSize">14</system:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
