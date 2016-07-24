@@ -1,24 +1,6 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PasswordSafe.Properties" GeneratedClassName="Settings">
+
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
   <Profiles />
-  <Settings>
-    <Setting Name="MainFont" Type="System.Windows.Media.FontFamily" Scope="User">
-      <Value Profile="(Default)">Arial</Value>
-    </Setting>
-    <Setting Name="MainFontSize" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">12</Value>
-    </Setting>
-    <Setting Name="LargerFontSize" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">14</Value>
-    </Setting>
-    <Setting Name="Theme" Type="System.String" Scope="User">
-      <Value Profile="(Default)">BaseLight</Value>
-    </Setting>
-    <Setting Name="Accent" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Blue</Value>
-    </Setting>
-    <Setting Name="VisibleColumns" Type="System.String" Scope="User">
-      <Value Profile="(Default)">111111</Value>
-    </Setting>
-  </Settings>
+  <Settings />
 </SettingsFile>

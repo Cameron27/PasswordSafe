@@ -12,6 +12,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using AMS.Profile;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 using PasswordSafe.Data;
@@ -30,6 +31,7 @@ namespace PasswordSafe
         private static string _openFile;
         private static Thread _clearClipboardThread;
         private static Thread _saveThread;
+        private static readonly Xml _profile = new Xml("config.xml");
 
         public MainWindow(string openFile)
         {
@@ -232,7 +234,7 @@ namespace PasswordSafe
             MenuItem menuItemClicked = (MenuItem) sender;
 
             List<MenuItem> allMenuItems = new List<MenuItem>();
-            allMenuItems.AddRange(((ContextMenu)menuItemClicked.Parent).Items.OfType<MenuItem>());
+            allMenuItems.AddRange(((ContextMenu) menuItemClicked.Parent).Items.OfType<MenuItem>());
 
             if (menuItemClicked.IsChecked)
             {
@@ -240,9 +242,9 @@ namespace PasswordSafe
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = Settings.Default.VisibleColumns.ToCharArray();
+                char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                 charArray[indexToChange] = '1';
-                Settings.Default.VisibleColumns = new string(charArray);
+                _profile.SetValue("Global", "VisibleColumns", new string(charArray));
             }
 
             else
@@ -254,14 +256,13 @@ namespace PasswordSafe
                         Visibility.Collapsed;
                     //Changes the settings file
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                    char[] charArray = Settings.Default.VisibleColumns.ToCharArray();
+                    char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                     charArray[indexToChange] = '0';
-                    Settings.Default.VisibleColumns = new string(charArray);
+                    _profile.SetValue("Global", "VisibleColumns", new string(charArray));
                 }
                 else
                     menuItemClicked.IsChecked = true;
             }
-
         }
 
         #endregion
@@ -504,7 +505,7 @@ namespace PasswordSafe
 
             dataTemplate.VisualTree = grid;
 
-            bool isHidden = Settings.Default.VisibleColumns[index] == '0';
+            bool isHidden = _profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
             DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,

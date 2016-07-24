@@ -9,7 +9,7 @@ namespace PasswordSafe
     public partial class ErrorMessageDialogBox : MetroWindow
     {
         /// <summary>
-        /// Dialog box to inform user of an error
+        ///     Dialog box to inform user of an error
         /// </summary>
         /// <param name="errorMessage">Error message</param>
         public ErrorMessageDialogBox(string errorMessage)

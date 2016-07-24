@@ -1,11 +1,10 @@
-﻿//#define RESETSETTINGS
-
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
+using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
-using PasswordSafe.Properties;
 
 namespace PasswordSafe
 {
@@ -14,17 +13,16 @@ namespace PasswordSafe
     /// </summary>
     public partial class LoginWindow : MetroWindow
     {
+        private static readonly Xml _profile = new Xml("config.xml");
+
         public LoginWindow()
         {
             InitializeComponent();
 
-#if RESETSETTINGS
-            Settings.Default.Reset();
-#endif
-
             PasswordInput.Focus();
             LoadSafeOptions(null);
             SetStyle();
+            SetFont();
         }
 
         /// <summary>
@@ -32,9 +30,21 @@ namespace PasswordSafe
         /// </summary>
         private void SetStyle()
         {
-            Accent accent = ThemeManager.GetAccent(Settings.Default.Accent);
-            AppTheme theme = ThemeManager.GetAppTheme(Settings.Default.Theme);
+            Accent accent = ThemeManager.GetAccent(_profile.GetValue("Global", "Accent", "Blue"));
+            AppTheme theme = ThemeManager.GetAppTheme(_profile.GetValue("Global", "Theme", "BaseLight"));
             ThemeManager.ChangeAppStyle(Application.Current, accent, theme);
+        }
+
+        /// <summary>
+        ///     Sets the app font and fonts size to whatever is saved
+        /// </summary>
+        private void SetFont()
+        {
+            Application.Current.Resources["MainFont"] = new FontFamily(_profile.GetValue("Global", "MainFont", "Arial"));
+            Application.Current.Resources["MainFontSize"] =
+                double.Parse(_profile.GetValue("Global", "MainFontSize", "12"));
+            Application.Current.Resources["LargerFontSize"] =
+                double.Parse(_profile.GetValue("Global", "MainFontSize", "12")) + 2;
         }
 
         /// <summary>

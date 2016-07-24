@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
-using PasswordSafe.Properties;
 
 namespace PasswordSafe
 {
@@ -15,6 +15,8 @@ namespace PasswordSafe
     /// </summary>
     public partial class SettingsWindow : MetroWindow
     {
+        private static readonly Xml _profile = new Xml("config.xml");
+
         public SettingsWindow()
         {
             InitializeComponent();
@@ -22,8 +24,8 @@ namespace PasswordSafe
             if (ThemeManager.DetectAppStyle(Application.Current).Item1 == ThemeManager.GetAppTheme("BaseDark"))
                 DarkModeToggle.IsChecked = true;
             AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
-            FontSelector.SelectedValue = Settings.Default.MainFont;
-            FontSizeSelector.Value = Settings.Default.MainFontSize;
+            FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
+            FontSizeSelector.Value = (double?) Application.Current.Resources["MainFontSize"];
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace PasswordSafe
                 ThemeManager.ChangeAppStyle(Application.Current, selectedAccent, currentStyle.Item1);
 
                 //Saves the accent in settings
-                Settings.Default.Accent = ((Accent) AccentSelector.SelectedItem).Name;
+                _profile.SetValue("Global", "Accent", ((Accent) AccentSelector.SelectedItem).Name);
             }
         }
 
@@ -52,7 +54,7 @@ namespace PasswordSafe
             Thread changeAppThemeThread = new Thread(ChangeAppTheme);
             changeAppThemeThread.Start();
             //Saves the theme in the settings
-            Settings.Default.Theme = DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight";
+            _profile.SetValue("Global", "Theme", DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight");
         }
 
         /// <summary>
@@ -74,7 +76,8 @@ namespace PasswordSafe
         /// </summary>
         private void ChangeProgramsFont(object sender, SelectionChangedEventArgs e)
         {
-            Settings.Default.MainFont = FontSelector.SelectedItem as FontFamily;
+            Application.Current.Resources["MainFont"] = (FontFamily) FontSelector.SelectedItem;
+            _profile.SetValue("Global", "MainFont", (FontFamily) FontSelector.SelectedItem);
         }
 
         /// <summary>
@@ -84,8 +87,9 @@ namespace PasswordSafe
         {
             if (FontSizeSelector.Value != null)
             {
-                Settings.Default.MainFontSize = (double) FontSizeSelector.Value;
-                Settings.Default.LargerFontSize = (double) (FontSizeSelector.Value + 2);
+                Application.Current.Resources["MainFontSize"] = FontSizeSelector.Value;
+                Application.Current.Resources["LargerFontSize"] = FontSizeSelector.Value;
+                _profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
             }
         }
     }

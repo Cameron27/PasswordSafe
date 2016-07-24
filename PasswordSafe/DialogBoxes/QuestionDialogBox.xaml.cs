@@ -9,7 +9,7 @@ namespace PasswordSafe
     public partial class QuestionDialogBox : MetroWindow
     {
         /// <summary>
-        /// Asks user a yes or no question and returns a boolean
+        ///     Asks user a yes or no question and returns a boolean
         /// </summary>
         /// <param name="question">Question to display to the user</param>
         /// <param name="defaultYes">Is yes the default answer for when enter is pressed</param>
