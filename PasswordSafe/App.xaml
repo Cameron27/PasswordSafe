@@ -1,4 +1,4 @@
-﻿<Application x:Class="PasswordSafe.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:PasswordSafe" xmlns:system="clr-namespace:System;assembly=mscorlib" StartupUri="Windows/LoginWindow.xaml">
+﻿<Application x:Class="PasswordSafe.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:PasswordSafe" xmlns:properties="clr-namespace:PasswordSafe.Properties" xmlns:resources="clr-namespace:PasswordSafe" xmlns:system="clr-namespace:System;assembly=mscorlib" StartupUri="Windows/LoginWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -8,7 +8,8 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <FontFamily x:Key="MainFont">Arial</FontFamily>
+            <properties:Settings x:Key="Settings" />
+            <!--<FontFamily x:Key="MainFont">Arial</FontFamily>-->
             <system:Double x:Key="MainFontSize">12</system:Double>
             <!--  This is always 2 larger than the main font size  -->
             <system:Double x:Key="LargerFontSize">14</system:Double>

@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 using PasswordSafe.Data;
+using PasswordSafe.Properties;
 
 namespace PasswordSafe
 {
@@ -61,9 +62,9 @@ namespace PasswordSafe
             };
 
             //Genterate all of the columns for AccountList
-            foreach (Tuple<string, string> tuple in columnsToGenerate)
+            for (int i = 0; i < columnsToGenerate.Count; i++)
             {
-                ConstructAccountListColumn(tuple.Item1, tuple.Item2);
+                ConstructAccountListColumn(columnsToGenerate[i].Item1, columnsToGenerate[i].Item2, i);
             }
 
             ConstructAccountEntries();
@@ -109,7 +110,7 @@ namespace PasswordSafe
 
         #endregion
 
-        #region Hotkeys
+        #region Global Events
 
         /// <summary>
         ///     Checks for global key press events
@@ -144,6 +145,37 @@ namespace PasswordSafe
             //Deletes the selected account if the delete key is pressed
             if (e.Key == Key.Delete)
                 DeleteAccount();
+        }
+
+        /// <summary>
+        ///     Runs final commands before closing
+        /// </summary>
+        private void MetroWindowClosing(object sender, CancelEventArgs e)
+        {
+            //Terminates the _clearClipboardThread if it is running
+            if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
+                _clearClipboardThread.Abort();
+            Clipboard.SetText("");
+
+            //Checks if the user wants to save
+            if (_needsSaving)
+            {
+                QuestionDialogBox saveBeforeQuitDialogBox = new QuestionDialogBox(
+                    "Do you want to save before you quit?", true)
+                {
+                    Owner = this,
+                    Left = Left + ActualWidth / 2.0,
+                    Top = Top + ActualHeight / 2.0
+                };
+
+                if (saveBeforeQuitDialogBox.ShowDialog() == true)
+                {
+                    Save();
+                }
+            }
+
+            //Saves the settings
+            Settings.Default.Save();
         }
 
         #endregion
@@ -197,19 +229,35 @@ namespace PasswordSafe
         /// </summary>
         private void AdjustColumnVisibilityOnClick(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItemClicked = (MenuItem) sender ;
+            MenuItem menuItemClicked = (MenuItem) sender;
+
+            List<MenuItem> allMenuItems = new List<MenuItem>();
+            allMenuItems.AddRange(((ContextMenu)menuItemClicked.Parent).Items.OfType<MenuItem>());
 
             if (menuItemClicked.IsChecked)
-                AccountList.Columns.Single(x => (string) x.Header == (string)menuItemClicked.Header).Visibility =
+            {
+                AccountList.Columns.Single(x => (string) x.Header == (string) menuItemClicked.Header).Visibility =
                     Visibility.Visible;
+                //Changes the settings file
+                int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
+                char[] charArray = Settings.Default.VisibleColumns.ToCharArray();
+                charArray[indexToChange] = '1';
+                Settings.Default.VisibleColumns = new string(charArray);
+            }
+
             else
             {
-                List<MenuItem> allMenuItems = new List<MenuItem>();
-                allMenuItems.AddRange(((ContextMenu) menuItemClicked.Parent).Items.OfType<MenuItem>());
                 //Prevents the last column from being unchecked leaving the whole DataGrid blank
                 if (allMenuItems.Count(x => x.IsChecked) != 0)
-                    AccountList.Columns.Single(x => (string)x.Header == (string)menuItemClicked.Header).Visibility =
+                {
+                    AccountList.Columns.Single(x => (string) x.Header == (string) menuItemClicked.Header).Visibility =
                         Visibility.Collapsed;
+                    //Changes the settings file
+                    int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
+                    char[] charArray = Settings.Default.VisibleColumns.ToCharArray();
+                    charArray[indexToChange] = '0';
+                    Settings.Default.VisibleColumns = new string(charArray);
+                }
                 else
                     menuItemClicked.IsChecked = true;
             }
@@ -435,32 +483,45 @@ namespace PasswordSafe
         /// </summary>
         /// <param name="header">Columns heading</param>
         /// <param name="binding">Columns binding</param>
-        private void ConstructAccountListColumn(string header, string binding)
+        /// <param name="index">The index of the column</param>
+        private void ConstructAccountListColumn(string header, string binding, int index)
         {
             DataTemplate dataTemplate = new DataTemplate {DataType = typeof(string)};
 
+            //Containment for the background and lable
             FrameworkElementFactory grid = new FrameworkElementFactory(typeof(Grid));
-            //Containment for the background and label
 
-            FrameworkElementFactory background = new FrameworkElementFactory(typeof(Rectangle));
             //Used to provide something to click to trigger editing
+            FrameworkElementFactory background = new FrameworkElementFactory(typeof(Rectangle));
             background.SetValue(StyleProperty, FindResource("CellBackground"));
             grid.AppendChild(background);
 
-            FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock)); //The main display
+            //The main display
+            FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock));
             content.SetBinding(TextBlock.TextProperty, new Binding(binding));
             content.SetValue(StyleProperty, FindResource("CellTextBlock"));
             grid.AppendChild(content);
 
             dataTemplate.VisualTree = grid;
 
-            AccountList.Columns.Add(new DataGridTemplateColumn
+            bool isHidden = Settings.Default.VisibleColumns[index] == '0';
+            DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,
                 SortMemberPath = binding,
                 CellTemplate = dataTemplate,
-                HeaderStyle = (Style) FindResource("ColumnHeader")
-            });
+                HeaderStyle = (Style) FindResource("ColumnHeader"),
+                Visibility = isHidden ? Visibility.Collapsed : Visibility.Visible
+            };
+            AccountList.Columns.Add(column);
+
+            //Unchecks hidden columns
+
+            if (isHidden)
+            {
+                ContextMenu contextMenu = (ContextMenu) FindResource("ColumnHeaderContextMenu");
+                ((MenuItem) contextMenu.Items[index]).IsChecked = false;
+            }
         }
 
         /// <summary>
@@ -524,34 +585,6 @@ namespace PasswordSafe
             Application.Current.Dispatcher.Invoke(() => Clipboard.SetText(""));
             //This line of code can throw a System.Runtime.InteropServices.COMException if the user happens to be pasting at the time of this code being run
             Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "");
-        }
-
-        /// <summary>
-        ///     Runs final commands before closing
-        /// </summary>
-        private void MetroWindowClosing(object sender, CancelEventArgs e)
-        {
-            //Terminates the _clearClipboardThread if it is running
-            if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
-                _clearClipboardThread.Abort();
-            Clipboard.SetText("");
-
-            //Checks if the user wants to save
-            if (_needsSaving)
-            {
-                QuestionDialogBox saveBeforeQuitDialogBox = new QuestionDialogBox(
-                    "Do you want to save before you quit?", true)
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth / 2.0,
-                    Top = Top + ActualHeight / 2.0
-                };
-
-                if (saveBeforeQuitDialogBox.ShowDialog() == true)
-                {
-                    Save();
-                }
-            }
         }
 
         #endregion

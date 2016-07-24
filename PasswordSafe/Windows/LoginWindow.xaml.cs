@@ -1,7 +1,11 @@
-﻿using System.IO;
+﻿//#define RESETSETTINGS
+
+using System.IO;
 using System.Linq;
 using System.Windows;
+using MahApps.Metro;
 using MahApps.Metro.Controls;
+using PasswordSafe.Properties;
 
 namespace PasswordSafe
 {
@@ -13,8 +17,24 @@ namespace PasswordSafe
         public LoginWindow()
         {
             InitializeComponent();
+
+#if RESETSETTINGS
+            Settings.Default.Reset();
+#endif
+
             PasswordInput.Focus();
             LoadSafeOptions(null);
+            SetStyle();
+        }
+
+        /// <summary>
+        ///     Sets the app theme to be whatever is saved
+        /// </summary>
+        private void SetStyle()
+        {
+            Accent accent = ThemeManager.GetAccent(Settings.Default.Accent);
+            AppTheme theme = ThemeManager.GetAppTheme(Settings.Default.Theme);
+            ThemeManager.ChangeAppStyle(Application.Current, accent, theme);
         }
 
         /// <summary>
@@ -42,14 +62,18 @@ namespace PasswordSafe
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow"))
                 return; //Check if a account editor window is already open
 
-            TextInputDialogBox fileNameDialogBox = new TextInputDialogBox("Please enter the name for your new Safe:", "Create",
-                "Cancel") {Owner = this,};
+            TextInputDialogBox fileNameDialogBox = new TextInputDialogBox("Please enter the name for your new Safe:",
+                "Create",
+                "Cancel") {Owner = this};
 
             if (fileNameDialogBox.ShowDialog() != true || fileNameDialogBox.Input.Text == "") return;
             string name = fileNameDialogBox.Input.Text;
             if (SafeSelector.Items.Cast<string>().Any(x => x == name))
             {
-                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists") {Owner = this};
+                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists")
+                {
+                    Owner = this
+                };
                 error.ShowDialog();
                 return;
             }
