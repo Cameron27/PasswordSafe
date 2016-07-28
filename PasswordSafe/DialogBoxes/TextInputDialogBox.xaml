@@ -15,10 +15,8 @@
         <Label Name="Information" Height="25" Margin="5,5,5,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <TextBox Name="Input" Height="25" Margin="5,30,5,0" HorizontalAlignment="Stretch" VerticalAlignment="Top" />
         <Button Name="ConfirmButton" Width="100" Height="25" Margin="5,65,110,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="ConfirmButton_Click"
-                IsDefault="True" />
+                VerticalAlignment="Top" Click="ConfirmButton_Click" IsDefault="True" />
         <Button Name="CancelButton" Width="100" Height="25" Margin="0,65,5,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="CancelButton_Click"
-                IsCancel="True" />
+                VerticalAlignment="Top" Click="CancelButton_Click" IsCancel="True" />
     </Grid>
 </controls:MetroWindow>

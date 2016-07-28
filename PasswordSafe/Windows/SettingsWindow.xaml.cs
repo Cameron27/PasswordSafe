@@ -15,7 +15,7 @@ namespace PasswordSafe
     /// </summary>
     public partial class SettingsWindow : MetroWindow
     {
-        private static readonly Xml _profile = new Xml("config.xml");
+        private static readonly Xml Profile = new Xml("config.xml");
 
         public SettingsWindow()
         {
@@ -41,7 +41,7 @@ namespace PasswordSafe
                 ThemeManager.ChangeAppStyle(Application.Current, selectedAccent, currentStyle.Item1);
 
                 //Saves the accent in settings
-                _profile.SetValue("Global", "Accent", ((Accent) AccentSelector.SelectedItem).Name);
+                Profile.SetValue("Global", "Accent", ((Accent) AccentSelector.SelectedItem).Name);
             }
         }
 
@@ -54,7 +54,7 @@ namespace PasswordSafe
             Thread changeAppThemeThread = new Thread(ChangeAppTheme);
             changeAppThemeThread.Start();
             //Saves the theme in the settings
-            _profile.SetValue("Global", "Theme", DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight");
+            Profile.SetValue("Global", "Theme", DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight");
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace PasswordSafe
         private void ChangeProgramsFont(object sender, SelectionChangedEventArgs e)
         {
             Application.Current.Resources["MainFont"] = (FontFamily) FontSelector.SelectedItem;
-            _profile.SetValue("Global", "MainFont", (FontFamily) FontSelector.SelectedItem);
+            Profile.SetValue("Global", "MainFont", (FontFamily) FontSelector.SelectedItem);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace PasswordSafe
             {
                 Application.Current.Resources["MainFontSize"] = FontSizeSelector.Value;
                 Application.Current.Resources["LargerFontSize"] = FontSizeSelector.Value;
-                _profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
+                Profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
             }
         }
     }

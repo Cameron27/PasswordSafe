@@ -14,7 +14,6 @@
     <Grid>
         <Label Name="Information" Height="25" Margin="5,5,5,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Button Name="ConfirmButton" Width="100" Height="25" Margin="5,35,5,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="CancelButton_Click"
-                Content="OK" IsCancel="True" IsDefault="True" />
+                VerticalAlignment="Top" Click="CancelButton_Click" Content="OK" IsCancel="True" IsDefault="True" />
     </Grid>
 </controls:MetroWindow>

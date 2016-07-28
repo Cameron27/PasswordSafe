@@ -16,7 +16,6 @@
         <Button Name="YesButton" Width="100" Height="25" Margin="5,35,110,5" HorizontalAlignment="Right"
                 VerticalAlignment="Top" Click="YesButton_Click" Content="Yes" />
         <Button Name="NoButton" Width="100" Height="25" Margin="0,35,5,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="NoButton_Click" Content="No"
-                IsCancel="True" IsDefault="True" />
+                VerticalAlignment="Top" Click="NoButton_Click" Content="No" IsCancel="True" IsDefault="True" />
     </Grid>
 </controls:MetroWindow>

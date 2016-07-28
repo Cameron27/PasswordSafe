@@ -13,7 +13,7 @@ namespace PasswordSafe
     /// </summary>
     public partial class LoginWindow : MetroWindow
     {
-        private static readonly Xml _profile = new Xml("config.xml");
+        private static readonly Xml Profile = new Xml("config.xml");
 
         public LoginWindow()
         {
@@ -30,8 +30,8 @@ namespace PasswordSafe
         /// </summary>
         private void SetStyle()
         {
-            Accent accent = ThemeManager.GetAccent(_profile.GetValue("Global", "Accent", "Blue"));
-            AppTheme theme = ThemeManager.GetAppTheme(_profile.GetValue("Global", "Theme", "BaseLight"));
+            Accent accent = ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue"));
+            AppTheme theme = ThemeManager.GetAppTheme(Profile.GetValue("Global", "Theme", "BaseLight"));
             ThemeManager.ChangeAppStyle(Application.Current, accent, theme);
         }
 
@@ -40,11 +40,11 @@ namespace PasswordSafe
         /// </summary>
         private void SetFont()
         {
-            Application.Current.Resources["MainFont"] = new FontFamily(_profile.GetValue("Global", "MainFont", "Arial"));
+            Application.Current.Resources["MainFont"] = new FontFamily(Profile.GetValue("Global", "MainFont", "Arial"));
             Application.Current.Resources["MainFontSize"] =
-                double.Parse(_profile.GetValue("Global", "MainFontSize", "12"));
+                double.Parse(Profile.GetValue("Global", "MainFontSize", "12"));
             Application.Current.Resources["LargerFontSize"] =
-                double.Parse(_profile.GetValue("Global", "MainFontSize", "12")) + 2;
+                double.Parse(Profile.GetValue("Global", "MainFontSize", "12")) + 2;
         }
 
         /// <summary>

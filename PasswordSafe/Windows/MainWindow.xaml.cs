@@ -16,7 +16,6 @@ using AMS.Profile;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 using PasswordSafe.Data;
-using PasswordSafe.Properties;
 
 namespace PasswordSafe
 {
@@ -31,7 +30,8 @@ namespace PasswordSafe
         private static string _openFile;
         private static Thread _clearClipboardThread;
         private static Thread _saveThread;
-        private static readonly Xml _profile = new Xml("config.xml");
+        private static string _folderFilter = "";
+        private static readonly Xml Profile = new Xml("config.xml");
 
         public MainWindow(string openFile)
         {
@@ -175,9 +175,6 @@ namespace PasswordSafe
                     Save();
                 }
             }
-
-            //Saves the settings
-            Settings.Default.Save();
         }
 
         #endregion
@@ -242,9 +239,9 @@ namespace PasswordSafe
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                 charArray[indexToChange] = '1';
-                _profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                Profile.SetValue("Global", "VisibleColumns", new string(charArray));
             }
 
             else
@@ -256,13 +253,42 @@ namespace PasswordSafe
                         Visibility.Collapsed;
                     //Changes the settings file
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                    char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                    char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                     charArray[indexToChange] = '0';
-                    _profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                    Profile.SetValue("Global", "VisibleColumns", new string(charArray));
                 }
                 else
                     menuItemClicked.IsChecked = true;
             }
+        }
+
+        private void FilterByFolderOnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount != 2) return;
+
+            DependencyObject parent;
+
+            if (sender is ContentPresenter)
+            {
+                parent = ((Grid) ((ContentPresenter) sender).Parent).TemplatedParent;
+            }
+            else
+            {
+                parent = ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
+            }
+
+
+
+            if (parent is FolderLabel)
+            {
+                if (((FolderLabel) parent).Path == "All")
+                    _folderFilter = "";
+                else
+                    _folderFilter = ((FolderLabel) parent).Path;
+            }
+            else if (parent is FolderExpander)
+                _folderFilter = ((FolderExpander) parent).PathPart;
+            ConstructAccountEntries();
         }
 
         #endregion
@@ -335,18 +361,13 @@ namespace PasswordSafe
         ///     Create the folders in the folder menu
         /// </summary>
         /// <param name="folders">The list of folders to use to create the folder menu</param>
-        private void ConstructFolders(List<Folder> folders)
+        private void ConstructFolders(IEnumerable<Folder> folders)
         {
             //Two default folders
-            Folders.Children.Add(new Label
+            Folders.Children.Add(new FolderLabel
             {
+                Path = "All",
                 Content = "All",
-                Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style) FindResource("Folder")
-            });
-            Folders.Children.Add(new Label
-            {
-                Content = "Prediction",
                 Padding = new Thickness(10, 5, 5, 5),
                 Style = (Style) FindResource("Folder")
             });
@@ -354,14 +375,15 @@ namespace PasswordSafe
             foreach (Folder folder in folders) //Creates a folder for every folder in the SafeData
             {
                 if (folder.Children.Count == 0)
-                    Folders.Children.Add(new Label
+                    Folders.Children.Add(new FolderLabel
                     {
+                        Path = $"/{folder.Name}",
                         Content = folder.Name,
                         Padding = new Thickness(10, 5, 5, 5),
                         Style = (Style) FindResource("Folder")
                     });
                 else
-                    Folders.Children.Add(MakeDropDownFolder(folder));
+                    Folders.Children.Add(MakeDropDownFolder(folder, $"/{folder.Name}"));
             }
         }
 
@@ -369,29 +391,33 @@ namespace PasswordSafe
         ///     Creates a expander control from a folder input
         /// </summary>
         /// <param name="folder">Folder to create expander from</param>
+        /// <param name="currentPath">The current path of the folder</param>
         /// <returns>Dropdown folder</returns>
-        private Expander MakeDropDownFolder(Folder folder)
+        private Expander MakeDropDownFolder(Folder folder, string currentPath)
         {
-            Expander output = new Expander
+            FolderExpander output = new FolderExpander
             {
+                PathPart = currentPath,
                 Header = folder.Name,
-                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
                 //Sets padding based on indentation
+                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
                 Style = (Style) FindResource("DropDownFolder")
             };
+
             StackPanel stackPanel = new StackPanel();
             foreach (Folder childFolder in folder.Children)
             {
                 if (childFolder.Children.Count == 0)
-                    stackPanel.Children.Add(new Label
+                    stackPanel.Children.Add(new FolderLabel
                     {
+                        Path = $"{currentPath}/{childFolder.Name}",
                         Content = childFolder.Name,
                         Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
                         //Sets padding based on indentation
                         Style = (Style) FindResource("Folder")
                     });
                 else
-                    stackPanel.Children.Add(MakeDropDownFolder(childFolder));
+                    stackPanel.Children.Add(MakeDropDownFolder(childFolder, $"{currentPath}/{childFolder.Name}"));
             }
             output.Content = stackPanel;
             return output;
@@ -475,7 +501,7 @@ namespace PasswordSafe
         private void ConstructAccountEntries()
         {
             _accountFilter = new ObservableCollection<Account>();
-            SafeData.Accounts.ForEach(x => _accountFilter.Add(x));
+            SafeData.Accounts.Where(x => x.Path.StartsWith(_folderFilter)).ToList().ForEach(x => _accountFilter.Add(x));
             AccountList.ItemsSource = _accountFilter;
         }
 
@@ -505,7 +531,7 @@ namespace PasswordSafe
 
             dataTemplate.VisualTree = grid;
 
-            bool isHidden = _profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
+            bool isHidden = Profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
             DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,
@@ -618,5 +644,30 @@ namespace PasswordSafe
         }
 
         #endregion
+    }
+
+    public class FolderLabel : Label
+    {
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register("Path", typeof(string),
+            typeof(string));
+
+        public string Path
+        {
+            get { return GetValue(SourceProperty) as string; }
+            set { SetValue(SourceProperty, value); }
+        }
+    }
+
+    public class FolderExpander : Expander
+    {
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register("PathPart",
+            typeof(string),
+            typeof(string));
+
+        public string PathPart
+        {
+            get { return GetValue(SourceProperty) as string; }
+            set { SetValue(SourceProperty, value); }
+        }
     }
 }

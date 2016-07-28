@@ -32,7 +32,8 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Dark Mode" />
+        <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Dark Mode" />
         <controls:ToggleSwitch Name="DarkModeToggle" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0"
                                FontFamily="{DynamicResource DefaultFont}"
                                FontSize="12" IsCheckedChanged="DarkModeToggled" OffLabel="" OnLabel="" />
@@ -40,9 +41,11 @@
         <ComboBox Name="FontSelector" Grid.Row="2" Grid.Column="1" Width="100" Height="Auto" Margin="5"
                   ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
                   SelectionChanged="ChangeProgramsFont" />
-        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Font Size" />
+        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Font Size" />
         <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Width="100" Height="Auto"
-                                Margin="5" HasDecimals="False" Maximum="32" Minimum="1"
+                                Margin="5"
+                                HasDecimals="False" Maximum="32" Minimum="1"
                                 ValueChanged="FontSizeSelector_ValueChanged" />
     </Grid>
 </controls:MetroWindow>

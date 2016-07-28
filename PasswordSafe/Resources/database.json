@@ -3,7 +3,8 @@
     {
       "name": "Common",
       "path": "/Common",
-      "children": []
+      "children": [
+      ]
     },
     {
       "name": "Folders",
@@ -12,12 +13,14 @@
         {
           "name": "Personal",
           "path": "/Folders/Personal",
-          "children": []
+          "children": [
+          ]
         },
         {
           "name": "Work",
           "path": "/Folders/Work",
-          "children": []
+          "children": [
+          ]
         },
         {
           "name": "School",
@@ -26,20 +29,16 @@
             {
               "name": "Highschool",
               "path": "/Folders/School/Highschool",
-              "children": []
+              "children": [
+              ]
             },
             {
               "name": "University",
-              "path": "/Folders/School/Uni",
-              "children": []
-
+              "path": "/Folders/School/University",
+              "children": [
+              ]
             }
           ]
-        },
-        {
-          "name": "Long folder name for testing",
-          "path": "/Folders/Long folder name for testing",
-          "children": []
         }
       ]
     }
@@ -53,7 +52,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "Odsfndjfssf",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/Highschool"
     },
     {
       "id": 1,
@@ -73,7 +72,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "Jondjkfh fosid foisdhf osdifuoedfs df sdf ed",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     },
     {
       "id": 3,
@@ -83,7 +82,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "Hdjksfd sojdfo su",
-      "path": "/Folders/School/Uni"
+      "path": "/Folders/Work"
     },
     {
       "id": 4,
@@ -93,7 +92,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/School/Highschool"
+      "path": "/Common"
     },
     {
       "id": 5,
@@ -113,7 +112,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 7,
@@ -133,7 +132,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Common"
     },
     {
       "id": 9,
@@ -143,7 +142,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/Highschool"
     },
     {
       "id": 10,
@@ -153,7 +152,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "Xuhef awrdhaua iuwd ahrua ahurfhauhr",
-      "path": "/Folders/Personal"
+      "path": "/Common"
     },
     {
       "id": 11,
@@ -173,7 +172,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 13,
@@ -183,7 +182,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     },
     {
       "id": 14,
@@ -193,7 +192,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "Hdru gr awuhawiorhaiu ra uirar",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     },
     {
       "id": 15,
@@ -213,7 +212,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     },
     {
       "id": 17,
@@ -243,7 +242,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 20,
@@ -253,7 +252,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/Highschool"
     },
     {
       "id": 21,
@@ -273,7 +272,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 23,
@@ -283,7 +282,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Common"
     },
     {
       "id": 24,
@@ -313,7 +312,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     },
     {
       "id": 27,
@@ -323,7 +322,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/Highschool"
     },
     {
       "id": 28,
@@ -333,7 +332,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 29,
@@ -343,7 +342,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/Work"
     },
     {
       "id": 30,
@@ -353,7 +352,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/Highschool"
     },
     {
       "id": 31,
@@ -363,7 +362,7 @@
       "password": "password",
       "url": "www.example.com",
       "notes": "",
-      "path": "/Folders/Personal"
+      "path": "/Folders/School/University"
     }
   ]
 }

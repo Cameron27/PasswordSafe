@@ -49,10 +49,9 @@
         <TextBox Name="NotesField" Grid.Row="6" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"
                  TextWrapping="WrapWithOverflow" />
         <Button Name="ComfirmButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
-                Margin="10,10,120,10" HorizontalAlignment="Right"
-                Click="ComfirmOnClick" />
+                Margin="10,10,120,10" HorizontalAlignment="Right" Click="ComfirmOnClick" />
         <Button Name="CancelButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
-                Margin="10,10,10,10" HorizontalAlignment="Right"
-                Click="CancelOnClick" Content="Cancel" IsCancel="True" />
+                Margin="10,10,10,10" HorizontalAlignment="Right" Click="CancelOnClick" Content="Cancel"
+                IsCancel="True" />
     </Grid>
 </controls:MetroWindow>
