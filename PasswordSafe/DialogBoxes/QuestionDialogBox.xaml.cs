@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using MahApps.Metro.Controls;
 
-namespace PasswordSafe
+namespace PasswordSafe.DialogBoxes
 {
     /// <summary>
     ///     Interaction logic for ErrorMessageDialogBox.xaml

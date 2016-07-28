@@ -8,7 +8,7 @@ using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 
-namespace PasswordSafe
+namespace PasswordSafe.Windows
 {
     /// <summary>
     ///     Interaction logic for Settings.xaml

@@ -4,7 +4,7 @@ using System.Windows.Input;
 using MahApps.Metro.Controls;
 using PasswordSafe.Data;
 
-namespace PasswordSafe
+namespace PasswordSafe.Windows
 {
     /// <summary>
     ///     Interaction logic for AccountEditorWindow.xaml

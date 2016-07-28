@@ -5,8 +5,9 @@ using System.Windows.Media;
 using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
+using PasswordSafe.DialogBoxes;
 
-namespace PasswordSafe
+namespace PasswordSafe.Windows
 {
     /// <summary>
     ///     Interaction logic for Login.xaml
@@ -69,30 +70,22 @@ namespace PasswordSafe
         /// </summary>
         private void NewSafeOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow"))
-                return; //Check if a account editor window is already open
+            string name = DialogBox.TextInputDialogBox("Please enter the name for your new Safe:", "Create", "Cancel",
+                this);
 
-            TextInputDialogBox fileNameDialogBox = new TextInputDialogBox("Please enter the name for your new Safe:",
-                "Create",
-                "Cancel") {Owner = this};
+            if (string.IsNullOrEmpty(name)) return;
 
-            if (fileNameDialogBox.ShowDialog() != true || fileNameDialogBox.Input.Text == "") return;
-            string name = fileNameDialogBox.Input.Text;
             if (SafeSelector.Items.Cast<string>().Any(x => x == name))
             {
-                ErrorMessageDialogBox error = new ErrorMessageDialogBox("A safe with that name already exists")
-                {
-                    Owner = this
-                };
-                error.ShowDialog();
+                DialogBox.ErrorMessageDialogBox("A safe with that name already exists", this);
                 return;
             }
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                ErrorMessageDialogBox error = new ErrorMessageDialogBox("That is not a valid file name") {Owner = this};
-                error.ShowDialog();
+                DialogBox.ErrorMessageDialogBox("That is not a valid file name", this);
                 return;
             }
+
             File.Create($"Resources\\{name}.json");
             LoadSafeOptions(name);
         }

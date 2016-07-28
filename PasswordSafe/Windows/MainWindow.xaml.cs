@@ -16,8 +16,10 @@ using AMS.Profile;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 using PasswordSafe.Data;
+using PasswordSafe.CustomControls;
+using PasswordSafe.DialogBoxes;
 
-namespace PasswordSafe
+namespace PasswordSafe.Windows
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
@@ -160,21 +162,8 @@ namespace PasswordSafe
             Clipboard.SetText("");
 
             //Checks if the user wants to save
-            if (_needsSaving)
-            {
-                QuestionDialogBox saveBeforeQuitDialogBox = new QuestionDialogBox(
-                    "Do you want to save before you quit?", true)
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth / 2.0,
-                    Top = Top + ActualHeight / 2.0
-                };
-
-                if (saveBeforeQuitDialogBox.ShowDialog() == true)
-                {
-                    Save();
-                }
-            }
+            if (_needsSaving && DialogBox.QuestionDialogBox("Do you want to save before you quit?", true, this))
+                Save();
         }
 
         #endregion
@@ -469,17 +458,7 @@ namespace PasswordSafe
         {
             if (AccountList.SelectedItems.Count == 0) return;
             //Asks the user if they are sure they want to delete the account
-            QuestionDialogBox deleteAccountDialogBox =
-                new QuestionDialogBox(
-                    $"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?",
-                    false)
-                {
-                    Owner = this,
-                    Left = Left + ActualWidth / 2.0,
-                    Top = Top + ActualHeight / 2.0
-                };
-
-            if (deleteAccountDialogBox.ShowDialog() == true)
+            if (DialogBox.QuestionDialogBox($"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?", false, this))
             {
                 IList accountsToDelete = AccountList.SelectedItems;
                 foreach (Account account in accountsToDelete)
@@ -644,30 +623,5 @@ namespace PasswordSafe
         }
 
         #endregion
-    }
-
-    public class FolderLabel : Label
-    {
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register("Path", typeof(string),
-            typeof(string));
-
-        public string Path
-        {
-            get { return GetValue(SourceProperty) as string; }
-            set { SetValue(SourceProperty, value); }
-        }
-    }
-
-    public class FolderExpander : Expander
-    {
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register("PathPart",
-            typeof(string),
-            typeof(string));
-
-        public string PathPart
-        {
-            get { return GetValue(SourceProperty) as string; }
-            set { SetValue(SourceProperty, value); }
-        }
     }
 }

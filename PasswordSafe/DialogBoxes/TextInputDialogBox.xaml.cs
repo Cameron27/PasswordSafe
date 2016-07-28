@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using MahApps.Metro.Controls;
 
-namespace PasswordSafe
+namespace PasswordSafe.DialogBoxes
 {
     /// <summary>
     ///     Interaction logic for TextInputDialogBox.xaml
@@ -25,12 +25,20 @@ namespace PasswordSafe
             Input.Focus();
         }
 
+        public string Answer => Input.Text;
+
+        /// <summary>
+        ///     Closes the window with a dialog result of true
+        /// </summary>
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
             Close();
         }
 
+        /// <summary>
+        ///     Closes the window with a dialog result of false
+        /// </summary>
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
