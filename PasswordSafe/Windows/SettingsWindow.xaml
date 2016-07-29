@@ -43,9 +43,7 @@
                   SelectionChanged="ChangeProgramsFont" />
         <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Font Size" />
-        <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Width="100" Height="Auto"
-                                Margin="5"
-                                HasDecimals="False" Maximum="32" Minimum="1"
-                                ValueChanged="FontSizeSelector_ValueChanged" />
+        <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Width="100" Height="Auto" Margin="5"
+                                HasDecimals="False" Maximum="32" Minimum="1" ValueChanged="FontSizeSelector_ValueChanged" />
     </Grid>
 </controls:MetroWindow>

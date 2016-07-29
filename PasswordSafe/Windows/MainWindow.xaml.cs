@@ -15,8 +15,8 @@ using System.Windows.Shapes;
 using AMS.Profile;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
-using PasswordSafe.Data;
 using PasswordSafe.CustomControls;
+using PasswordSafe.Data;
 using PasswordSafe.DialogBoxes;
 
 namespace PasswordSafe.Windows
@@ -267,7 +267,6 @@ namespace PasswordSafe.Windows
             }
 
 
-
             if (parent is FolderLabel)
             {
                 if (((FolderLabel) parent).Path == "All")
@@ -458,7 +457,10 @@ namespace PasswordSafe.Windows
         {
             if (AccountList.SelectedItems.Count == 0) return;
             //Asks the user if they are sure they want to delete the account
-            if (DialogBox.QuestionDialogBox($"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?", false, this))
+            if (
+                DialogBox.QuestionDialogBox(
+                    $"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?",
+                    false, this))
             {
                 IList accountsToDelete = AccountList.SelectedItems;
                 foreach (Account account in accountsToDelete)
@@ -503,10 +505,22 @@ namespace PasswordSafe.Windows
             grid.AppendChild(background);
 
             //The main display
-            FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock));
-            content.SetBinding(TextBlock.TextProperty, new Binding(binding));
-            content.SetValue(StyleProperty, FindResource("CellTextBlock"));
-            grid.AppendChild(content);
+            if (binding == "Password")
+            {
+                FrameworkElementFactory content = new FrameworkElementFactory(typeof(PasswordTextBlock));
+                content.SetBinding(PasswordTextBlock.PasswordProperty, new Binding(binding));
+                content.SetValue(StyleProperty, FindResource("PasswordCellTextBlock"));
+                grid.AppendChild(content);
+            }
+            else
+            {
+                FrameworkElementFactory content = new FrameworkElementFactory(typeof(TextBlock));
+                content.SetBinding(TextBlock.TextProperty, new Binding(binding));
+                content.SetValue(StyleProperty, FindResource("CellTextBlock"));
+                if (binding == "Url")
+                    content.SetValue(NameProperty, "URL");
+                grid.AppendChild(content);
+            }
 
             dataTemplate.VisualTree = grid;
 
@@ -554,7 +568,10 @@ namespace PasswordSafe.Windows
         {
             if (e.ClickCount == 2)
             {
-                CopyCell((TextBlock) sender);
+                if (((TextBlock)sender).Name == "URL")
+                    System.Diagnostics.Process.Start(((TextBlock)sender).Text);
+                else
+                    CopyCell((TextBlock) sender);
             }
         }
 
@@ -564,7 +581,10 @@ namespace PasswordSafe.Windows
         /// <param name="cell">The cell to copy the data from</param>
         private void CopyCell(TextBlock cell)
         {
-            Clipboard.SetText(cell.Text);
+            if (cell is PasswordTextBlock)
+                Clipboard.SetText(((PasswordTextBlock)cell).Password);
+            else
+                Clipboard.SetText(cell.Text);
 
             //Terminates any currently running ClearClipboard threads
             if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
