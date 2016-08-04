@@ -21,7 +21,7 @@ namespace PasswordSafe.Windows
             InitializeComponent();
 
             PasswordInput.Focus();
-            LoadSafeOptions(null);
+            LoadSafeOptions();
             SetStyle();
             SetFont();
         }
@@ -51,7 +51,7 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Loads all of the avaliable safe files
         /// </summary>
-        private void LoadSafeOptions(string fileToAutoSelect)
+        private void LoadSafeOptions(string fileToAutoSelect = null)
         {
             string[] files = Directory.GetFiles(@"Resources", "*.json");
             files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
@@ -95,8 +95,13 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void LoginOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "MainWindow"))
-                return; //Check if a settings window is already open
+            //Check if file still exists
+            if (!File.Exists($"Resources/{SafeSelector.SelectedValue}.json"))
+            {
+                LoadSafeOptions();
+                DialogBox.ErrorMessageDialogBox("This safe does not exist", this);
+                return;
+            }
 
             MainWindow mainWindow = new MainWindow($"{SafeSelector.SelectedValue}.json");
             mainWindow.Show();

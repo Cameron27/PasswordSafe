@@ -36,6 +36,8 @@
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
             <Setter Property="MinHeight" Value="26" />
+            <Setter Property="AllowDrop" Value="True" />
+            <EventSetter Event="Drop" Handler="DropOntoFolder" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Label">
@@ -109,6 +111,8 @@
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
             <Setter Property="MinHeight" Value="26" />
+            <Setter Property="AllowDrop" Value="True" />
+            <EventSetter Event="Drop" Handler="DropOntoFolder" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Expander">
@@ -362,7 +366,8 @@
         <Grid Grid.Row="2" Grid.Column="2"
               Background="{DynamicResource GrayBrush9}">
             <DataGrid Name="AccountList" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
-                      CanUserReorderColumns="False" CanUserResizeRows="False" ColumnWidth="*" IsReadOnly="True" />
+                      CanUserReorderColumns="False" CanUserResizeRows="False" ColumnWidth="*" IsReadOnly="True"
+                      MouseMove="StartDraggingofAccount" />
         </Grid>
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                 BorderBrush="{DynamicResource GrayBrush7}"

@@ -3,6 +3,7 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
                       xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared"
+                      xmlns:customControls="clr-namespace:PasswordSafe.CustomControls"
                       xmlns:local="clr-namespace:PasswordSafe"
                       xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
                       xmlns:properties="clr-namespace:PasswordSafe.Properties" Title="Password Safe"
@@ -12,12 +13,44 @@
                       KeyDown="ConfirmOnEnterPress"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
                       ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner">
+    <controls:MetroWindow.Resources>
+        <Style x:Key="FolderOptionsInContextMenu" TargetType="customControls:FolderComboBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="customControls:FolderComboBoxItem">
+                        <Grid Background="{TemplateBinding Background}" RenderOptions.EdgeMode="Aliased">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding Indentation, RelativeSource={RelativeSource TemplatedParent}}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Path Grid.Column="0" Width="7" Height="19" HorizontalAlignment="Right" Data="M 0 0 V 10 M 0 10 H 7"
+                                  Stroke="{TemplateBinding Foreground}"
+                                  StrokeThickness="1" />
+                            <Path Grid.Column="0" Width="7" Height="19" HorizontalAlignment="Right" Data="M 0 0 V 19"
+                                  Stroke="{TemplateBinding Foreground}"
+                                  StrokeThickness="1"
+                                  Visibility="{Binding EndPath,
+                                                       RelativeSource={RelativeSource TemplatedParent}}" />
+                            <ContentPresenter Grid.Column="1" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentColorBrush2}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </controls:MetroWindow.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -42,15 +75,22 @@
                Content="Password:" />
         <PasswordBox Name="PasswordField" Grid.Row="4" Grid.Column="1" Width="250" Margin="5,5,10,5" />
         <Label Grid.Row="5" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
-               Content="URL:" />
-        <TextBox Name="UrlField" Grid.Row="5" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+               Content="Confirm Password:" />
+        <PasswordBox Name="ConfirmPasswordField" Grid.Row="5" Grid.Column="1" Width="250" Margin="5,5,10,5" />
         <Label Grid.Row="6" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="URL:" />
+        <TextBox Name="UrlField" Grid.Row="6" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+        <Label Grid.Row="7" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Folder:" />
+        <ComboBox Name="FolderField" Grid.Row="7" Grid.Column="1" Width="250" Margin="5,5,10,5"
+                  IsTextSearchEnabled="False" TextBoxBase.TextChanged="ReformatFolderOnFolderSelected" />
+        <Label Grid.Row="8" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Notes:" />
-        <TextBox Name="NotesField" Grid.Row="6" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"
+        <TextBox Name="NotesField" Grid.Row="8" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"
                  TextWrapping="WrapWithOverflow" />
-        <Button Name="ComfirmButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
+        <Button Name="ComfirmButton" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
                 Margin="10,10,120,10" HorizontalAlignment="Right" Click="ComfirmOnClick" />
-        <Button Name="CancelButton" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
+        <Button Name="CancelButton" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="25"
                 Margin="10,10,10,10" HorizontalAlignment="Right" Click="CancelOnClick" Content="Cancel"
                 IsCancel="True" />
     </Grid>

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -32,7 +33,7 @@ namespace PasswordSafe.Windows
         private static string _openFile;
         private static Thread _clearClipboardThread;
         private static Thread _saveThread;
-        private static string _folderFilter = "";
+        private static string _folderFilter;
         private static readonly Xml Profile = new Xml("config.xml");
 
         public MainWindow(string openFile)
@@ -269,10 +270,7 @@ namespace PasswordSafe.Windows
 
             if (parent is FolderLabel)
             {
-                if (((FolderLabel) parent).Path == "All")
-                    _folderFilter = "";
-                else
-                    _folderFilter = ((FolderLabel) parent).Path;
+                _folderFilter = ((FolderLabel) parent).Path == "All" ? "" : ((FolderLabel) parent).Path;
             }
             else if (parent is FolderExpander)
                 _folderFilter = ((FolderExpander) parent).PathPart;
@@ -482,7 +480,12 @@ namespace PasswordSafe.Windows
         private void ConstructAccountEntries()
         {
             _accountFilter = new ObservableCollection<Account>();
-            SafeData.Accounts.Where(x => x.Path.StartsWith(_folderFilter)).ToList().ForEach(x => _accountFilter.Add(x));
+            SafeData.Accounts.Where(
+                x =>
+                    string.IsNullOrEmpty(_folderFilter) ||
+                    (!string.IsNullOrEmpty(x.Path) && x.Path.StartsWith(_folderFilter)))
+                .ToList()
+                .ForEach(x => _accountFilter.Add(x));
             AccountList.ItemsSource = _accountFilter;
         }
 
@@ -568,8 +571,8 @@ namespace PasswordSafe.Windows
         {
             if (e.ClickCount == 2)
             {
-                if (((TextBlock)sender).Name == "URL")
-                    System.Diagnostics.Process.Start(((TextBlock)sender).Text);
+                if (((TextBlock) sender).Name == "URL")
+                    Process.Start(((TextBlock) sender).Text);
                 else
                     CopyCell((TextBlock) sender);
             }
@@ -582,7 +585,7 @@ namespace PasswordSafe.Windows
         private void CopyCell(TextBlock cell)
         {
             if (cell is PasswordTextBlock)
-                Clipboard.SetText(((PasswordTextBlock)cell).Password);
+                Clipboard.SetText(((PasswordTextBlock) cell).Password);
             else
                 Clipboard.SetText(cell.Text);
 
@@ -640,6 +643,42 @@ namespace PasswordSafe.Windows
             File.WriteAllText($"Resources\\{_openFile}", jsonText);
             File.Delete($"Resources\\{_openFile}.bak");
             Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
+        }
+
+        #endregion
+
+        #region Drag and Drop
+
+        private void StartDraggingofAccount(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                object selectedItem = AccountList.SelectedItem;
+                if (selectedItem != null)
+                {
+                    DataGridRow container =
+                        (DataGridRow) AccountList.ItemContainerGenerator.ContainerFromItem(selectedItem);
+                    if (container != null)
+                    {
+                        DragDrop.DoDragDrop(container, selectedItem, DragDropEffects.Move);
+                    }
+                }
+            }
+        }
+
+        private void DropOntoFolder(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetData(typeof(Account)) is Account)
+            {
+                Account account = (Account) e.Data.GetData(typeof(Account));
+                if (sender is FolderLabel)
+                    account.Path = ((FolderLabel) sender).Path;
+                else if (sender is FolderExpander)
+                    account.Path = ((FolderExpander) sender).PathPart;
+
+                SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == account.Id)] = account;
+                ConstructAccountEntries();
+            }
         }
 
         #endregion
