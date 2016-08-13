@@ -51,7 +51,8 @@
                                        MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
                             <ContentPresenter Grid.Row="0" Grid.Column="0"
                                               Margin="{TemplateBinding Padding}"
-                                              VerticalAlignment="Center" ContentSource="Content" MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
+                                              VerticalAlignment="Center" ContentSource="Content"
+                                              MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -71,10 +72,13 @@
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Border">
                             <Grid>
-                                <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                <Ellipse x:Name="Circle" Width="20" Height="20" HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
                                          Fill="Transparent" />
-                                <Path x:Name="Sign" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                      Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11" RenderTransformOrigin="0.5,0.5"
+                                <Path x:Name="Sign" Width="12" Height="12" HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Data="M 9.0625 6.5625 L 3.5 1 M 9.0625 5.4375 L 3.5 11"
+                                      RenderTransformOrigin="0.5,0.5"
                                       Stroke="{TemplateBinding Foreground}"
                                       StrokeThickness="1.5">
                                     <Path.RenderTransform>
@@ -89,7 +93,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="Sign"
-                                                             Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)" To="90" />
+                                                             Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)"
+                                                             To="90" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -97,7 +102,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="Sign"
-                                                             Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)" To="0" />
+                                                             Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)"
+                                                             To="0" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -112,12 +118,13 @@
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
             <Setter Property="MinHeight" Value="26" />
             <Setter Property="AllowDrop" Value="True" />
-            <EventSetter Event="Drop" Handler="DropOntoFolder" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Expander">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top">
+                            <Grid DockPanel.Dock="Top" Drop="DropOntoFolder"
+                                  MouseEnter="HighlightFolderWhenMouseEnters"
+                                  MouseLeave="UnhighlightFolderWhenMouseLeaves">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -128,7 +135,6 @@
                                 <Rectangle Grid.Column="0" Grid.ColumnSpan="2"
                                            MinHeight="{TemplateBinding MinHeight}"
                                            Fill="{TemplateBinding Background}"
-                                           MouseEnter="HighlightFolderWhenMouseEnters" MouseLeave="UnhighlightFolderWhenMouseLeaves"
                                            MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
                                 <ToggleButton Grid.Column="0"
                                               Margin="{TemplateBinding Padding}"
@@ -136,11 +142,10 @@
                                               Foreground="{TemplateBinding Foreground}"
                                               IsChecked="{Binding Path=IsExpanded,
                                                                   RelativeSource={RelativeSource TemplatedParent}}"
-                                              MouseEnter="HighlightFolderWhenMouseEnters" MouseLeave="UnhighlightFolderWhenMouseLeaves"
                                               OverridesDefaultStyle="True" Padding="1.5,0"
                                               Style="{StaticResource DropDownButton}" />
-                                <ContentPresenter Grid.Column="1" Margin="0,5,5,5" VerticalAlignment="Center" ContentSource="Header"
-                                                  MouseEnter="HighlightFolderWhenMouseEnters" MouseLeave="UnhighlightFolderWhenMouseLeaves"
+                                <ContentPresenter Grid.Column="1" Margin="0,5,5,5" VerticalAlignment="Center"
+                                                  ContentSource="Header"
                                                   MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
                             </Grid>
                             <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
@@ -156,7 +161,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="ExpanderContent"
-                                                             Storyboard.TargetProperty="(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)" To="1" />
+                                                             Storyboard.TargetProperty="(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
+                                                             To="1" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -164,7 +170,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Duration="0:0:0.2" Storyboard.TargetName="ExpanderContent"
-                                                             Storyboard.TargetProperty="(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)" To="0" />
+                                                             Storyboard.TargetProperty="(ContentPresenter.LayoutTransform).(ScaleTransform.ScaleY)"
+                                                             To="0" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -243,7 +250,8 @@
                                   Data="F1 M 0.468732,4.66838L 3.03345,7.95443L 7.28127,0.420569" Stretch="Fill"
                                   Stroke="{DynamicResource BlackBrush}"
                                   StrokeMiterLimit="2.75" StrokeThickness="1.04192" />
-                            <Label Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            <Label Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
                                    Content="{TemplateBinding Header}"
                                    Foreground="{DynamicResource BlackBrush}" />
                         </Grid>
@@ -280,13 +288,15 @@
                             <Rectangle Grid.Column="0" Grid.ColumnSpan="3"
                                        ContextMenu="{StaticResource ColumnHeaderContextMenu}"
                                        Fill="Transparent" />
-                            <TextBlock Grid.Column="0" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            <TextBlock Grid.Column="0" Margin="5,0,0,0" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
                                        ContextMenu="{StaticResource ColumnHeaderContextMenu}"
                                        FontSize="{DynamicResource LargerFontSize}"
                                        FontWeight="DemiBold"
                                        Text="{TemplateBinding Content}"
                                        TextTrimming="CharacterEllipsis" />
-                            <Path Name="SortArrow" Grid.Column="1" Width="8" Height="6" Margin="0,0,5,0" HorizontalAlignment="Right"
+                            <Path Name="SortArrow" Grid.Column="1" Width="8" Height="6" Margin="0,0,5,0"
+                                  HorizontalAlignment="Right"
                                   VerticalAlignment="Center" Data="M 0 0 L 1 0 0.5 1"
                                   Fill="{DynamicResource BlackBrush}"
                                   Opacity="0.9" RenderTransformOrigin="0.5,0.4" Stretch="Fill" Visibility="Collapsed" />

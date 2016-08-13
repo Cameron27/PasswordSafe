@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Shapes;
@@ -28,12 +26,15 @@ namespace PasswordSafe.Windows
     public partial class MainWindow : MetroWindow
     {
         public static RootObject SafeData;
-        private static ObservableCollection<Account> _accountFilter;
+        private static ObservableCollection<Account> _accountsObservableCollection;
+        private static CollectionViewSource _accountsCollectionViewSource;
+        private static ICollectionView _accountsICollectionView;
+        private static string _folderFilter = "";
+        private static Predicate<object> _filter;
         private static bool _needsSaving;
         private static string _openFile;
         private static Thread _clearClipboardThread;
         private static Thread _saveThread;
-        private static string _folderFilter;
         private static readonly Xml Profile = new Xml("config.xml");
 
         public MainWindow(string openFile)
@@ -269,12 +270,11 @@ namespace PasswordSafe.Windows
 
 
             if (parent is FolderLabel)
-            {
                 _folderFilter = ((FolderLabel) parent).Path == "All" ? "" : ((FolderLabel) parent).Path;
-            }
             else if (parent is FolderExpander)
                 _folderFilter = ((FolderExpander) parent).PathPart;
-            ConstructAccountEntries();
+
+            FilterDataGrid();
         }
 
         #endregion
@@ -286,28 +286,9 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void HighlightFolderWhenMouseEnters(object sender, MouseEventArgs e)
         {
-            // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-            if (sender is Rectangle)
-            {
-                Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
-            }
-            else if (sender is ToggleButton)
-            {
-                ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
-            }
-            else
-            {
-                ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "HighlightBrush");
-            }
+            ((Grid) sender).Children.OfType<Rectangle>()
+                .Last()
+                .SetResourceReference(Shape.FillProperty, "HighlightBrush");
         }
 
         /// <summary>
@@ -315,28 +296,9 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void UnhighlightFolderWhenMouseLeaves(object sender, MouseEventArgs e)
         {
-            // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-            if (sender is Rectangle)
-            {
-                Rectangle temp = (Rectangle) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
-            }
-            else if (sender is ToggleButton)
-            {
-                ToggleButton temp = (ToggleButton) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
-            }
-            else
-            {
-                ContentPresenter temp = (ContentPresenter) sender;
-                ((Grid) temp.Parent).Children.OfType<Rectangle>()
-                    .Last()
-                    .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
-            }
+            ((Grid) sender).Children.OfType<Rectangle>()
+                .Last()
+                .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
         }
 
         #endregion
@@ -425,8 +387,7 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(true, newAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
-            SafeData.Accounts.Add(accountEditorWindow.AccountBeingEdited);
-            ConstructAccountEntries();
+            _accountsObservableCollection.Add(accountEditorWindow.AccountBeingEdited);
         }
 
         /// <summary>
@@ -442,10 +403,11 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
-            SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)] =
+            _accountsObservableCollection[
+                _accountsObservableCollection.ToList().FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)
+                ] =
                 accountEditorWindow.AccountBeingEdited;
-            //Finds the Account in SafeData with a matching ID to the selected account and then sets it to the modified version
-            ConstructAccountEntries();
+            AccountList.Items.Refresh();
         }
 
         /// <summary>
@@ -460,33 +422,36 @@ namespace PasswordSafe.Windows
                     $"Are you sure you want to delete {(AccountList.SelectedItems.Count == 0 ? "this account" : "these accounts")}?",
                     false, this))
             {
-                IList accountsToDelete = AccountList.SelectedItems;
+                Account[] accountsToDelete = AccountList.SelectedItems.Cast<Account>().ToArray();
                 foreach (Account account in accountsToDelete)
                 {
-                    SafeData.Accounts.Remove(SafeData.Accounts.Find(x => x.Id == account.Id));
+                    _accountsObservableCollection.Remove(account);
                 }
-                ConstructAccountEntries();
                 _needsSaving = true;
             }
         }
 
         #endregion
 
-        #region Construct DataGrid
+        #region DataGrid
 
         /// <summary>
         ///     Fills AccountList DataGrid with all the accounts
         /// </summary>
         private void ConstructAccountEntries()
         {
-            _accountFilter = new ObservableCollection<Account>();
+            _accountsObservableCollection = new ObservableCollection<Account>();
             SafeData.Accounts.Where(
                 x =>
                     string.IsNullOrEmpty(_folderFilter) ||
                     (!string.IsNullOrEmpty(x.Path) && x.Path.StartsWith(_folderFilter)))
                 .ToList()
-                .ForEach(x => _accountFilter.Add(x));
-            AccountList.ItemsSource = _accountFilter;
+                .ForEach(x => _accountsObservableCollection.Add(x));
+
+            _accountsCollectionViewSource = new CollectionViewSource {Source = _accountsObservableCollection};
+            _accountsICollectionView = _accountsCollectionViewSource.View;
+
+            AccountList.ItemsSource = _accountsICollectionView;
         }
 
         /// <summary>
@@ -616,6 +581,12 @@ namespace PasswordSafe.Windows
             Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "");
         }
 
+        private void FilterDataGrid()
+        {
+            _filter = item => ((Account) item).Path.StartsWith(_folderFilter);
+            _accountsICollectionView.Filter = _filter;
+        }
+
         #endregion
 
         #region Saving
@@ -638,6 +609,7 @@ namespace PasswordSafe.Windows
         private void Save()
         {
             _needsSaving = false;
+            SafeData.Accounts = new List<Account>(_accountsObservableCollection);
             string jsonText = JsonConvert.SerializeObject(SafeData);
             File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
             File.WriteAllText($"Resources\\{_openFile}", jsonText);
@@ -651,6 +623,9 @@ namespace PasswordSafe.Windows
 
         private void StartDraggingofAccount(object sender, MouseEventArgs e)
         {
+            /// <summary>
+            ///     Starts a drag event of the selected account when you hold down your mouse and move it
+            /// </summary>
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 object selectedItem = AccountList.SelectedItem;
@@ -666,18 +641,27 @@ namespace PasswordSafe.Windows
             }
         }
 
+        /// <summary>
+        ///     Changes an accounts path when it is dropped on a folder
+        /// </summary>
         private void DropOntoFolder(object sender, DragEventArgs e)
         {
             if (e.Data.GetData(typeof(Account)) is Account)
             {
                 Account account = (Account) e.Data.GetData(typeof(Account));
+                string newPath = "";
                 if (sender is FolderLabel)
-                    account.Path = ((FolderLabel) sender).Path;
+                    newPath = ((FolderLabel) sender).Path;
                 else if (sender is FolderExpander)
-                    account.Path = ((FolderExpander) sender).PathPart;
+                    newPath = ((FolderExpander) sender).PathPart;
+                else if (sender is Grid)
+                    newPath = ((FolderExpander) ((Grid) sender).TemplatedParent).PathPart;
 
-                SafeData.Accounts[SafeData.Accounts.FindIndex(x => x.Id == account.Id)] = account;
-                ConstructAccountEntries();
+                if (newPath == "All")
+                    _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = "";
+                else
+                    _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = newPath;
+                FilterDataGrid();
             }
         }
 

@@ -1,368 +1,368 @@
 ﻿{
-	"folders": [
-		{
-			"name": "Common",
-			"path": "/Common",
-			"children": [
-			]
-		},
-		{
-			"name": "Folders",
-			"path": "/Folders",
-			"children": [
-				{
-					"name": "Personal",
-					"path": "/Folders/Personal",
-					"children": [
-					]
-				},
-				{
-					"name": "Work",
-					"path": "/Folders/Work",
-					"children": [
-					]
-				},
-				{
-					"name": "School",
-					"path": "/Folders/School",
-					"children": [
-						{
-							"name": "Highschool",
-							"path": "/Folders/School/Highschool",
-							"children": [
-							]
-						},
-						{
-							"name": "University",
-							"path": "/Folders/School/University",
-							"children": [
-							]
-						}
-					]
-				}
-			]
-		}
-	],
-	"accounts": [
-		{
-			"id": 0,
-			"accountName": "Ukjsbedrf",
-			"username": "Pmlsdksdf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Odsfndjfssf",
-			"path": "/Folders/School/Highschool"
-		},
-		{
-			"id": 1,
-			"accountName": "Plksdanfsd",
-			"username": "Udfjusdf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 2,
-			"accountName": "Dinjfsdf",
-			"username": "redditusername",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Jondjkfh fosid foisdhf osdifuoedfs df sdf ed",
-			"path": "/Folders/School/University"
-		},
-		{
-			"id": 3,
-			"accountName": "Pslkdnfs",
-			"username": "Sjsdtnojsts",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Hdjksfd sojdfo su",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 4,
-			"accountName": "Ijsdfsefrs",
-			"username": "Uodsjnfawf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Common"
-		},
-		{
-			"id": 5,
-			"accountName": "Ampdfds",
-			"username": "Tyeje",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Ijknsd fh auiaq r aaw ww",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 6,
-			"accountName": "Hosdne",
-			"username": "Biaas",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 7,
-			"accountName": "Rloehcr",
-			"username": "Piw",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 8,
-			"accountName": "Drwq",
-			"username": "Rksdio",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Common"
-		},
-		{
-			"id": 9,
-			"accountName": "Plobe",
-			"username": "Ekljsdi",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/Highschool"
-		},
-		{
-			"id": 10,
-			"accountName": "Bebed",
-			"username": "Whjdt",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Xuhef awrdhaua iuwd ahrua ahurfhauhr",
-			"path": "/Common"
-		},
-		{
-			"id": 11,
-			"accountName": "Ppoekw",
-			"username": "Ujsd",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 12,
-			"accountName": "Meew",
-			"username": "Chusdf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 13,
-			"accountName": "Yplejer",
-			"username": "Lsdhr",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/University"
-		},
-		{
-			"id": 14,
-			"accountName": "Pmelr",
-			"username": "Mjhdr",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Hdru gr awuhawiorhaiu ra uirar",
-			"path": "/Folders/School/University"
-		},
-		{
-			"id": 15,
-			"accountName": "Lorjae",
-			"username": "Xjgfe",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Udj",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 16,
-			"accountName": "Eerow",
-			"username": "Qjsdhf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/University"
-		},
-		{
-			"id": 17,
-			"accountName": "Beopme",
-			"username": "Dhsgf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 18,
-			"accountName": "Baksn",
-			"username": "Bohto",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 19,
-			"accountName": "Qndf",
-			"username": "Pjksdnf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 20,
-			"accountName": "Bsdf",
-			"username": "Vewior",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/Highschool"
-		},
-		{
-			"id": 21,
-			"accountName": "Hfslf",
-			"username": "Powejknr",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Poen ioer er",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 22,
-			"accountName": "Wsndf",
-			"username": "Jtgfq",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 23,
-			"accountName": "Plsirfs",
-			"username": "User",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Common"
-		},
-		{
-			"id": 24,
-			"accountName": "Beal",
-			"username": "Esvds",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 25,
-			"accountName": "Tfslf",
-			"username": "Opwejknr",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "Poen ioer er",
-			"path": "/Folders/Personal"
-		},
-		{
-			"id": 26,
-			"accountName": "Dfsrf",
-			"username": "Pkasnrd",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/University"
-		},
-		{
-			"id": 27,
-			"accountName": "BBfisdeal",
-			"username": "Pdfssf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/Highschool"
-		},
-		{
-			"id": 28,
-			"accountName": "Asdfeal",
-			"username": "Odnksdfs",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 29,
-			"accountName": "Vjsdnf",
-			"username": "Pflkdsnf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/Work"
-		},
-		{
-			"id": 30,
-			"accountName": "Qdlrfsd",
-			"username": "Wlksdf",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/Highschool"
-		},
-		{
-			"id": 31,
-			"accountName": "Njdfe",
-			"username": "Mdjhfd",
-			"email": "example@gmail.com",
-			"password": "password",
-			"url": "www.example.com",
-			"notes": "",
-			"path": "/Folders/School/University"
-		}
-	]
+  "folders": [
+    {
+      "name": "Common",
+      "path": "/Common",
+      "children": [
+      ]
+    },
+    {
+      "name": "Folders",
+      "path": "/Folders",
+      "children": [
+        {
+          "name": "Personal",
+          "path": "/Folders/Personal",
+          "children": [
+          ]
+        },
+        {
+          "name": "Work",
+          "path": "/Folders/Work",
+          "children": [
+          ]
+        },
+        {
+          "name": "School",
+          "path": "/Folders/School",
+          "children": [
+            {
+              "name": "Highschool",
+              "path": "/Folders/School/Highschool",
+              "children": [
+              ]
+            },
+            {
+              "name": "University",
+              "path": "/Folders/School/University",
+              "children": [
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "id": 0,
+      "accountName": "Ukjsbedrf",
+      "username": "Pmlsdksdf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Odsfndjfssf",
+      "path": "/Folders/School/Highschool"
+    },
+    {
+      "id": 1,
+      "accountName": "Plksdanfsd",
+      "username": "Udfjusdf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 2,
+      "accountName": "Dinjfsdf",
+      "username": "Huisdfsdo",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Jondjkfh fosid foisdhf osdifuoedfs df sdf ed",
+      "path": "/Folders/School/University"
+    },
+    {
+      "id": 3,
+      "accountName": "Pslkdnfs",
+      "username": "Sjsdtnojsts",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Hdjksfd sojdfo su",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 4,
+      "accountName": "Ijsdfsefrs",
+      "username": "Uodsjnfawf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Common"
+    },
+    {
+      "id": 5,
+      "accountName": "Ampdfds",
+      "username": "Tyeje",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Ijknsd fh auiaq r aaw ww",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 6,
+      "accountName": "Hosdne",
+      "username": "Biaas",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 7,
+      "accountName": "Rloehcr",
+      "username": "Piw",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 8,
+      "accountName": "Drwq",
+      "username": "Rksdio",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Common"
+    },
+    {
+      "id": 9,
+      "accountName": "Plobe",
+      "username": "Ekljsdi",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/Highschool"
+    },
+    {
+      "id": 10,
+      "accountName": "Bebed",
+      "username": "Whjdt",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Xuhef awrdhaua iuwd ahrua ahurfhauhr",
+      "path": "/Common"
+    },
+    {
+      "id": 11,
+      "accountName": "Ppoekw",
+      "username": "Ujsd",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 12,
+      "accountName": "Meew",
+      "username": "Chusdf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 13,
+      "accountName": "Yplejer",
+      "username": "Lsdhr",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/University"
+    },
+    {
+      "id": 14,
+      "accountName": "Pmelr",
+      "username": "Mjhdr",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Hdru gr awuhawiorhaiu ra uirar",
+      "path": "/Folders/School/University"
+    },
+    {
+      "id": 15,
+      "accountName": "Lorjae",
+      "username": "Xjgfe",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Udj",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 16,
+      "accountName": "Eerow",
+      "username": "Qjsdhf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/University"
+    },
+    {
+      "id": 17,
+      "accountName": "Beopme",
+      "username": "Dhsgf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 18,
+      "accountName": "Baksn",
+      "username": "Bohto",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 19,
+      "accountName": "Qndf",
+      "username": "Pjksdnf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 20,
+      "accountName": "Bsdf",
+      "username": "Vewior",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/Highschool"
+    },
+    {
+      "id": 21,
+      "accountName": "Hfslf",
+      "username": "Powejknr",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Poen ioer er",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 22,
+      "accountName": "Wsndf",
+      "username": "Jtgfq",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 23,
+      "accountName": "Plsirfs",
+      "username": "User",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Common"
+    },
+    {
+      "id": 24,
+      "accountName": "Beal",
+      "username": "Esvds",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 25,
+      "accountName": "Tfslf",
+      "username": "Opwejknr",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "Poen ioer er",
+      "path": "/Folders/Personal"
+    },
+    {
+      "id": 26,
+      "accountName": "Dfsrf",
+      "username": "Pkasnrd",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/University"
+    },
+    {
+      "id": 27,
+      "accountName": "BBfisdeal",
+      "username": "Pdfssf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/Highschool"
+    },
+    {
+      "id": 28,
+      "accountName": "Asdfeal",
+      "username": "Odnksdfs",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 29,
+      "accountName": "Vjsdnf",
+      "username": "Pflkdsnf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/Work"
+    },
+    {
+      "id": 30,
+      "accountName": "Qdlrfsd",
+      "username": "Wlksdf",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/Highschool"
+    },
+    {
+      "id": 31,
+      "accountName": "Njdfe",
+      "username": "Mdjhfd",
+      "email": "example@gmail.com",
+      "password": "password",
+      "url": "www.example.com",
+      "notes": "",
+      "path": "/Folders/School/University"
+    }
+  ]
 }

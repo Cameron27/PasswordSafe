@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
-using MahApps.Metro.Converters;
 using PasswordSafe.CustomControls;
 using PasswordSafe.Data;
 using PasswordSafe.DialogBoxes;
@@ -56,7 +55,7 @@ namespace PasswordSafe.Windows
                 FolderField.Items.Add(new FolderComboBoxItem
                 {
                     Content = $"{folder.Name}",
-                    Indentation = depth*20,
+                    Indentation = depth * 20,
                     EndPath = foldersEnumerable.Last() == folder ? Visibility.Hidden : Visibility.Visible,
                     Style = (Style) FindResource("FolderOptionsInContextMenu")
                 });
