@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using AMS.Profile;
 using MahApps.Metro.Controls;
@@ -17,6 +19,7 @@ using Newtonsoft.Json;
 using PasswordSafe.CustomControls;
 using PasswordSafe.Data;
 using PasswordSafe.DialogBoxes;
+using Path = System.Windows.Shapes.Path;
 
 namespace PasswordSafe.Windows
 {
@@ -26,16 +29,18 @@ namespace PasswordSafe.Windows
     public partial class MainWindow : MetroWindow
     {
         public static RootObject SafeData;
-        private static ObservableCollection<Account> _accountsObservableCollection;
-        private static CollectionViewSource _accountsCollectionViewSource;
-        private static ICollectionView _accountsICollectionView;
-        private static string _folderFilter = "";
-        private static Predicate<object> _filter;
-        private static bool _needsSaving;
-        private static string _openFile;
-        private static Thread _clearClipboardThread;
-        private static Thread _saveThread;
-        private static readonly Xml Profile = new Xml("config.xml");
+        public static double TimeToLock;
+        private readonly Xml _profile = new Xml("config.xml");
+        private CollectionViewSource _accountsCollectionViewSource;
+        private ICollectionView _accountsICollectionView;
+        private ObservableCollection<Account> _accountsObservableCollection;
+        private Thread _clearClipboardThread;
+        private Predicate<object> _filter;
+        private string _folderFilter = "";
+        private Thread _idleDetectionThread;
+        private bool _needsSaving;
+        private readonly string _openFile;
+        private Thread _saveThread;
 
         public MainWindow(string openFile)
         {
@@ -43,6 +48,7 @@ namespace PasswordSafe.Windows
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
             _openFile = openFile;
+            TimeToLock = double.Parse(_profile.GetValue("Global", "Locktime", "5"));
 
             if (File.ReadAllText($"Resources/{_openFile}") != "")
             {
@@ -74,6 +80,12 @@ namespace PasswordSafe.Windows
             }
 
             ConstructAccountEntries();
+
+            //Creates a thread that will check if the user is idle
+            _idleDetectionThread = new Thread(IdleDetectorThread);
+            _idleDetectionThread.Start();
+
+            AccountList.SelectedItem = null; //Rows can be randomly selected on startup
         }
 
         #region Settings
@@ -115,6 +127,360 @@ namespace PasswordSafe.Windows
         }
 
         #endregion
+
+        #region Locking Safe
+
+        /// <summary>
+        ///     Checks every 1 second if the user has been idle for a set amount of time and closes the window if they have
+        /// </summary>
+        private void IdleDetectorThread()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
+
+                if (idleTime.IdleTime.TotalMinutes >= TimeToLock && TimeToLock != 0)
+                {
+                    Dispatcher.Invoke(LockSafe);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Locks the safe
+        /// </summary>
+        private void LockSafe()
+        {
+            ResizeMode = ResizeMode.NoResize;
+            RightWindowCommands.Visibility = Visibility.Hidden;
+
+            RibbonFade();
+            CreateBackground();
+            CreateLock();
+            CreatePasswordBox();
+        }
+
+        /// <summary>
+        ///     Fades the biddon from its current color to gray
+        /// </summary>
+        private void RibbonFade()
+        {
+            //Creates the brush for the ribbon that will be animated
+            SolidColorBrush ribbonBrushAnimation = new SolidColorBrush
+            {
+                Color = ((SolidColorBrush) FindResource("AccentColorBrush")).Color
+            };
+
+            WindowTitleBrush = ribbonBrushAnimation;
+            NonActiveWindowTitleBrush = ribbonBrushAnimation;
+            GlowBrush = ribbonBrushAnimation;
+
+            ColorAnimation ribbonColorAnimation = new ColorAnimation
+            {
+                To = Brushes.LightGray.Color,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+
+            ribbonBrushAnimation.BeginAnimation(SolidColorBrush.ColorProperty, ribbonColorAnimation);
+        }
+
+        /// <summary>
+        ///     Creates a gray background that fades in
+        /// </summary>
+        private void CreateBackground()
+        {
+            //Create background
+            Rectangle lockBackground = new Rectangle
+            {
+                Fill = Brushes.LightGray,
+                Height = WindowGrid.ActualHeight,
+                Width = WindowGrid.ActualWidth,
+                Opacity = 0
+            };
+            Grid.SetColumn(lockBackground, 0);
+            Grid.SetColumnSpan(lockBackground, 3);
+            Grid.SetRow(lockBackground, 0);
+            Grid.SetRowSpan(lockBackground, 4);
+
+            DoubleAnimation fadeInAnimation = new DoubleAnimation
+            {
+                To = 1,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+            lockBackground.BeginAnimation(OpacityProperty, fadeInAnimation);
+
+            WindowGrid.Children.Add(lockBackground);
+        }
+
+        /// <summary>
+        ///     Creates a lock picture and plays its animation
+        /// </summary>
+        private void CreateLock()
+        {
+            //Checks how much the lock has to be scaled by
+            double scale;
+            if (WindowGrid.ActualWidth * (650D / 480D) > WindowGrid.ActualHeight)
+                scale = WindowGrid.ActualHeight / 1300D;
+            else
+                scale = WindowGrid.ActualWidth / 960D;
+
+            List<Path> lockParts = new List<Path>();
+
+            Tuple<string, SolidColorBrush>[] pathInformationArray =
+            {
+                Tuple.Create(
+                    "M 0 330 L 0 600 C 0 650 0 650 50 650 L 430 650 C 480 650 480 650 480 600 L 480 330 C 480 280 480 280 430 280 L 50 280 C 0 280 0 280 0 330 Z",
+                    Brushes.DarkGray), //Main Part
+                Tuple.Create(
+                    "M 40 230 L 40 200 A 200 200 180 0 1 440 200 L 440 280 L 380 280 L 380 200 A 140 140 180 0 0 100 200 L 100 230 Z",
+                    Brushes.DarkGray), //Top lock bit
+                Tuple.Create(
+                    "M 180 400 A 60 60 180 0 1 300 400 L 180 400 A 60 60 59.4897626 0 0 209.5384615 451.6923077 L 180 560 L 300 560 L 270.4615385 451.6923077 A 60 60 59.4897626 0 0 300 400",
+                    Brushes.Black) //Key hole
+            };
+
+            foreach (Tuple<string, SolidColorBrush> pathInformation in pathInformationArray)
+            {
+                Path temp = CreateLockPart(pathInformation.Item1, pathInformation.Item2, scale);
+                lockParts.Add(temp);
+                WindowGrid.Children.Add(temp);
+            }
+
+            //Animate locking the lock
+            ThicknessAnimation moveAnimation = new ThicknessAnimation
+            {
+                To =
+                    new Thickness(WindowGrid.ActualWidth / 2D - 240,
+                        WindowGrid.ActualHeight * (5D / 14D) - 325 + 55 * scale, 0, 0),
+                Duration = TimeSpan.FromSeconds(1),
+                BeginTime = TimeSpan.FromSeconds(3)
+            };
+
+            lockParts[1].BeginAnimation(MarginProperty, moveAnimation);
+        }
+
+        /// <summary>
+        ///     Creates a path with the specified data
+        /// </summary>
+        /// <param name="pathData">The data for the path</param>
+        /// <param name="color">The fill color of the path</param>
+        /// <param name="scale">The amount to scale the path, base size is 480x650</param>
+        /// <returns>Path based on the data given</returns>
+        private Path CreateLockPart(string pathData, Brush color, double scale)
+        {
+            TransformGroup tg = new TransformGroup();
+            ScaleTransform st = new ScaleTransform(scale * 4, scale * 4);
+            tg.Children.Add(st);
+
+            //Creates path
+            Path path = new Path
+            {
+                Fill = color,
+                Width = 480,
+                Height = 650,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Data =
+                    (Geometry)
+                        TypeDescriptor.GetConverter(typeof(Geometry))
+                            .ConvertFrom(
+                                pathData),
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = tg,
+                Margin =
+                    new Thickness(WindowGrid.ActualWidth / 2D - 240, WindowGrid.ActualHeight * (5D / 14D) - 325, 0, 0),
+                Opacity = 0
+            };
+
+            Grid.SetColumn(path, 0);
+            Grid.SetColumnSpan(path, 3);
+            Grid.SetRow(path, 0);
+            Grid.SetRowSpan(path, 4);
+
+            DoubleAnimation scaleAnimation = new DoubleAnimation
+            {
+                To = scale,
+                Duration = TimeSpan.FromSeconds(2),
+                BeginTime = TimeSpan.FromSeconds(1)
+            };
+
+            st.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+            st.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+
+            DoubleAnimation fadeInAnimation = new DoubleAnimation
+            {
+                To = 1,
+                Duration = TimeSpan.FromSeconds(2),
+                BeginTime = TimeSpan.FromSeconds(1)
+            };
+            path.BeginAnimation(OpacityProperty, fadeInAnimation);
+
+            return path;
+        }
+
+        /// <summary>
+        ///     Creates the password input box to unlock the safe
+        /// </summary>
+        private void CreatePasswordBox()
+        {
+            PasswordBox passwordBox = new PasswordBox
+            {
+                Height = 25,
+                Width = 280,
+                Margin = new Thickness(WindowGrid.ActualWidth / 2D - 140, WindowGrid.ActualHeight * (18D / 28D), 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Opacity = 0
+            };
+
+            passwordBox.KeyDown += UnlockOnEnterPress;
+
+            Grid.SetColumn(passwordBox, 0);
+            Grid.SetColumnSpan(passwordBox, 3);
+            Grid.SetRow(passwordBox, 0);
+            Grid.SetRowSpan(passwordBox, 4);
+
+            DoubleAnimation opacityAnimation = new DoubleAnimation
+            {
+                To = 1,
+                Duration = TimeSpan.FromSeconds(1),
+                BeginTime = TimeSpan.FromSeconds(4)
+            };
+
+            passwordBox.BeginAnimation(OpacityProperty, opacityAnimation);
+
+            WindowGrid.Children.Add(passwordBox);
+
+            passwordBox.Focus();
+        }
+
+        private void UnlockOnEnterPress(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                UnlockSafe();
+        }
+
+        private void UnlockSafe()
+        {
+            UIElementCollection childrenOfWindowGrid = WindowGrid.Children;
+
+            //Makes background fade out
+            Rectangle lockBackground = (Rectangle) childrenOfWindowGrid[childrenOfWindowGrid.Count - 5];
+
+            DoubleAnimation backgroundFadeoutAnimation = new DoubleAnimation
+            {
+                To = 0,
+                Duration = TimeSpan.FromSeconds(1),
+                BeginTime = TimeSpan.FromSeconds(3)
+            };
+            lockBackground.BeginAnimation(OpacityProperty, backgroundFadeoutAnimation);
+
+            //Makes lock zoom out again
+            double scale;
+            if (WindowGrid.ActualWidth * (650D / 480D) > WindowGrid.ActualHeight)
+                scale = WindowGrid.ActualHeight / 1300D;
+            else
+                scale = WindowGrid.ActualWidth / 960D;
+
+            DoubleAnimation scaleAnimation = new DoubleAnimation
+            {
+                To = scale * 4,
+                Duration = TimeSpan.FromSeconds(2),
+                BeginTime = TimeSpan.FromSeconds(1)
+            };
+
+            DoubleAnimation lockFadeoutAnimation = new DoubleAnimation
+            {
+                To = 0,
+                Duration = TimeSpan.FromSeconds(2),
+                BeginTime = TimeSpan.FromSeconds(1)
+            };
+
+            for (int i = childrenOfWindowGrid.Count - 4; i < childrenOfWindowGrid.Count - 1; i++)
+            {
+                Path lockPart = (Path) childrenOfWindowGrid[i];
+
+                lockPart.BeginAnimation(OpacityProperty, lockFadeoutAnimation);
+
+                ScaleTransform st = (ScaleTransform) ((TransformGroup) lockPart.RenderTransform).Children[0];
+                st.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+                st.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+            }
+
+            //Unlocks the lock
+            ThicknessAnimation moveAnimation = new ThicknessAnimation
+            {
+                To = new Thickness(WindowGrid.ActualWidth / 2D - 240, WindowGrid.ActualHeight * (5D / 14D) - 325, 0, 0),
+                Duration = TimeSpan.FromSeconds(1)
+            };
+
+            childrenOfWindowGrid[childrenOfWindowGrid.Count - 3].BeginAnimation(MarginProperty, moveAnimation);
+
+            //Fadeout password box
+            DoubleAnimation passwordboxFadeoutAnimation = new DoubleAnimation
+            {
+                To = 0,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+
+            childrenOfWindowGrid[childrenOfWindowGrid.Count - 1].BeginAnimation(OpacityProperty,
+                passwordboxFadeoutAnimation);
+
+            //Fade the ribbon back to its normal color
+            SolidColorBrush ribbonBrush = new SolidColorBrush
+            {
+                Color = Brushes.LightGray.Color
+            };
+
+            WindowTitleBrush = ribbonBrush;
+            NonActiveWindowTitleBrush = ribbonBrush;
+            GlowBrush = ribbonBrush;
+
+            ColorAnimation ribbonColorAnimation = new ColorAnimation
+            {
+                To = ((SolidColorBrush) FindResource("AccentColorBrush")).Color,
+                Duration = TimeSpan.FromSeconds(1),
+                BeginTime = TimeSpan.FromSeconds(3)
+            };
+
+            ribbonBrush.BeginAnimation(SolidColorBrush.ColorProperty, ribbonColorAnimation);
+
+            //Changes window things back to normal
+            ResizeMode = ResizeMode.CanResizeWithGrip;
+            RightWindowCommands.Visibility = Visibility.Visible;
+
+            Thread delayFinalUnlockSafeChanges = new Thread(DelayFinalUnlockSafeChanges);
+            delayFinalUnlockSafeChanges.Start();
+        }
+
+        private void DelayFinalUnlockSafeChanges()
+        {
+            Thread.Sleep(4000);
+            Dispatcher.Invoke(() => FinalUnlockSafeChanges());
+        }
+
+        private void FinalUnlockSafeChanges()
+        {
+            SetResourceReference(WindowTitleBrushProperty, "AccentColorBrush");
+            SetResourceReference(NonActiveWindowTitleBrushProperty, "AccentColorBrush");
+            SetResourceReference(GlowBrushProperty, "AccentColorBrush");
+
+            //Removes the lock elements
+            int count = WindowGrid.Children.Count;
+            for (int i = count - 5; i < count; i++)
+            {
+                WindowGrid.Children.RemoveAt(count - 5);
+            }
+
+            //Restarts the lock thread
+            _idleDetectionThread = new Thread(IdleDetectorThread);
+            _idleDetectionThread.Start();
+        }
+
+        #endregion region
 
         #region Global Events
 
@@ -160,12 +526,17 @@ namespace PasswordSafe.Windows
         {
             //Terminates the _clearClipboardThread if it is running
             if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
+            {
                 _clearClipboardThread.Abort();
-            Clipboard.SetText("");
+                Clipboard.SetText("");
+            }
 
             //Checks if the user wants to save
             if (_needsSaving && DialogBox.QuestionDialogBox("Do you want to save before you quit?", true, this))
                 Save();
+
+            //Stops idle detection tread
+            _idleDetectionThread.Abort();
         }
 
         #endregion
@@ -230,9 +601,9 @@ namespace PasswordSafe.Windows
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                 charArray[indexToChange] = '1';
-                Profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                _profile.SetValue("Global", "VisibleColumns", new string(charArray));
             }
 
             else
@@ -244,9 +615,9 @@ namespace PasswordSafe.Windows
                         Visibility.Collapsed;
                     //Changes the settings file
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                    char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                    char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                     charArray[indexToChange] = '0';
-                    Profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                    _profile.SetValue("Global", "VisibleColumns", new string(charArray));
                 }
                 else
                     menuItemClicked.IsChecked = true;
@@ -492,7 +863,7 @@ namespace PasswordSafe.Windows
 
             dataTemplate.VisualTree = grid;
 
-            bool isHidden = Profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
+            bool isHidden = _profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
             DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,
@@ -621,11 +992,11 @@ namespace PasswordSafe.Windows
 
         #region Drag and Drop
 
+        /// <summary>
+        ///     Starts a drag event of the selected account when you hold down your mouse and move it
+        /// </summary>
         private void StartDraggingofAccount(object sender, MouseEventArgs e)
         {
-            /// <summary>
-            ///     Starts a drag event of the selected account when you hold down your mouse and move it
-            /// </summary>
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 object selectedItem = AccountList.SelectedItem;

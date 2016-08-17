@@ -6,6 +6,7 @@
                       xmlns:local="clr-namespace:PasswordSafe"
                       xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
                       xmlns:properties="clr-namespace:PasswordSafe.Properties" Title="Settings"
+                      Closing="MetroWindowClosing"
                       FontFamily="{DynamicResource MainFont}"
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
@@ -17,6 +18,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -45,5 +47,9 @@
                Content="Font Size" />
         <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Width="100" Height="Auto" Margin="5"
                                 HasDecimals="False" Maximum="32" Minimum="1" ValueChanged="FontSizeSelector_ValueChanged" />
+        <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Auto Lock Time" />
+        <controls:NumericUpDown Name="LockTimeSelector" Grid.Row="4" Grid.Column="1" Width="100" Height="Auto" Margin="5"
+                                HasDecimals="True" Minimum="0" ValueChanged="LockTimeSelector_ValueChanged" />
     </Grid>
 </controls:MetroWindow>

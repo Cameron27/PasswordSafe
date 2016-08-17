@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -17,6 +18,7 @@ namespace PasswordSafe.Windows
     public partial class AccountEditorWindow : MetroWindow
     {
         private readonly List<string> _folders = new List<string>();
+        private readonly Thread _idleDetectionThread;
 
         public AccountEditorWindow(bool addAccount, Account accountToModify)
         {
@@ -37,6 +39,10 @@ namespace PasswordSafe.Windows
                 ComfirmButton.Content = "Apply";
                 SetTextBoxValues(accountToModify);
             }
+
+            //Creates a thread that will check if the user is idle
+            _idleDetectionThread = new Thread(CloseWindowOnLock);
+            _idleDetectionThread.Start();
         }
 
         public Account AccountBeingEdited { get; }
@@ -173,6 +179,34 @@ namespace PasswordSafe.Windows
         private void CancelOnClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        ///     Closes the window if the safe locks itself
+        /// </summary>
+        private void CloseWindowOnLock()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
+
+                if (idleTime.IdleTime.TotalMinutes >= MainWindow.TimeToLock && MainWindow.TimeToLock != 0)
+                {
+                    Dispatcher.Invoke(Close);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Runs final commands before closing
+        /// </summary>
+        private void MetroWindowClosing(object sender, CancelEventArgs e)
+        {
+            //Stops idle detection tread
+            _idleDetectionThread.Abort();
         }
     }
 }

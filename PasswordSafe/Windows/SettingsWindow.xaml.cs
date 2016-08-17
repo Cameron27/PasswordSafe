@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +17,7 @@ namespace PasswordSafe.Windows
     public partial class SettingsWindow : MetroWindow
     {
         private static readonly Xml Profile = new Xml("config.xml");
+        private readonly Thread _idleDetectionThread;
 
         public SettingsWindow()
         {
@@ -26,6 +28,11 @@ namespace PasswordSafe.Windows
             AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
             FontSizeSelector.Value = (double?) Application.Current.Resources["MainFontSize"];
+            LockTimeSelector.Value = MainWindow.TimeToLock;
+
+            //Creates a thread that will check if the user is idle
+            _idleDetectionThread = new Thread(CloseWindowOnLock);
+            _idleDetectionThread.Start();
         }
 
         /// <summary>
@@ -91,6 +98,44 @@ namespace PasswordSafe.Windows
                 Application.Current.Resources["LargerFontSize"] = FontSizeSelector.Value;
                 Profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
             }
+        }
+
+        /// <summary>
+        /// Applies the auto lock time change when the value of the selector is changed
+        /// </summary>
+        private void LockTimeSelector_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        {
+            double newTime = (double) LockTimeSelector.Value;
+            MainWindow.TimeToLock = newTime;
+            Profile.SetValue("Global", "LockTime", newTime);
+        }
+
+        /// <summary>
+        ///     Closes the window if the safe locks itself
+        /// </summary>
+        private void CloseWindowOnLock()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
+
+                if (idleTime.IdleTime.TotalMinutes >= MainWindow.TimeToLock && MainWindow.TimeToLock != 0)
+                {
+                    Dispatcher.Invoke(Close);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Runs final commands before closing
+        /// </summary>
+        private void MetroWindowClosing(object sender, CancelEventArgs e)
+        {
+            //Stops idle detection tread
+            _idleDetectionThread.Abort();
         }
     }
 }
