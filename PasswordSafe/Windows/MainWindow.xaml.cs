@@ -16,9 +16,10 @@ using System.Windows.Shapes;
 using AMS.Profile;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
-using PasswordSafe.CustomControls;
-using PasswordSafe.Data;
 using PasswordSafe.DialogBoxes;
+using PasswordSafe.GlobalClasses;
+using PasswordSafe.GlobalClasses.CustomControls;
+using PasswordSafe.GlobalClasses.Data;
 using Path = System.Windows.Shapes.Path;
 
 namespace PasswordSafe.Windows
@@ -30,6 +31,7 @@ namespace PasswordSafe.Windows
     {
         public static RootObject SafeData;
         public static double TimeToLock;
+        private readonly string _openFile;
         private readonly Xml _profile = new Xml("config.xml");
         private CollectionViewSource _accountsCollectionViewSource;
         private ICollectionView _accountsICollectionView;
@@ -39,7 +41,6 @@ namespace PasswordSafe.Windows
         private string _folderFilter = "";
         private Thread _idleDetectionThread;
         private bool _needsSaving;
-        private readonly string _openFile;
         private Thread _saveThread;
 
         public MainWindow(string openFile)
@@ -357,12 +358,18 @@ namespace PasswordSafe.Windows
             passwordBox.Focus();
         }
 
+        /// <summary>
+        ///     Unlocks the safe when enter is pressed TODO Make this check the password
+        /// </summary>
         private void UnlockOnEnterPress(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
                 UnlockSafe();
         }
 
+        /// <summary>
+        ///     Unlockes the safe
+        /// </summary>
         private void UnlockSafe()
         {
             UIElementCollection childrenOfWindowGrid = WindowGrid.Children;
@@ -456,12 +463,18 @@ namespace PasswordSafe.Windows
             delayFinalUnlockSafeChanges.Start();
         }
 
+        /// <summary>
+        ///     Waits 4 seconds before running the final steps to unlock the safe
+        /// </summary>
         private void DelayFinalUnlockSafeChanges()
         {
             Thread.Sleep(4000);
-            Dispatcher.Invoke(() => FinalUnlockSafeChanges());
+            Dispatcher.Invoke(FinalUnlockSafeChanges);
         }
 
+        /// <summary>
+        ///     Runs the final steps to unlock the safe
+        /// </summary>
         private void FinalUnlockSafeChanges()
         {
             SetResourceReference(WindowTitleBrushProperty, "AccentColorBrush");
@@ -941,15 +954,15 @@ namespace PasswordSafe.Windows
             for (int i = 10; i > 0; i--)
             {
                 int secondsLeft = i;
-                Application.Current.Dispatcher.Invoke(
+                Dispatcher.Invoke(
                     () =>
                         MessageBox.Content =
                             $"Field copied to clipboard. {secondsLeft} seconds till clipboard is cleared");
                 Thread.Sleep(1000);
             }
-            Application.Current.Dispatcher.Invoke(() => Clipboard.SetText(""));
+            Dispatcher.Invoke(() => Clipboard.SetText(""));
             //This line of code can throw a System.Runtime.InteropServices.COMException if the user happens to be pasting at the time of this code being run
-            Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "");
+            Dispatcher.Invoke(() => MessageBox.Content = "");
         }
 
         private void FilterDataGrid()
@@ -985,7 +998,7 @@ namespace PasswordSafe.Windows
             File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
             File.WriteAllText($"Resources\\{_openFile}", jsonText);
             File.Delete($"Resources\\{_openFile}.bak");
-            Application.Current.Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
+            Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
         }
 
         #endregion

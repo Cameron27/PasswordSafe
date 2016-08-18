@@ -6,9 +6,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
-using PasswordSafe.CustomControls;
-using PasswordSafe.Data;
 using PasswordSafe.DialogBoxes;
+using PasswordSafe.GlobalClasses;
+using PasswordSafe.GlobalClasses.CustomControls;
+using PasswordSafe.GlobalClasses.Data;
 
 namespace PasswordSafe.Windows
 {
@@ -55,6 +56,7 @@ namespace PasswordSafe.Windows
         /// <param name="depth">Current depth of folders</param>
         private void CreateFolderList(IEnumerable<Folder> folders, string currentPath = "", int depth = 0)
         {
+            //TODO give a blank option
             IEnumerable<Folder> foldersEnumerable = folders as Folder[] ?? folders.ToArray();
             foreach (Folder folder in foldersEnumerable)
             {
@@ -91,7 +93,7 @@ namespace PasswordSafe.Windows
         private void ReformatFolderThread() //TODO Make this not horrible
         {
             Thread.Sleep(5);
-            Application.Current.Dispatcher.Invoke(() => FolderField.Text = _folders[FolderField.SelectedIndex]);
+            Dispatcher.Invoke(() => FolderField.Text = _folders[FolderField.SelectedIndex]);
         }
 
         /// <summary>

@@ -23,11 +23,12 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Accent" />
         <ComboBox Name="AccentSelector" Grid.Row="0" Grid.Column="1" Width="100" Height="Auto" Margin="5"
                   ItemsSource="{x:Static metro:ThemeManager.Accents}"
-                  SelectionChanged="ChangeProgramsAccent">
+                  SelectionChanged="ChangeProgramsAccentLive">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
@@ -38,18 +39,27 @@
                Content="Dark Mode" />
         <controls:ToggleSwitch Name="DarkModeToggle" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0"
                                FontFamily="{DynamicResource DefaultFont}"
-                               FontSize="12" IsCheckedChanged="DarkModeToggled" OffLabel="" OnLabel="" />
+                               FontSize="12" IsCheckedChanged="ChangeProgramsThemeLive" OffLabel="" OnLabel="" />
         <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Font" />
         <ComboBox Name="FontSelector" Grid.Row="2" Grid.Column="1" Width="100" Height="Auto" Margin="5"
                   ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                  SelectionChanged="ChangeProgramsFont" />
+                  SelectionChanged="ChangeProgramsFontLive" />
         <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Font Size" />
         <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Width="100" Height="Auto" Margin="5"
-                                HasDecimals="False" Maximum="32" Minimum="1" ValueChanged="FontSizeSelector_ValueChanged" />
+                                HasDecimals="False" Maximum="32" Minimum="1" ValueChanged="ChangeProgramsFontSizeLive" />
         <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Auto Lock Time" />
         <controls:NumericUpDown Name="LockTimeSelector" Grid.Row="4" Grid.Column="1" Width="100" Height="Auto" Margin="5"
-                                HasDecimals="True" Minimum="0" ValueChanged="LockTimeSelector_ValueChanged" />
+                                HasDecimals="True" Minimum="0" ValueChanged="PrepareChangeLockTime" />
+        <Button Name="OkButton" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Width="80" Height="25"
+                Margin="0,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OkOnClick"
+                Content="Ok" />
+        <Button Name="CancelButton" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Width="80" Height="25"
+                Margin="0,5,90,5" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CancelOnClick"
+                Content="Cancel" />
+        <Button Name="ApplyButton" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Width="80" Height="25"
+                Margin="5,5,175,5" HorizontalAlignment="Right" VerticalAlignment="Center" Click="ApplyOnClick"
+                Content="Apply" />
     </Grid>
 </controls:MetroWindow>

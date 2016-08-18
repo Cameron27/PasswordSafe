@@ -6,6 +6,7 @@ using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
+using static PasswordSafe.GlobalClasses.ModifySettings;
 
 namespace PasswordSafe.Windows
 {
@@ -31,9 +32,8 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void SetStyle()
         {
-            Accent accent = ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue"));
-            AppTheme theme = ThemeManager.GetAppTheme(Profile.GetValue("Global", "Theme", "BaseLight"));
-            ThemeManager.ChangeAppStyle(Application.Current, accent, theme);
+            ChangeProgramsAccent(ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue")));
+            ChangeProgramsTheme(Profile.GetValue("Global", "Theme", "BaseLight") == "BaseLight");
         }
 
         /// <summary>
@@ -41,11 +41,8 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void SetFont()
         {
-            Application.Current.Resources["MainFont"] = new FontFamily(Profile.GetValue("Global", "MainFont", "Arial"));
-            Application.Current.Resources["MainFontSize"] =
-                double.Parse(Profile.GetValue("Global", "MainFontSize", "12"));
-            Application.Current.Resources["LargerFontSize"] =
-                double.Parse(Profile.GetValue("Global", "MainFontSize", "12")) + 2;
+            ChangeProgramsFont(new FontFamily(Profile.GetValue("Global", "MainFont", "Arial")));
+            ChangeProgramsFontSize(double.Parse(Profile.GetValue("Global", "MainFontSize", "12")));
         }
 
         /// <summary>

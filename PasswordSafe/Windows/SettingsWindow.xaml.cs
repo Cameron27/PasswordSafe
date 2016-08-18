@@ -1,13 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
 using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
+using PasswordSafe.GlobalClasses;
+using static PasswordSafe.GlobalClasses.ModifySettings;
 
 namespace PasswordSafe.Windows
 {
@@ -16,8 +18,10 @@ namespace PasswordSafe.Windows
     /// </summary>
     public partial class SettingsWindow : MetroWindow
     {
+        private const int NumberOfSettings = 5;
         private static readonly Xml Profile = new Xml("config.xml");
         private readonly Thread _idleDetectionThread;
+        private bool[] _modifiedSettings = new bool[NumberOfSettings];
 
         public SettingsWindow()
         {
@@ -35,80 +39,136 @@ namespace PasswordSafe.Windows
             _idleDetectionThread.Start();
         }
 
+        #region Settings Changed
+
         /// <summary>
         ///     Changes the programs AccentColor
         /// </summary>
-        private void ChangeProgramsAccent(object sender, SelectionChangedEventArgs e)
+        private void ChangeProgramsAccentLive(object sender, SelectionChangedEventArgs e)
         {
-            Accent selectedAccent = (Accent) AccentSelector.SelectedItem;
-            if (selectedAccent != null)
-            {
-                Tuple<AppTheme, Accent> currentStyle = ThemeManager.DetectAppStyle(Application.Current);
-                //Used to keep the theme the same 
-                ThemeManager.ChangeAppStyle(Application.Current, selectedAccent, currentStyle.Item1);
+            _modifiedSettings[0] = true;
 
-                //Saves the accent in settings
-                Profile.SetValue("Global", "Accent", ((Accent) AccentSelector.SelectedItem).Name);
-            }
+            ChangeProgramsAccent((Accent) AccentSelector.SelectedItem);
         }
 
         /// <summary>
         ///     Creates a new thread that toggles the program between light and dark mode
         /// </summary>
-        private void DarkModeToggled(object sender, EventArgs e)
+        private void ChangeProgramsThemeLive(object sender, EventArgs e)
         {
-            //Creates a new thread to make the change smoother, still results in stuttering
-            Thread changeAppThemeThread = new Thread(ChangeAppTheme);
-            changeAppThemeThread.Start();
-            //Saves the theme in the settings
-            Profile.SetValue("Global", "Theme", DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight");
-        }
+            _modifiedSettings[1] = true;
 
-        /// <summary>
-        ///     Toggles the program between light and dark mode
-        /// </summary>
-        private void ChangeAppTheme()
-        {
-            Tuple<AppTheme, Accent> theme = ThemeManager.DetectAppStyle(this);
-            //Runs the change back in the main threat
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
-                new Action(
-                    () =>
-                        ThemeManager.ChangeAppStyle(Application.Current, theme.Item2,
-                            ThemeManager.GetAppTheme(DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight"))));
+            ChangeProgramsTheme(DarkModeToggle.IsChecked != null && !(bool) DarkModeToggle.IsChecked);
         }
 
         /// <summary>
         ///     Changes the programs font
         /// </summary>
-        private void ChangeProgramsFont(object sender, SelectionChangedEventArgs e)
+        private void ChangeProgramsFontLive(object sender, SelectionChangedEventArgs e)
         {
-            Application.Current.Resources["MainFont"] = (FontFamily) FontSelector.SelectedItem;
-            Profile.SetValue("Global", "MainFont", (FontFamily) FontSelector.SelectedItem);
+            _modifiedSettings[2] = true;
+
+            ChangeProgramsFont((FontFamily) FontSelector.SelectedItem);
         }
 
         /// <summary>
         ///     Applies the font size change when the value of the selector is changed
         /// </summary>
-        private void FontSizeSelector_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        private void ChangeProgramsFontSizeLive(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
+            _modifiedSettings[3] = true;
+
             if (FontSizeSelector.Value != null)
             {
-                Application.Current.Resources["MainFontSize"] = FontSizeSelector.Value;
-                Application.Current.Resources["LargerFontSize"] = FontSizeSelector.Value;
-                Profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
+                ChangeProgramsFontSize((double) FontSizeSelector.Value);
             }
         }
 
         /// <summary>
-        /// Applies the auto lock time change when the value of the selector is changed
+        ///     Applies the auto lock time change when the value of the selector is changed
         /// </summary>
-        private void LockTimeSelector_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        private void PrepareChangeLockTime(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            double newTime = (double) LockTimeSelector.Value;
-            MainWindow.TimeToLock = newTime;
-            Profile.SetValue("Global", "LockTime", newTime);
+            _modifiedSettings[4] = true;
         }
+
+        #endregion
+
+        #region Closing
+
+        /// <summary>
+        ///     Applies changes and closes the program
+        /// </summary>
+        private void OkOnClick(object sender, RoutedEventArgs e)
+        {
+            Apply();
+            Close();
+        }
+
+        /// <summary>
+        ///     Closes the program
+        /// </summary>
+        private void CancelOnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+
+        /// <summary>
+        ///     Applies changes
+        /// </summary>
+        private void ApplyOnClick(object sender, RoutedEventArgs e)
+        {
+            Apply();
+        }
+
+        /// <summary>
+        ///     Restores the settings that are changed live
+        /// </summary>
+        private void Restore()
+        {
+            if (_modifiedSettings[0])
+                ChangeProgramsAccent(ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue")));
+
+            if (_modifiedSettings[1])
+                ChangeProgramsTheme(Profile.GetValue("Global", "Theme", "BaseLight") == "LightBase");
+
+            if (_modifiedSettings[2])
+                ChangeProgramsFont(new FontFamily(Profile.GetValue("Global", "MainFont", "Arial")));
+
+            if (_modifiedSettings[3])
+                ChangeProgramsFontSize(double.Parse(Profile.GetValue("Global", "MainFontSize", "12")));
+        }
+
+        /// <summary>
+        ///     Applies changes that are not changed live
+        /// </summary>
+        private void Apply()
+        {
+            if (_modifiedSettings[0])
+                Profile.SetValue("Global", "Accent", ((Accent) AccentSelector.SelectedItem).Name);
+
+            if (_modifiedSettings[1])
+                Profile.SetValue("Global", "Theme", DarkModeToggle.IsChecked == true ? "BaseDark" : "BaseLight");
+
+            if (_modifiedSettings[2])
+                Profile.SetValue("Global", "MainFont", (FontFamily) FontSelector.SelectedItem);
+
+            if (_modifiedSettings[3])
+                Profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
+
+            if (_modifiedSettings[4] && LockTimeSelector.Value != null)
+            {
+                ChangeLockTime((double) LockTimeSelector.Value);
+                Profile.SetValue("Global", "Locktime", LockTimeSelector.Value);
+            }
+
+            _modifiedSettings = new bool[NumberOfSettings];
+        }
+
+        #endregion
+
+        #region Misc
 
         /// <summary>
         ///     Closes the window if the safe locks itself
@@ -136,6 +196,12 @@ namespace PasswordSafe.Windows
         {
             //Stops idle detection tread
             _idleDetectionThread.Abort();
+
+            //Checks if settings need to be restored
+            if (_modifiedSettings.Contains(true))
+                Restore();
         }
+
+        #endregion
     }
 }

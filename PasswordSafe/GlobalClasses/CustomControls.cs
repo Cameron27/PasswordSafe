@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace PasswordSafe
+namespace PasswordSafe.GlobalClasses
 {
     namespace CustomControls
     {

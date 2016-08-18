@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace PasswordSafe
+namespace PasswordSafe.GlobalClasses
 {
     public static class IdleTimeDetector
     {

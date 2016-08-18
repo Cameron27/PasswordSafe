@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace PasswordSafe
+namespace PasswordSafe.GlobalClasses
 {
     namespace Data
     {
