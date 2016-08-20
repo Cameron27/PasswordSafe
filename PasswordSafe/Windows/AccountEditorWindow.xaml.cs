@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -7,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
-using PasswordSafe.GlobalClasses;
 using PasswordSafe.GlobalClasses.CustomControls;
 using PasswordSafe.GlobalClasses.Data;
 
@@ -19,7 +17,6 @@ namespace PasswordSafe.Windows
     public partial class AccountEditorWindow : MetroWindow
     {
         private readonly List<string> _folders = new List<string>();
-        private readonly Thread _idleDetectionThread;
 
         public AccountEditorWindow(bool addAccount, Account accountToModify)
         {
@@ -40,13 +37,31 @@ namespace PasswordSafe.Windows
                 ComfirmButton.Content = "Apply";
                 SetTextBoxValues(accountToModify);
             }
-
-            //Creates a thread that will check if the user is idle
-            _idleDetectionThread = new Thread(CloseWindowOnLock);
-            _idleDetectionThread.Start();
         }
 
         public Account AccountBeingEdited { get; }
+
+        #region Setup
+
+        /// <summary>
+        ///     Fills all the input boxes with the data from an account
+        /// </summary>
+        /// <param name="account">The account that the values are taken from</param>
+        private void SetTextBoxValues(Account account)
+        {
+            AccountField.Text = account.AccountName;
+            UsernameField.Text = account.Username;
+            EmailField.Text = account.Email;
+            PasswordField.Password = account.Password;
+            ConfirmPasswordField.Password = account.Password;
+            UrlField.Text = account.Url;
+            FolderField.SelectedIndex = _folders.IndexOf(account.Path);
+            NotesField.Text = account.Notes;
+        }
+
+        #endregion
+
+        #region Folders
 
         /// <summary>
         ///     Adds folders to the list of folders
@@ -56,7 +71,18 @@ namespace PasswordSafe.Windows
         /// <param name="depth">Current depth of folders</param>
         private void CreateFolderList(IEnumerable<Folder> folders, string currentPath = "", int depth = 0)
         {
-            //TODO give a blank option
+            //TODO I broke it all or it never worked
+            //Creates initial blank option
+            if (depth == 0)
+            {
+                FolderField.Items.Add(new FolderComboBoxItem
+                {
+                    Content = "None",
+                    Style = (Style) FindResource("FolderOptionsInContextMenu")
+                });
+                _folders.Add("");
+            }
+
             IEnumerable<Folder> foldersEnumerable = folders as Folder[] ?? folders.ToArray();
             foreach (Folder folder in foldersEnumerable)
             {
@@ -74,15 +100,11 @@ namespace PasswordSafe.Windows
             }
         }
 
-        private void ReformatFolderOnFolderSelected(object sender, TextChangedEventArgs textChangedEventArgs)
+        /// <summary>
+        ///     Changes the value in FolderField so that it isn't the test selected but the folder path
+        /// </summary>
+        private void ReformatFolderOnFolderSelected(object sender, SelectionChangedEventArgs e)
         {
-            //Makes it so that this only run when somethig is selected from the dropdown
-            if (!FolderField.IsDropDownOpen)
-            {
-                FolderField.SelectedItem = null;
-                return;
-            }
-
             Thread thread = new Thread(ReformatFolderThread);
             thread.Start();
         }
@@ -90,27 +112,26 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Changes the text in the FolderField after a 5ms delay
         /// </summary>
-        private void ReformatFolderThread() //TODO Make this not horrible
+        private void ReformatFolderThread()
         {
+            //Slight delay is needed because the selection changed event runs before the test value is updated
             Thread.Sleep(5);
             Dispatcher.Invoke(() => FolderField.Text = _folders[FolderField.SelectedIndex]);
         }
 
         /// <summary>
-        ///     Fills all the input boxes with the data from an account
+        ///     Checks if a path is an actual folder
         /// </summary>
-        /// <param name="account">The account that the values are taken from</param>
-        private void SetTextBoxValues(Account account)
+        /// <param name="path">The folder path to verify</param>
+        /// <returns>True if the folder exists</returns>
+        private bool VerifyFolder(string path)
         {
-            AccountField.Text = account.AccountName;
-            UsernameField.Text = account.Username;
-            EmailField.Text = account.Email;
-            PasswordField.Password = account.Password;
-            ConfirmPasswordField.Password = account.Password;
-            UrlField.Text = account.Url;
-            FolderField.Text = account.Path;
-            NotesField.Text = account.Notes;
+            return _folders.Contains(path) || string.IsNullOrWhiteSpace(path);
         }
+
+        #endregion
+
+        #region Closing
 
         /// <summary>
         ///     Sets values of accountBeingEdited to be equal to the values in the input boxes then closes the window
@@ -166,16 +187,6 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        ///     Checks if a path is an actual folder
-        /// </summary>
-        /// <param name="path">The folder path to verify</param>
-        /// <returns>True if the folder exists</returns>
-        private bool VerifyFolder(string path)
-        {
-            return _folders.Contains(path) || string.IsNullOrWhiteSpace(path);
-        }
-
-        /// <summary>
         ///     Closes the window without updating the account's data
         /// </summary>
         private void CancelOnClick(object sender, RoutedEventArgs e)
@@ -183,32 +194,6 @@ namespace PasswordSafe.Windows
             Close();
         }
 
-        /// <summary>
-        ///     Closes the window if the safe locks itself
-        /// </summary>
-        private void CloseWindowOnLock()
-        {
-            while (true)
-            {
-                Thread.Sleep(1000);
-
-                IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
-
-                if (idleTime.IdleTime.TotalMinutes >= MainWindow.TimeToLock && MainWindow.TimeToLock != 0)
-                {
-                    Dispatcher.Invoke(Close);
-                    return;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Runs final commands before closing
-        /// </summary>
-        private void MetroWindowClosing(object sender, CancelEventArgs e)
-        {
-            //Stops idle detection tread
-            _idleDetectionThread.Abort();
-        }
+        #endregion
     }
 }

@@ -6,7 +6,6 @@
                       xmlns:local="clr-namespace:PasswordSafe"
                       xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
                       xmlns:properties="clr-namespace:PasswordSafe.Properties" Title="Settings"
-                      Closing="MetroWindowClosing"
                       FontFamily="{DynamicResource MainFont}"
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"

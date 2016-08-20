@@ -96,7 +96,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void OpenSettingsOnClick(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "SettingsWindow"))
+            if (Application.Current.Windows.OfType<SettingsWindow>().Any())
                 return; //Check if a settings window is already open
 
             SettingsWindow settingsWindow = new SettingsWindow {Owner = this};
@@ -155,6 +155,13 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void LockSafe()
         {
+            //Closes all other windows
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (!(window is MainWindow))
+                    window.Close();
+            }
+
             ResizeMode = ResizeMode.NoResize;
             RightWindowCommands.Visibility = Visibility.Hidden;
 

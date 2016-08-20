@@ -1,14 +1,10 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
-using PasswordSafe.GlobalClasses;
 using static PasswordSafe.GlobalClasses.ModifySettings;
 
 namespace PasswordSafe.Windows
@@ -20,7 +16,6 @@ namespace PasswordSafe.Windows
     {
         private const int NumberOfSettings = 5;
         private static readonly Xml Profile = new Xml("config.xml");
-        private readonly Thread _idleDetectionThread;
         private bool[] _modifiedSettings = new bool[NumberOfSettings];
 
         public SettingsWindow()
@@ -35,8 +30,8 @@ namespace PasswordSafe.Windows
             LockTimeSelector.Value = MainWindow.TimeToLock;
 
             //Creates a thread that will check if the user is idle
-            _idleDetectionThread = new Thread(CloseWindowOnLock);
-            _idleDetectionThread.Start();
+            //_idleDetectionThread = new Thread(CloseWindowOnLock);
+            //_idleDetectionThread.Start();
         }
 
         #region Settings Changed
@@ -164,42 +159,6 @@ namespace PasswordSafe.Windows
             }
 
             _modifiedSettings = new bool[NumberOfSettings];
-        }
-
-        #endregion
-
-        #region Misc
-
-        /// <summary>
-        ///     Closes the window if the safe locks itself
-        /// </summary>
-        private void CloseWindowOnLock()
-        {
-            while (true)
-            {
-                Thread.Sleep(1000);
-
-                IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
-
-                if (idleTime.IdleTime.TotalMinutes >= MainWindow.TimeToLock && MainWindow.TimeToLock != 0)
-                {
-                    Dispatcher.Invoke(Close);
-                    return;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Runs final commands before closing
-        /// </summary>
-        private void MetroWindowClosing(object sender, CancelEventArgs e)
-        {
-            //Stops idle detection tread
-            _idleDetectionThread.Abort();
-
-            //Checks if settings need to be restored
-            if (_modifiedSettings.Contains(true))
-                Restore();
         }
 
         #endregion

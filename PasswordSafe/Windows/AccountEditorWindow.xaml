@@ -7,7 +7,6 @@
                       xmlns:local="clr-namespace:PasswordSafe"
                       xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro"
                       xmlns:properties="clr-namespace:PasswordSafe.Properties" Title="Password Safe"
-                      Closing="MetroWindowClosing"
                       FontFamily="{DynamicResource MainFont}"
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
@@ -84,7 +83,7 @@
         <Label Grid.Row="7" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Folder:" />
         <ComboBox Name="FolderField" Grid.Row="7" Grid.Column="1" Width="250" Margin="5,5,10,5"
-                  IsTextSearchEnabled="False" TextBoxBase.TextChanged="ReformatFolderOnFolderSelected" />
+                  IsTextSearchEnabled="False" SelectionChanged="ReformatFolderOnFolderSelected" />
         <Label Grid.Row="8" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Notes:" />
         <TextBox Name="NotesField" Grid.Row="8" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"
