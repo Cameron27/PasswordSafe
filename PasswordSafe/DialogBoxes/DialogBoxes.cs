@@ -24,6 +24,7 @@ namespace PasswordSafe.DialogBoxes
         /// <param name="question">Question to display to the user</param>
         /// <param name="defaultYes">Is yes the default answer for when enter is pressed</param>
         /// <param name="owner">Owner of the window</param>
+        /// <returns>True or false</returns>
         public static bool QuestionDialogBox(string question, bool defaultYes, MetroWindow owner)
         {
             QuestionDialogBox dialogBox = new QuestionDialogBox(question, defaultYes) {Owner = owner};
@@ -37,6 +38,7 @@ namespace PasswordSafe.DialogBoxes
         /// <param name="confirm">Message for confirm button</param>
         /// <param name="cancel">Mesage for cancel button</param>
         /// <param name="owner">Owner of the window</param>
+        /// <returns>Users string or null</returns>
         public static string TextInputDialogBox(string information, string confirm, string cancel, MetroWindow owner)
         {
             TextInputDialogBox dialogBox = new TextInputDialogBox(information, confirm, cancel) {Owner = owner};

@@ -10,9 +10,6 @@ namespace PasswordSafe.GlobalClasses
             [JsonProperty("name")]
             public string Name { get; set; }
 
-            [JsonProperty("path")]
-            public string Path { get; set; }
-
             [JsonProperty("children")]
             public List<Folder> Children { get; set; }
         }

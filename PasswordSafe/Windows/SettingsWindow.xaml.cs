@@ -53,7 +53,7 @@ namespace PasswordSafe.Windows
         {
             _modifiedSettings[1] = true;
 
-            ChangeProgramsTheme(DarkModeToggle.IsChecked != null && !(bool) DarkModeToggle.IsChecked);
+            ChangeProgramsTheme((DarkModeToggle.IsChecked != null) && !(bool) DarkModeToggle.IsChecked);
         }
 
         /// <summary>
@@ -74,9 +74,7 @@ namespace PasswordSafe.Windows
             _modifiedSettings[3] = true;
 
             if (FontSizeSelector.Value != null)
-            {
                 ChangeProgramsFontSize((double) FontSizeSelector.Value);
-            }
         }
 
         /// <summary>
@@ -152,7 +150,7 @@ namespace PasswordSafe.Windows
             if (_modifiedSettings[3])
                 Profile.SetValue("Global", "MainFontSize", FontSizeSelector.Value);
 
-            if (_modifiedSettings[4] && LockTimeSelector.Value != null)
+            if (_modifiedSettings[4] && (LockTimeSelector.Value != null))
             {
                 ChangeLockTime((double) LockTimeSelector.Value);
                 Profile.SetValue("Global", "Locktime", LockTimeSelector.Value);

@@ -76,9 +76,7 @@ namespace PasswordSafe.Windows
 
             //Genterate all of the columns for AccountList
             for (int i = 0; i < columnsToGenerate.Count; i++)
-            {
                 ConstructAccountListColumn(columnsToGenerate[i].Item1, columnsToGenerate[i].Item2, i);
-            }
 
             ConstructAccountEntries();
 
@@ -142,11 +140,10 @@ namespace PasswordSafe.Windows
 
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
-                if (idleTime.IdleTime.TotalMinutes >= TimeToLock && TimeToLock != 0)
-                {
-                    Dispatcher.Invoke(LockSafe);
-                    return;
-                }
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (!(idleTime.IdleTime.TotalMinutes >= TimeToLock) || (TimeToLock == 0)) continue;
+                Dispatcher.Invoke(LockSafe);
+                return;
             }
         }
 
@@ -157,10 +154,8 @@ namespace PasswordSafe.Windows
         {
             //Closes all other windows
             foreach (Window window in Application.Current.Windows)
-            {
                 if (!(window is MainWindow))
                     window.Close();
-            }
 
             ResizeMode = ResizeMode.NoResize;
             RightWindowCommands.Visibility = Visibility.Hidden;
@@ -293,9 +288,9 @@ namespace PasswordSafe.Windows
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Data =
                     (Geometry)
-                        TypeDescriptor.GetConverter(typeof(Geometry))
-                            .ConvertFrom(
-                                pathData),
+                    TypeDescriptor.GetConverter(typeof(Geometry))
+                        .ConvertFrom(
+                            pathData),
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = tg,
                 Margin =
@@ -491,9 +486,7 @@ namespace PasswordSafe.Windows
             //Removes the lock elements
             int count = WindowGrid.Children.Count;
             for (int i = count - 5; i < count; i++)
-            {
                 WindowGrid.Children.RemoveAt(count - 5);
-            }
 
             //Restarts the lock thread
             _idleDetectionThread = new Thread(IdleDetectorThread);
@@ -510,23 +503,14 @@ namespace PasswordSafe.Windows
         private void GlobalHotkeys(object sender, KeyEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                //Starts a new thread to safe the safe when ctrl + s is pressed
-                if (e.Key == Key.S && _needsSaving)
-                {
+                if ((e.Key == Key.S) && _needsSaving)
                     StartSaveThread();
-                }
                 //Creates a new instance of AccountEditorWindow to create a new account when ctrl + n is pressed
                 else if (e.Key == Key.N)
-                {
                     NewAccount();
-                }
                 //Creates a new instance of AccountEditorWindow to edit the currently selected account when ctrl + e is pressed
                 else if (e.Key == Key.E)
-                {
                     EditAccount();
-                }
-            }
         }
 
         /// <summary>
@@ -545,7 +529,7 @@ namespace PasswordSafe.Windows
         private void MetroWindowClosing(object sender, CancelEventArgs e)
         {
             //Terminates the _clearClipboardThread if it is running
-            if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
+            if ((_clearClipboardThread != null) && _clearClipboardThread.IsAlive)
             {
                 _clearClipboardThread.Abort();
                 Clipboard.SetText("");
@@ -648,22 +632,15 @@ namespace PasswordSafe.Windows
         {
             if (e.ClickCount != 2) return;
 
-            DependencyObject parent;
+            FolderExpander parent;
 
             if (sender is ContentPresenter)
-            {
-                parent = ((Grid) ((ContentPresenter) sender).Parent).TemplatedParent;
-            }
+                parent = (FolderExpander) ((Grid) ((ContentPresenter) sender).Parent).TemplatedParent;
             else
-            {
-                parent = ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
-            }
+                parent = (FolderExpander) ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
 
 
-            if (parent is FolderLabel)
-                _folderFilter = ((FolderLabel) parent).Path == "All" ? "" : ((FolderLabel) parent).Path;
-            else if (parent is FolderExpander)
-                _folderFilter = ((FolderExpander) parent).PathPart;
+            _folderFilter = parent.Path == "All" ? "" : parent.Path;
 
             FilterDataGrid();
         }
@@ -694,7 +671,7 @@ namespace PasswordSafe.Windows
 
         #endregion
 
-        #region Construct Folders
+        #region Folders
 
         /// <summary>
         ///     Create the folders in the folder menu
@@ -702,28 +679,30 @@ namespace PasswordSafe.Windows
         /// <param name="folders">The list of folders to use to create the folder menu</param>
         private void ConstructFolders(IEnumerable<Folder> folders)
         {
-            //Two default folders
-            Folders.Children.Add(new FolderLabel
+            Folders.Children.RemoveRange(0, Folders.Children.Count);
+            //Default folders
+            Folders.Children.Add(new FolderExpander
             {
                 Path = "All",
-                Content = "All",
-                Padding = new Thickness(10, 5, 5, 5),
-                Style = (Style) FindResource("Folder")
+                Header = "All",
+                Indentation = 30,
+                Style = (Style) FindResource("DropDownFolder"),
+                Default = true,
+                SubFolders = false
             });
 
             foreach (Folder folder in folders) //Creates a folder for every folder in the SafeData
-            {
                 if (folder.Children.Count == 0)
-                    Folders.Children.Add(new FolderLabel
+                    Folders.Children.Add(new FolderExpander
                     {
                         Path = $"/{folder.Name}",
-                        Content = folder.Name,
-                        Padding = new Thickness(10, 5, 5, 5),
-                        Style = (Style) FindResource("Folder")
+                        Header = folder.Name,
+                        Indentation = 30,
+                        Style = (Style) FindResource("DropDownFolder"),
+                        SubFolders = false
                     });
                 else
                     Folders.Children.Add(MakeDropDownFolder(folder, $"/{folder.Name}"));
-            }
         }
 
         /// <summary>
@@ -736,30 +715,224 @@ namespace PasswordSafe.Windows
         {
             FolderExpander output = new FolderExpander
             {
-                PathPart = currentPath,
+                Path = currentPath,
                 Header = folder.Name,
-                //Sets padding based on indentation
-                Padding = new Thickness((folder.Path.Count(x => x == '/') - 1) * 10 + 5, 0, 0, 0),
-                Style = (Style) FindResource("DropDownFolder")
+                Indentation = (currentPath.Count(x => x == '/') - 1) * 10 + 10,
+                Style = (Style) FindResource("DropDownFolder"),
+                SubFolders = true
             };
 
             StackPanel stackPanel = new StackPanel();
             foreach (Folder childFolder in folder.Children)
-            {
                 if (childFolder.Children.Count == 0)
-                    stackPanel.Children.Add(new FolderLabel
+                    stackPanel.Children.Add(new FolderExpander
                     {
                         Path = $"{currentPath}/{childFolder.Name}",
-                        Content = childFolder.Name,
-                        Padding = new Thickness((childFolder.Path.Count(x => x == '/') - 1) * 10 + 10, 5, 5, 5),
-                        //Sets padding based on indentation
-                        Style = (Style) FindResource("Folder")
+                        Header = childFolder.Name,
+                        Indentation = ($"{currentPath}/{childFolder.Name}".Count(x => x == '/') - 1) * 10 + 30,
+                        Style = (Style) FindResource("DropDownFolder"),
+                        SubFolders = false
                     });
                 else
                     stackPanel.Children.Add(MakeDropDownFolder(childFolder, $"{currentPath}/{childFolder.Name}"));
-            }
             output.Content = stackPanel;
             return output;
+        }
+
+        /// <summary>
+        ///     Modifies the folder context menu when it is opened
+        /// </summary>
+        private void ModifyFolderLabelContextMenuOnOpening(object sender, ContextMenuEventArgs e)
+        {
+            //Gets the folder
+            FolderExpander folder;
+            ContextMenu contextMenu;
+            if (sender is Rectangle)
+            {
+                contextMenu = ((Rectangle) sender).ContextMenu;
+                folder = (FolderExpander) ((Rectangle) sender).TemplatedParent;
+            }
+            else
+            {
+                contextMenu = ((ContentPresenter) sender).ContextMenu;
+                folder = (FolderExpander) ((ContentPresenter) sender).TemplatedParent;
+            }
+
+            //Hides rename option from default folders
+            List<MenuItem> menuItems = contextMenu.Items.Cast<MenuItem>().ToList();
+            MenuItem renameMenuItem = menuItems.Find(x => (string) x.Header == "Rename");
+            renameMenuItem.Visibility = folder.Default ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        /// <summary>
+        ///     Gets new folder name from user and renames folder
+        /// </summary>
+        private void RenameFolderOnClick(object sender, RoutedEventArgs e)
+        {
+            //Gets the folder
+            UIElement clickedObject = ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget;
+            FolderExpander folder;
+            if (clickedObject is Rectangle)
+                folder = (FolderExpander) ((Rectangle) clickedObject).TemplatedParent;
+            else
+                folder = (FolderExpander) ((ContentPresenter) clickedObject).TemplatedParent;
+
+            string newFolderName = DialogBox.TextInputDialogBox("Enter new folder name", "Enter", "Cancel", this);
+            if (string.IsNullOrWhiteSpace(newFolderName)) return;
+
+            //Checks folder name is valid
+            if (!VerifyFolderName(newFolderName))
+            {
+                DialogBox.ErrorMessageDialogBox("That is not a valid file name", this);
+                return;
+            }
+
+            //Creates new path for the folder
+            string newFolderPath = folder.Path;
+
+            string[] splitPath = newFolderPath.Split('/');
+            splitPath[splitPath.Length - 1] = newFolderName;
+            newFolderPath = string.Join("/", splitPath);
+
+            //Checks folder doesn't already exist
+            if (FolderPathExists(newFolderPath))
+            {
+                DialogBox.ErrorMessageDialogBox("That folder already exists", this);
+                return;
+            }
+
+            //Gets folders index
+            FolderExpander temp = folder;
+            int index = ((StackPanel) temp.Parent).Children.IndexOf(temp);
+            int numberOfDefaults = ((StackPanel) temp.Parent).Children.Cast<FolderExpander>().Count(x => x.Default);
+
+            //Renames folder
+            ChangeFolder(newFolderPath, index, numberOfDefaults, folder);
+        }
+
+        /// <summary>
+        ///     Checks if a folder name is valid
+        /// </summary>
+        /// <param name="name">The folder name to check</param>
+        /// <returns>True if folder name is valid</returns>
+        private static bool VerifyFolderName(string name)
+        {
+            if (name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        ///     Checks that a folder path exist
+        /// </summary>
+        /// <param name="path">The path to check</param>
+        /// <returns>True if the path exists</returns>
+        private static bool FolderPathExists(string path)
+        {
+            string[] pathParts = path.Split('/').Skip(1).ToArray();
+
+            List<Folder> currentFolderList = SafeData.Folders;
+            foreach (string pathPart in pathParts)
+                if (currentFolderList.Exists(x => x.Name == pathPart))
+                    currentFolderList = currentFolderList.Find(x => x.Name == pathPart).Children;
+                else
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        ///     Change the location and/or name of a folder
+        /// </summary>
+        /// <param name="newPath">New path for the folder</param>
+        /// <param name="newPathIndex">The index for the folder in its new location</param>
+        /// <param name="numberOfDefaults">Number of default folders at the start of the level the folder is in</param>
+        /// <param name="folder">The FolderLabel or FolderExpander being moved</param>
+        private void ChangeFolder(string newPath, int newPathIndex, int numberOfDefaults, FolderExpander folder)
+        {
+            _needsSaving = true;
+
+            string oldPath = folder.Path;
+
+            //TODO optimize for folder location not moving
+            string[] oldPathParts = oldPath.Split('/').Skip(1).ToArray();
+            string[] newPathParts = newPath.Split('/').Skip(1).ToArray();
+
+            /*First changes everything in the main data structure*/
+            //Finds and deletes the folder using the path
+            List<Folder> currentFolderList = SafeData.Folders;
+            for (int i = 0; i < oldPathParts.Length - 1; i++)
+                currentFolderList = currentFolderList.Find(x => x.Name == oldPathParts[i]).Children;
+
+            Folder folderToModify = currentFolderList.Find(x => x.Name == oldPathParts.Last());
+
+            currentFolderList.Remove(folderToModify);
+
+            //Recreates the folder at the new path
+            currentFolderList = SafeData.Folders;
+            for (int i = 0; i < newPathParts.Length - 1; i++)
+                currentFolderList = currentFolderList.Find(x => x.Name == newPathParts[i]).Children;
+
+            currentFolderList.Insert(newPathIndex - numberOfDefaults, folderToModify);
+
+            folderToModify.Name = newPathParts.Last();
+
+            //Changes account path data
+            foreach (Account account in _accountsObservableCollection)
+                if (account.Path.StartsWith(oldPath))
+                    account.Path = newPath + account.Path.Substring(oldPath.Length);
+
+            /*Then changes the already existing folder controls*/
+            //Gets the folder
+            FolderExpander oldFolderExpander =
+                Folders.Children.Cast<FolderExpander>().ToList().Find(x => (string) x.Header == oldPathParts[0]);
+            for (int i = 1; i < newPathParts.Length; i++)
+                oldFolderExpander =
+                    ((StackPanel) oldFolderExpander.Content).Children.Cast<FolderExpander>()
+                        .ToList()
+                        .Find(x => (string) x.Header == oldPathParts[i]);
+
+            //Removes the folder from its current location
+            ((StackPanel) oldFolderExpander.Parent).Children.Remove(oldFolderExpander);
+
+            //Gets where the folding is going to be moved to
+            StackPanel folderExpanderStackPanel = Folders;
+            for (int i = 0; i < newPathParts.Length - 1; i++)
+                folderExpanderStackPanel =
+                    (StackPanel)
+                    folderExpanderStackPanel.Children.Cast<FolderExpander>()
+                        .ToList()
+                        .Find(x => (string) x.Header == newPathParts[i])
+                        .Content;
+
+            //Changes folder values and places it in its new location
+            oldFolderExpander.Header = newPathParts.Last();
+            oldFolderExpander.Path = newPath;
+            oldFolderExpander.Indentation = (newPath.Count(x => x == '/') - 1) * 10 +
+                                            (oldFolderExpander.SubFolders ? 10 : 30);
+            folderExpanderStackPanel.Children.Insert(newPathIndex, oldFolderExpander);
+
+            //Changes the path of all the sub folders
+            ChangeSubFolderPaths(folder);
+        }
+
+        /// <summary>
+        ///     Changes the start of all child folder's paths to match the parent folder's path
+        /// </summary>
+        /// <param name="folder">The folder to change the children for</param>
+        private void ChangeSubFolderPaths(FolderExpander folder)
+        {
+            if (!folder.SubFolders) return;
+            List<FolderExpander> childFolders = ((StackPanel) folder.Content).Children.Cast<FolderExpander>().ToList();
+            string newStartOfPath = folder.Path;
+            string[] temp = childFolders[0].Path.Split('/');
+            string oldStartOfPath = string.Join("/", temp.Take(temp.Length - 1));
+
+            foreach (FolderExpander childFolder in childFolders)
+            {
+                childFolder.Path = newStartOfPath + childFolder.Path.Substring(oldStartOfPath.Length);
+                ChangeSubFolderPaths(childFolder);
+            }
         }
 
         #endregion
@@ -787,7 +960,7 @@ namespace PasswordSafe.Windows
         private void EditAccount()
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow") ||
-                AccountList.SelectedItem == null)
+                (AccountList.SelectedItem == null))
                 return; //Check if a editor window window is already open or no account is selected
 
             Account editedAccount = (Account) AccountList.SelectedItem;
@@ -795,7 +968,8 @@ namespace PasswordSafe.Windows
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
             _accountsObservableCollection[
-                _accountsObservableCollection.ToList().FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)
+                    _accountsObservableCollection.ToList()
+                        .FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)
                 ] =
                 accountEditorWindow.AccountBeingEdited;
             AccountList.Items.Refresh();
@@ -815,9 +989,7 @@ namespace PasswordSafe.Windows
             {
                 Account[] accountsToDelete = AccountList.SelectedItems.Cast<Account>().ToArray();
                 foreach (Account account in accountsToDelete)
-                {
                     _accountsObservableCollection.Remove(account);
-                }
                 _needsSaving = true;
             }
         }
@@ -833,9 +1005,9 @@ namespace PasswordSafe.Windows
         {
             _accountsObservableCollection = new ObservableCollection<Account>();
             SafeData.Accounts.Where(
-                x =>
-                    string.IsNullOrEmpty(_folderFilter) ||
-                    (!string.IsNullOrEmpty(x.Path) && x.Path.StartsWith(_folderFilter)))
+                    x =>
+                        string.IsNullOrEmpty(_folderFilter) ||
+                        (!string.IsNullOrEmpty(x.Path) && x.Path.StartsWith(_folderFilter)))
                 .ToList()
                 .ForEach(x => _accountsObservableCollection.Add(x));
 
@@ -926,12 +1098,10 @@ namespace PasswordSafe.Windows
         private void CopyCellOnLeftClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
-            {
                 if (((TextBlock) sender).Name == "URL")
                     Process.Start(((TextBlock) sender).Text);
                 else
                     CopyCell((TextBlock) sender);
-            }
         }
 
         /// <summary>
@@ -946,7 +1116,7 @@ namespace PasswordSafe.Windows
                 Clipboard.SetText(cell.Text);
 
             //Terminates any currently running ClearClipboard threads
-            if (_clearClipboardThread != null && _clearClipboardThread.IsAlive)
+            if ((_clearClipboardThread != null) && _clearClipboardThread.IsAlive)
                 _clearClipboardThread.Abort();
 
             _clearClipboardThread = new Thread(ClearClipboard);
@@ -987,7 +1157,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void StartSaveThread()
         {
-            if (_saveThread != null && _clearClipboardThread.IsAlive)
+            if ((_saveThread != null) && _clearClipboardThread.IsAlive)
                 _saveThread.Abort();
 
             _saveThread = new Thread(Save);
@@ -1025,9 +1195,7 @@ namespace PasswordSafe.Windows
                     DataGridRow container =
                         (DataGridRow) AccountList.ItemContainerGenerator.ContainerFromItem(selectedItem);
                     if (container != null)
-                    {
                         DragDrop.DoDragDrop(container, selectedItem, DragDropEffects.Move);
-                    }
                 }
             }
         }
@@ -1040,13 +1208,8 @@ namespace PasswordSafe.Windows
             if (e.Data.GetData(typeof(Account)) is Account)
             {
                 Account account = (Account) e.Data.GetData(typeof(Account));
-                string newPath = "";
-                if (sender is FolderLabel)
-                    newPath = ((FolderLabel) sender).Path;
-                else if (sender is FolderExpander)
-                    newPath = ((FolderExpander) sender).PathPart;
-                else if (sender is Grid)
-                    newPath = ((FolderExpander) ((Grid) sender).TemplatedParent).PathPart;
+
+                string newPath = ((FolderExpander) ((Grid) sender).TemplatedParent).Path;
 
                 if (newPath == "All")
                     _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = "";

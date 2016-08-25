@@ -18,13 +18,9 @@ namespace PasswordSafe.DialogBoxes
             InitializeComponent();
             Information.Content = question;
             if (defaultYes)
-            {
                 YesButton.Focus();
-            }
             else
-            {
                 NoButton.Focus();
-            }
         }
 
         /// <summary>
