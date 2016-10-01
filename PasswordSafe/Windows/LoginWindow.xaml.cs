@@ -51,6 +51,7 @@ namespace PasswordSafe.Windows
         private void LoadSafeOptions(string fileToAutoSelect = null)
         {
             string[] files = Directory.GetFiles(@"Resources", "*.json");
+            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.json => test
             files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
 
             SafeSelector.ItemsSource = files;

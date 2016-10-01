@@ -41,6 +41,7 @@ namespace PasswordSafe.Windows
         private string _folderFilter = "";
         private Thread _idleDetectionThread;
         private bool _needsSaving;
+        private bool _preventFolderDropOntoFolderArea;
         private Thread _saveThread;
 
         public MainWindow(string openFile)
@@ -654,9 +655,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void HighlightFolderWhenMouseEnters(object sender, MouseEventArgs e)
         {
-            ((Grid) sender).Children.OfType<Rectangle>()
-                .Last()
-                .SetResourceReference(Shape.FillProperty, "HighlightBrush");
+            ((FolderExpander) ((Grid) sender).TemplatedParent).IsHighlighted = true;
         }
 
         /// <summary>
@@ -664,9 +663,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void UnhighlightFolderWhenMouseLeaves(object sender, MouseEventArgs e)
         {
-            ((Grid) sender).Children.OfType<Rectangle>()
-                .Last()
-                .SetResourceReference(Shape.FillProperty, "AccentColorBrush");
+            ((FolderExpander) ((Grid) sender).TemplatedParent).IsHighlighted = false;
         }
 
         #endregion
@@ -685,10 +682,10 @@ namespace PasswordSafe.Windows
             {
                 Path = "All",
                 Header = "All",
-                Indentation = 30,
+                Indentation = 10,
                 Style = (Style) FindResource("DropDownFolder"),
                 Default = true,
-                SubFolders = false
+                HasSubFolders = false
             });
 
             foreach (Folder folder in folders) //Creates a folder for every folder in the SafeData
@@ -697,9 +694,9 @@ namespace PasswordSafe.Windows
                     {
                         Path = $"/{folder.Name}",
                         Header = folder.Name,
-                        Indentation = 30,
+                        Indentation = 10,
                         Style = (Style) FindResource("DropDownFolder"),
-                        SubFolders = false
+                        HasSubFolders = false
                     });
                 else
                     Folders.Children.Add(MakeDropDownFolder(folder, $"/{folder.Name}"));
@@ -719,7 +716,7 @@ namespace PasswordSafe.Windows
                 Header = folder.Name,
                 Indentation = (currentPath.Count(x => x == '/') - 1) * 10 + 10,
                 Style = (Style) FindResource("DropDownFolder"),
-                SubFolders = true
+                HasSubFolders = true
             };
 
             StackPanel stackPanel = new StackPanel();
@@ -729,9 +726,9 @@ namespace PasswordSafe.Windows
                     {
                         Path = $"{currentPath}/{childFolder.Name}",
                         Header = childFolder.Name,
-                        Indentation = ($"{currentPath}/{childFolder.Name}".Count(x => x == '/') - 1) * 10 + 30,
+                        Indentation = ($"{currentPath}/{childFolder.Name}".Count(x => x == '/') - 1) * 10 + 10,
                         Style = (Style) FindResource("DropDownFolder"),
-                        SubFolders = false
+                        HasSubFolders = false
                     });
                 else
                     stackPanel.Children.Add(MakeDropDownFolder(childFolder, $"{currentPath}/{childFolder.Name}"));
@@ -854,7 +851,7 @@ namespace PasswordSafe.Windows
 
             string oldPath = folder.Path;
 
-            //TODO optimize for folder location not moving
+            //TODO optimize for folder location not moving maybe
             string[] oldPathParts = oldPath.Split('/').Skip(1).ToArray();
             string[] newPathParts = newPath.Split('/').Skip(1).ToArray();
 
@@ -884,45 +881,69 @@ namespace PasswordSafe.Windows
 
             /*Then changes the already existing folder controls*/
             //Gets the folder
-            FolderExpander oldFolderExpander =
+            FolderExpander folderExpanderBeingModified =
                 Folders.Children.Cast<FolderExpander>().ToList().Find(x => (string) x.Header == oldPathParts[0]);
-            for (int i = 1; i < newPathParts.Length; i++)
-                oldFolderExpander =
-                    ((StackPanel) oldFolderExpander.Content).Children.Cast<FolderExpander>()
+            FolderExpander originalParentFolderExpander = null;
+            for (int i = 1; i < oldPathParts.Length; i++)
+            {
+                if (i == oldPathParts.Length - 1)
+                    originalParentFolderExpander = folderExpanderBeingModified;
+
+                folderExpanderBeingModified =
+                    ((StackPanel) folderExpanderBeingModified.Content).Children.Cast<FolderExpander>()
                         .ToList()
                         .Find(x => (string) x.Header == oldPathParts[i]);
+            }
 
             //Removes the folder from its current location
-            ((StackPanel) oldFolderExpander.Parent).Children.Remove(oldFolderExpander);
+            ((StackPanel) folderExpanderBeingModified.Parent).Children.Remove(folderExpanderBeingModified);
+
+            //If the parent folder is now empty it removes the dropdown
+            if ((originalParentFolderExpander != null) &&
+                (((StackPanel) originalParentFolderExpander.Content).Children.Count == 0))
+            {
+                originalParentFolderExpander.Content = null;
+                originalParentFolderExpander.HasSubFolders = false;
+                originalParentFolderExpander.IsExpanded = false;
+            }
 
             //Gets where the folding is going to be moved to
             StackPanel folderExpanderStackPanel = Folders;
+            FolderExpander tempFolderStorage = null;
             for (int i = 0; i < newPathParts.Length - 1; i++)
-                folderExpanderStackPanel =
-                    (StackPanel)
+            {
+                tempFolderStorage =
                     folderExpanderStackPanel.Children.Cast<FolderExpander>()
                         .ToList()
-                        .Find(x => (string) x.Header == newPathParts[i])
-                        .Content;
+                        .Find(x => (string) x.Header == newPathParts[i]);
+                folderExpanderStackPanel = (StackPanel) tempFolderStorage.Content;
+            }
+
+            //Modifies the folder being dropped into if it had no subfolders before hand
+            if (folderExpanderStackPanel == null)
+            {
+                folderExpanderStackPanel = new StackPanel();
+                tempFolderStorage.Content = folderExpanderStackPanel;
+                tempFolderStorage.HasSubFolders = true;
+            }
 
             //Changes folder values and places it in its new location
-            oldFolderExpander.Header = newPathParts.Last();
-            oldFolderExpander.Path = newPath;
-            oldFolderExpander.Indentation = (newPath.Count(x => x == '/') - 1) * 10 +
-                                            (oldFolderExpander.SubFolders ? 10 : 30);
-            folderExpanderStackPanel.Children.Insert(newPathIndex, oldFolderExpander);
+            folderExpanderBeingModified.Header = newPathParts.Last();
+            folderExpanderBeingModified.Path = newPath;
+            folderExpanderBeingModified.Indentation = (newPath.Count(x => x == '/') - 1) * 10 + 10;
+            folderExpanderStackPanel.Children.Insert(newPathIndex, folderExpanderBeingModified);
 
             //Changes the path of all the sub folders
-            ChangeSubFolderPaths(folder);
+            ChangeSubFolderPathsAndIndentations(folder);
         }
 
         /// <summary>
         ///     Changes the start of all child folder's paths to match the parent folder's path
         /// </summary>
         /// <param name="folder">The folder to change the children for</param>
-        private void ChangeSubFolderPaths(FolderExpander folder)
+        private void ChangeSubFolderPathsAndIndentations(FolderExpander folder)
         {
-            if (!folder.SubFolders) return;
+            if (!folder.HasSubFolders) return;
             List<FolderExpander> childFolders = ((StackPanel) folder.Content).Children.Cast<FolderExpander>().ToList();
             string newStartOfPath = folder.Path;
             string[] temp = childFolders[0].Path.Split('/');
@@ -931,7 +952,8 @@ namespace PasswordSafe.Windows
             foreach (FolderExpander childFolder in childFolders)
             {
                 childFolder.Path = newStartOfPath + childFolder.Path.Substring(oldStartOfPath.Length);
-                ChangeSubFolderPaths(childFolder);
+                childFolder.Indentation = (childFolder.Path.Count(x => x == '/') - 1) * 10 + 10;
+                ChangeSubFolderPathsAndIndentations(childFolder);
             }
         }
 
@@ -1157,8 +1179,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void StartSaveThread()
         {
-            if ((_saveThread != null) && _clearClipboardThread.IsAlive)
-                _saveThread.Abort();
+            _saveThread?.Abort();
 
             _saveThread = new Thread(Save);
             _saveThread.Start();
@@ -1182,34 +1203,146 @@ namespace PasswordSafe.Windows
 
         #region Drag and Drop
 
+        #region Start Drag Events
+
         /// <summary>
         ///     Starts a drag event of the selected account when you hold down your mouse and move it
         /// </summary>
         private void StartDraggingofAccount(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
+            object selectedItem = AccountList.SelectedItem;
+            if (selectedItem == null) return;
+
+            DataGridRow container =
+                (DataGridRow) AccountList.ItemContainerGenerator.ContainerFromItem(selectedItem);
+            if (container != null)
+                DragDrop.DoDragDrop(container, selectedItem, DragDropEffects.Move);
+        }
+
+        private void StartDraggingOfFolder(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+            if (((FolderExpander) sender).Default) return;
+
+            DependencyObject container = ((FolderExpander) sender).Parent;
+            DragDrop.DoDragDrop(container, sender, DragDropEffects.Move);
+        }
+
+        #endregion
+
+        #region DragOver and DragLeave Events
+
+        /// <summary>
+        ///     Highlights a folder when you hover over it with something to drop
+        /// </summary>
+        private void DragOverFolder(object sender, DragEventArgs e)
+        {
+            FolderExpander folder = (FolderExpander) ((Grid) sender).TemplatedParent;
+
+            //Highlights folder if it is a account being dragged onto it
+            if (e.Data.GetData(typeof(Account)) is Account)
             {
-                object selectedItem = AccountList.SelectedItem;
-                if (selectedItem != null)
+                if (!folder.IsHighlighted)
+                    folder.IsHighlighted = true;
+            }
+
+            //Highlights and adds borders if it is a folder being dragged onto it
+            else if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
+            {
+                FolderExpander dropTarget = (FolderExpander) ((Grid) sender).TemplatedParent;
+
+                Point mousePosition = e.GetPosition(dropTarget);
+
+                //Folder is hovered above
+                if (mousePosition.Y <= 5)
                 {
-                    DataGridRow container =
-                        (DataGridRow) AccountList.ItemContainerGenerator.ContainerFromItem(selectedItem);
-                    if (container != null)
-                        DragDrop.DoDragDrop(container, selectedItem, DragDropEffects.Move);
+                    if (folder.IsHighlighted)
+                        folder.IsHighlighted = false;
+
+                    if (!folder.DisplayTopBlackBar)
+                        folder.DisplayTopBlackBar = true;
+
+                    if (folder.DisplayBottomBlackBar)
+                        folder.DisplayBottomBlackBar = false;
+                }
+                //Folder was hovered below
+                else if (mousePosition.Y >= dropTarget.ActualHeight - 5)
+                {
+                    if (folder.IsHighlighted)
+                        folder.IsHighlighted = false;
+
+                    if (folder.DisplayTopBlackBar)
+                        folder.DisplayTopBlackBar = false;
+
+                    if (!folder.DisplayBottomBlackBar)
+                        folder.DisplayBottomBlackBar = true;
+                }
+                //Folder was hovered inside
+                else
+                {
+                    if (!folder.IsHighlighted)
+                        folder.IsHighlighted = true;
+
+                    if (folder.DisplayTopBlackBar)
+                        folder.DisplayTopBlackBar = false;
+
+                    if (folder.DisplayBottomBlackBar)
+                        folder.DisplayBottomBlackBar = false;
                 }
             }
         }
 
+        private void DragLeaveFolder(object sender, DragEventArgs e)
+        {
+            FolderExpander folder = (FolderExpander) ((Grid) sender).TemplatedParent;
+
+            //Unhighlights folder if it is a account being dragged off it
+            if (e.Data.GetData(typeof(Account)) is Account)
+            {
+                if (folder.IsHighlighted)
+                    folder.IsHighlighted = false;
+            }
+
+            //Unhighlights and removes borders if it is a folder being dragged off it
+            else if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
+            {
+                if (folder.IsHighlighted)
+                    folder.IsHighlighted = false;
+
+                if (folder.DisplayTopBlackBar)
+                    folder.DisplayTopBlackBar = false;
+
+                if (folder.DisplayBottomBlackBar)
+                    folder.DisplayBottomBlackBar = false;
+            }
+        }
+
+        #endregion
+
+        #region Drop Evernts
+
         /// <summary>
-        ///     Changes an accounts path when it is dropped on a folder
+        ///     Changes an account or folder's path an account or folder is dropped on it
         /// </summary>
         private void DropOntoFolder(object sender, DragEventArgs e)
         {
+            FolderExpander dropTarget = (FolderExpander) ((Grid) sender).TemplatedParent;
+            if (dropTarget.IsHighlighted)
+                dropTarget.IsHighlighted = false;
+
+            if (dropTarget.DisplayTopBlackBar)
+                dropTarget.DisplayTopBlackBar = false;
+
+            if (dropTarget.DisplayBottomBlackBar)
+                dropTarget.DisplayBottomBlackBar = false;
+
             if (e.Data.GetData(typeof(Account)) is Account)
             {
                 Account account = (Account) e.Data.GetData(typeof(Account));
 
-                string newPath = ((FolderExpander) ((Grid) sender).TemplatedParent).Path;
+                string newPath = dropTarget.Path;
 
                 if (newPath == "All")
                     _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = "";
@@ -1217,7 +1350,132 @@ namespace PasswordSafe.Windows
                     _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = newPath;
                 FilterDataGrid();
             }
+
+            else if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
+            {
+                Point mousePosition = e.GetPosition(dropTarget);
+
+                //Folder was dropped above
+                if (mousePosition.Y <= 5)
+                {
+                    MoveFolderAboveOrBelow(e, dropTarget, true);
+                }
+                //Folder was dropped below
+                else if (mousePosition.Y >= dropTarget.ActualHeight - 5)
+                {
+                    MoveFolderAboveOrBelow(e, dropTarget, false);
+                }
+                //Folder was dropped inside
+                else
+                {
+                    if (dropTarget.Default) return;
+
+                    FolderExpander folder = (FolderExpander) e.Data.GetData(typeof(FolderExpander));
+
+                    if (folder == null) return;
+                    //Checks you arn't putting the folder in itself
+                    if (dropTarget.Path.StartsWith(folder.Path)) return;
+
+                    //Checks if you are putting a folder in the folder it is already in
+                    if (dropTarget.Path ==
+                        string.Join("/", folder.Path.Split('/').Take(folder.Path.Split('/').Length - 1)))
+                        return;
+
+                    //Generates new path
+                    string newPath = $"{dropTarget.Path}/{folder.Header}";
+
+                    //Gets the new folder index
+                    int newIndex = 0;
+                    if ((StackPanel) dropTarget.Content != null)
+                        newIndex = ((StackPanel) dropTarget.Content).Children.Count;
+
+                    //Changes the folder path
+                    ChangeFolder(newPath, newIndex, 0, folder);
+                }
+            }
+
+            //Prevents folder from being moved as if it was dropped on blank space
+            _preventFolderDropOntoFolderArea = true;
+            Thread reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+            reEnableBackgroundDropsThread.Start();
         }
+
+        /// <summary>
+        ///     Moves folder above or below another
+        /// </summary>
+        /// <param name="e">Drag event</param>
+        /// <param name="dropTarget">The folder it is being dropped on</param>
+        /// <param name="wasDroppedAbove">True if the folder was dropped above</param>
+        private void MoveFolderAboveOrBelow(DragEventArgs e, FolderExpander dropTarget,
+            bool wasDroppedAbove)
+        {
+            FolderExpander folderBeingMoved = (FolderExpander) e.Data.GetData(typeof(FolderExpander));
+
+            if (folderBeingMoved == null) return;
+            //Checks you arn't putting the folder in itself
+            if (dropTarget.Path.StartsWith(folderBeingMoved.Path)) return;
+
+            //Generates new path
+            StackPanel movingInto = (StackPanel) dropTarget.Parent;
+            string newPath;
+            if (movingInto.Parent is FolderExpander)
+                newPath = $"{((FolderExpander) movingInto.Parent).Path}/{folderBeingMoved.Header}";
+            else
+                newPath = $"/{folderBeingMoved.Header}";
+
+            //Calculates if one should be subtracted based on if the removal of that folder affects the index
+            bool subrtactOne = movingInto.Children.Contains(folderBeingMoved) &&
+                               (movingInto.Children.IndexOf(folderBeingMoved) <
+                                movingInto.Children.IndexOf(dropTarget));
+            //Gets the new folder index
+            int newIndex = movingInto.Children.IndexOf(dropTarget) + (wasDroppedAbove ? 0 : 1) + (subrtactOne ? -1 : 0);
+            //Gets the number of default folders
+            int numberOfDefaults = movingInto.Children.Cast<FolderExpander>().Count(x => x.Default);
+
+            //Changes the folder path
+            ChangeFolder(newPath, newIndex, numberOfDefaults, folderBeingMoved);
+        }
+
+        //TODO get this working
+        /// <summary>
+        ///     Changes a folder's path when a folder is dropped on it
+        /// </summary>
+        private void DropOntoFolderArea(object sender, DragEventArgs e)
+        {
+            StackPanel dropTarget = (StackPanel) sender;
+
+            if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
+            {
+                if (_preventFolderDropOntoFolderArea) return;
+
+                FolderExpander folder = (FolderExpander) e.Data.GetData(typeof(FolderExpander));
+
+                if (folder == null) return;
+
+                //Generates new path
+                string newPath = $"/{folder.Header}";
+
+                //Gets the new folder index and number of defaults
+                int newIndex = dropTarget.Children.Count;
+                if (dropTarget.Children.Contains(folder))
+                    newIndex--;
+                int numberOfDefaults = dropTarget.Children.OfType<FolderExpander>().Count(x => x.Default);
+
+                //Changes the folder path
+                ChangeFolder(newPath, newIndex, numberOfDefaults, folder);
+            }
+        }
+
+        /// <summary>
+        /// Re-enables the the ability to drop folder onto the folder area after 100ms
+        /// </summary>
+        private void ReEnableBackgroundDrops()
+        {
+            Thread.Sleep(100);
+            _preventFolderDropOntoFolderArea = false;
+        }
+
+        #endregion
 
         #endregion
     }

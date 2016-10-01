@@ -71,7 +71,6 @@ namespace PasswordSafe.Windows
         /// <param name="depth">Current depth of folders</param>
         private void CreateFolderList(IEnumerable<Folder> folders, string currentPath = "", int depth = 0)
         {
-            //TODO I broke it all or it never worked
             //Creates initial blank option
             if (depth == 0)
             {

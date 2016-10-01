@@ -83,26 +83,36 @@
             <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
             <Setter Property="MinHeight" Value="26" />
             <Setter Property="AllowDrop" Value="True" />
+            <Setter Property="IsHighlighted" Value="False" />
+            <Setter Property="DisplayTopBlackBar" Value="False" />
+            <Setter Property="DisplayBottomBlackBar" Value="False" />
+            <EventSetter Event="MouseMove" Handler="StartDraggingOfFolder" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="customControls:FolderExpander">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top" Drop="DropOntoFolder" MouseEnter="HighlightFolderWhenMouseEnters"
-                                  MouseLeave="UnhighlightFolderWhenMouseLeaves">
+                            <Grid DockPanel.Dock="Top" DragLeave="DragLeaveFolder" DragOver="DragOverFolder" Drop="DropOntoFolder"
+                                  MouseEnter="HighlightFolderWhenMouseEnters" MouseLeave="UnhighlightFolderWhenMouseLeaves">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="{Binding Indentation, RelativeSource={RelativeSource TemplatedParent}}" />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="20" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Rectangle Grid.Column="0" Grid.ColumnSpan="3"
                                            MinHeight="{TemplateBinding MinHeight}"
                                            Fill="{DynamicResource WhiteBrush}" />
-                                <Rectangle Grid.Column="0" Grid.ColumnSpan="3"
+                                <Rectangle Name="Background" Grid.Column="0" Grid.ColumnSpan="3"
                                            MinHeight="{TemplateBinding MinHeight}"
                                            ContextMenu="{StaticResource FolderExpanderContextMenu}"
                                            ContextMenuOpening="ModifyFolderLabelContextMenuOnOpening"
                                            Fill="{TemplateBinding Background}"
                                            MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
+                                <Rectangle Name="TopBlackBar" Grid.Column="0" Grid.ColumnSpan="3" Height="2" HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Top"
+                                           Fill="{DynamicResource BlackBrush}" />
+                                <Rectangle Name="BottomBlackBar" Grid.Column="0" Grid.ColumnSpan="3" Height="2" HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Bottom"
+                                           Fill="{DynamicResource BlackBrush}" />
                                 <ToggleButton Name="ToggleButton" Grid.Column="1"
                                               Background="{TemplateBinding Background}"
                                               Foreground="{TemplateBinding Foreground}"
@@ -144,8 +154,17 @@
                             <Trigger Property="IsExpanded" Value="False">
                                 <Setter TargetName="ExpanderContent" Property="Width" Value="0" />
                             </Trigger>
-                            <Trigger Property="SubFolders" Value="False">
+                            <Trigger Property="HasSubFolders" Value="False">
                                 <Setter TargetName="ToggleButton" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Background" Property="Fill" Value="{DynamicResource HighlightBrush}" />
+                            </Trigger>
+                            <Trigger Property="DisplayTopBlackBar" Value="False">
+                                <Setter TargetName="TopBlackBar" Property="Fill" Value="Transparent" />
+                            </Trigger>
+                            <Trigger Property="DisplayBottomBlackBar" Value="False">
+                                <Setter TargetName="BottomBlackBar" Property="Fill" Value="Transparent" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -333,8 +352,9 @@
                         MinWidth="{Binding ViewportWidth,
                                            ElementName=ScrollViewer,
                                            Mode=OneWay}"
+                        AllowDrop="True"
                         Background="{DynamicResource AccentColorBrush}"
-                        SnapsToDevicePixels="True" />
+                        Drop="DropOntoFolderArea" SnapsToDevicePixels="True" />
         </ScrollViewer>
         <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"
                       Background="{DynamicResource GrayBrush7}" />

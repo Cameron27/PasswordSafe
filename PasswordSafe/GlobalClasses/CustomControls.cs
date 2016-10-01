@@ -7,11 +7,11 @@ namespace PasswordSafe.GlobalClasses
     {
         public class FolderExpander : Expander
         {
-            public static readonly DependencyProperty PathProperty = DependencyProperty.Register("Path",
-                typeof(string), typeof(string));
+            public static readonly DependencyProperty PathProperty = DependencyProperty.Register("Path", typeof(string),
+                typeof(string));
 
-            public static readonly DependencyProperty SubFoldersProperty = DependencyProperty.Register("SubFolders",
-                typeof(bool), typeof(FolderExpander));
+            public static readonly DependencyProperty HasSubFoldersProperty =
+                DependencyProperty.Register("HasSubFolders", typeof(bool), typeof(FolderExpander));
 
             public static readonly DependencyProperty DefaultProperty = DependencyProperty.Register("Default",
                 typeof(bool), typeof(FolderExpander));
@@ -19,16 +19,27 @@ namespace PasswordSafe.GlobalClasses
             public static readonly DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
                 typeof(double), typeof(FolderExpander));
 
+            public static readonly DependencyProperty IsHighlightedProperty =
+                DependencyProperty.Register("IsHighlighted",
+                    typeof(bool), typeof(FolderExpander));
+
+            public static readonly DependencyProperty DisplayTopBlackBarProperty =
+                DependencyProperty.Register("DisplayTopBlackBar",
+                    typeof(bool), typeof(FolderExpander));
+
+            public static readonly DependencyProperty DisplayBottomBlackBarProperty =
+                DependencyProperty.Register("DisplayBottomBlackBar", typeof(bool), typeof(FolderExpander));
+
             public string Path
             {
                 get { return (string) GetValue(PathProperty); }
                 set { SetValue(PathProperty, value); }
             }
 
-            public bool SubFolders
+            public bool HasSubFolders
             {
-                get { return (bool) GetValue(SubFoldersProperty); }
-                set { SetValue(SubFoldersProperty, value); }
+                get { return (bool) GetValue(HasSubFoldersProperty); }
+                set { SetValue(HasSubFoldersProperty, value); }
             }
 
             public bool Default
@@ -41,6 +52,24 @@ namespace PasswordSafe.GlobalClasses
             {
                 get { return (double) GetValue(IndentationProperty); }
                 set { SetValue(IndentationProperty, value); }
+            }
+
+            public bool IsHighlighted
+            {
+                get { return (bool) GetValue(IsHighlightedProperty); }
+                set { SetValue(IsHighlightedProperty, value); }
+            }
+
+            public bool DisplayTopBlackBar
+            {
+                get { return (bool) GetValue(DisplayTopBlackBarProperty); }
+                set { SetValue(DisplayTopBlackBarProperty, value); }
+            }
+
+            public bool DisplayBottomBlackBar
+            {
+                get { return (bool) GetValue(DisplayBottomBlackBarProperty); }
+                set { SetValue(DisplayBottomBlackBarProperty, value); }
             }
         }
 
