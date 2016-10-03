@@ -12,10 +12,15 @@
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
                       ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Label Name="Information" Height="25" Margin="5,5,5,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <Button Name="YesButton" Width="100" Height="25" Margin="5,35,110,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="YesButton_Click" Content="Yes" />
-        <Button Name="NoButton" Width="100" Height="25" Margin="0,35,5,5" HorizontalAlignment="Right"
-                VerticalAlignment="Top" Click="NoButton_Click" Content="No" IsCancel="True" IsDefault="True" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Name="Information" Grid.Row="0" Height="25" MaxWidth="300" Margin="5,5,5,0"
+                   HorizontalAlignment="Left" TextWrapping="Wrap" />
+        <Button Name="YesButton" Grid.Row="1" Width="100" Height="25" Margin="5,5,110,5" HorizontalAlignment="Right"
+                Click="YesButton_Click" Content="Yes" />
+        <Button Name="NoButton" Grid.Row="1" Width="100" Height="25" Margin="0,5,5,5" HorizontalAlignment="Right"
+                Click="NoButton_Click" Content="No" IsCancel="True" IsDefault="True" />
     </Grid>
 </controls:MetroWindow>

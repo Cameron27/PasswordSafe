@@ -29,9 +29,11 @@
                             <Path Grid.Column="0" Width="7" Height="19" HorizontalAlignment="Right" Data="M 0 0 V 19"
                                   Stroke="{TemplateBinding Foreground}"
                                   StrokeThickness="1"
-                                  Visibility="{Binding EndPath,
+                                  Visibility="{Binding EndOfPath,
                                                        RelativeSource={RelativeSource TemplatedParent}}" />
-                            <ContentPresenter Grid.Column="1" />
+                            <Label Grid.Column="1" Margin="0"
+                                   Content="{TemplateBinding FolderName}"
+                                   Padding="0" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -83,7 +85,7 @@
         <Label Grid.Row="7" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Folder:" />
         <ComboBox Name="FolderField" Grid.Row="7" Grid.Column="1" Width="250" Margin="5,5,10,5"
-                  IsTextSearchEnabled="False" SelectionChanged="ReformatFolderOnFolderSelected" />
+                  IsTextSearchEnabled="False" />
         <Label Grid.Row="8" Grid.Column="0" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                Content="Notes:" />
         <TextBox Name="NotesField" Grid.Row="8" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"

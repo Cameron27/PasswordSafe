@@ -28,10 +28,6 @@ namespace PasswordSafe.Windows
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
             FontSizeSelector.Value = (double?) Application.Current.Resources["MainFontSize"];
             LockTimeSelector.Value = MainWindow.TimeToLock;
-
-            //Creates a thread that will check if the user is idle
-            //_idleDetectionThread = new Thread(CloseWindowOnLock);
-            //_idleDetectionThread.Start();
         }
 
         #region Settings Changed

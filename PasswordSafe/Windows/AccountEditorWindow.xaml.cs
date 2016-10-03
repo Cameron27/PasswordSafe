@@ -76,7 +76,8 @@ namespace PasswordSafe.Windows
             {
                 FolderField.Items.Add(new FolderComboBoxItem
                 {
-                    Content = "None",
+                    FolderName = "None",
+                    Content = "",
                     Style = (Style) FindResource("FolderOptionsInContextMenu")
                 });
                 _folders.Add("");
@@ -87,9 +88,10 @@ namespace PasswordSafe.Windows
             {
                 FolderField.Items.Add(new FolderComboBoxItem
                 {
-                    Content = $"{folder.Name}",
+                    FolderName = $"{folder.Name}",
+                    Content = $"{currentPath}/{folder.Name}",
                     Indentation = depth * 20,
-                    EndPath = foldersEnumerable.Last() == folder ? Visibility.Hidden : Visibility.Visible,
+                    EndOfPath = foldersEnumerable.Last() == folder ? Visibility.Hidden : Visibility.Visible,
                     Style = (Style) FindResource("FolderOptionsInContextMenu")
                 });
                 _folders.Add($"{currentPath}/{folder.Name}");
@@ -97,25 +99,6 @@ namespace PasswordSafe.Windows
                 if (folder.Children.Count != 0)
                     CreateFolderList(folder.Children, $"{currentPath}/{folder.Name}", depth + 1);
             }
-        }
-
-        /// <summary>
-        ///     Changes the value in FolderField so that it isn't the test selected but the folder path
-        /// </summary>
-        private void ReformatFolderOnFolderSelected(object sender, SelectionChangedEventArgs e)
-        {
-            Thread thread = new Thread(ReformatFolderThread);
-            thread.Start();
-        }
-
-        /// <summary>
-        ///     Changes the text in the FolderField after a 5ms delay
-        /// </summary>
-        private void ReformatFolderThread()
-        {
-            //Slight delay is needed because the selection changed event runs before the test value is updated
-            Thread.Sleep(5);
-            Dispatcher.Invoke(() => FolderField.Text = _folders[FolderField.SelectedIndex]);
         }
 
         /// <summary>
@@ -158,12 +141,12 @@ namespace PasswordSafe.Windows
             //Checks the passwords match
             if (PasswordField.Password != ConfirmPasswordField.Password)
             {
-                DialogBox.ErrorMessageDialogBox("Your passwords do not match", this);
+                DialogBox.MessageDialogBox("Your passwords do not match", this);
                 return;
             }
             if (!VerifyFolder(FolderField.Text))
             {
-                DialogBox.ErrorMessageDialogBox("That is not a valid folder", this);
+                DialogBox.MessageDialogBox("That is not a valid folder", this);
                 return;
             }
 

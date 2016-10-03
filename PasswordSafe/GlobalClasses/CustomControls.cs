@@ -75,7 +75,7 @@ namespace PasswordSafe.GlobalClasses
 
         public class PasswordTextBlock : TextBlock
         {
-            public static readonly DependencyProperty PasswordProperty = DependencyProperty.Register("Password",
+            public static DependencyProperty PasswordProperty = DependencyProperty.Register("Password",
                 typeof(string), typeof(string));
 
             public string Password
@@ -90,8 +90,11 @@ namespace PasswordSafe.GlobalClasses
             public static readonly DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
                 typeof(double), typeof(FolderComboBoxItem));
 
-            public static readonly DependencyProperty EndPathProperty = DependencyProperty.Register("EndPath",
+            public static readonly DependencyProperty EndOfPathProperty = DependencyProperty.Register("EndOfPath",
                 typeof(Visibility), typeof(FolderComboBoxItem));
+
+            public static readonly DependencyProperty FolderNameProperty = DependencyProperty.Register("FolderName",
+                typeof(string), typeof(FolderComboBoxItem));
 
             public double Indentation
             {
@@ -99,10 +102,16 @@ namespace PasswordSafe.GlobalClasses
                 set { SetValue(IndentationProperty, value); }
             }
 
-            public Visibility EndPath
+            public Visibility EndOfPath
             {
-                get { return (Visibility) GetValue(EndPathProperty); }
-                set { SetValue(EndPathProperty, value); }
+                get { return (Visibility) GetValue(EndOfPathProperty); }
+                set { SetValue(EndOfPathProperty, value); }
+            }
+
+            public string FolderName
+            {
+                get { return (string) GetValue(FolderNameProperty); }
+                set { SetValue(FolderNameProperty, value); }
             }
         }
     }

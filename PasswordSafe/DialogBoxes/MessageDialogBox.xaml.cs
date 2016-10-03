@@ -1,21 +1,21 @@
-﻿using System.Windows;
+using System.Windows;
 using MahApps.Metro.Controls;
 
 namespace PasswordSafe.DialogBoxes
 {
     /// <summary>
-    ///     Interaction logic for ErrorMessageDialogBox.xaml
+    ///     Interaction logic for MessageDialogBox.xaml
     /// </summary>
-    public partial class ErrorMessageDialogBox : MetroWindow
+    public partial class MessageDialogBox : MetroWindow
     {
         /// <summary>
         ///     Dialog box to inform user of an error
         /// </summary>
-        /// <param name="errorMessage">Error message</param>
-        public ErrorMessageDialogBox(string errorMessage)
+        /// <param name="message">Message</param>
+        public MessageDialogBox(string message)
         {
             InitializeComponent();
-            Information.Content = errorMessage;
+            Information.Text = message;
         }
 
         /// <summary>

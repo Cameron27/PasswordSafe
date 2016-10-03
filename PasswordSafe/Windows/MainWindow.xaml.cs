@@ -31,7 +31,7 @@ namespace PasswordSafe.Windows
     {
         public static RootObject SafeData;
         public static double TimeToLock;
-        private readonly string _openFile;
+        private string _openFile;
         private readonly Xml _profile = new Xml("config.xml");
         private CollectionViewSource _accountsCollectionViewSource;
         private ICollectionView _accountsICollectionView;
@@ -52,10 +52,37 @@ namespace PasswordSafe.Windows
             _openFile = openFile;
             TimeToLock = double.Parse(_profile.GetValue("Global", "Locktime", "5"));
 
-            if (File.ReadAllText($"Resources/{_openFile}") != "")
+            //Creates a thread that will check if the user is idle, this has to start first otherwise the program will crash if there is an error loading the safe
+            _idleDetectionThread = new Thread(IdleDetectorThread);
+            _idleDetectionThread.Start();
+
+            string contentOfFile = "";
+
+            try
             {
-                string json = File.ReadAllText($"Resources/{_openFile}");
-                SafeData = JsonConvert.DeserializeObject<RootObject>(json);
+                contentOfFile = File.ReadAllText($"Resources/{_openFile}");
+            }
+            catch (IOException)
+            {
+                DialogBox.MessageDialogBox("There was an error trying to load that safe.", null);
+                LoginWindow loginWindow = new LoginWindow();
+                loginWindow.Show();
+                Close();
+            }
+
+            if (contentOfFile != "")
+            {
+                try
+                {
+                    SafeData = JsonConvert.DeserializeObject<RootObject>(contentOfFile);
+                }
+                catch (JsonReaderException)
+                {
+                    DialogBox.MessageDialogBox("That safe is not a valid file format.", null);
+                    LoginWindow loginWindow = new LoginWindow();
+                    loginWindow.Show();
+                    Close();
+                }
             }
             else
             {
@@ -80,10 +107,6 @@ namespace PasswordSafe.Windows
                 ConstructAccountListColumn(columnsToGenerate[i].Item1, columnsToGenerate[i].Item2, i);
 
             ConstructAccountEntries();
-
-            //Creates a thread that will check if the user is idle
-            _idleDetectionThread = new Thread(IdleDetectorThread);
-            _idleDetectionThread.Start();
 
             AccountList.SelectedItem = null; //Rows can be randomly selected on startup
         }
@@ -142,8 +165,9 @@ namespace PasswordSafe.Windows
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (!(idleTime.IdleTime.TotalMinutes >= TimeToLock) || (TimeToLock == 0)) continue;
+                if (idleTime.IdleTime.TotalMinutes < TimeToLock || (TimeToLock == 0)) continue;
                 Dispatcher.Invoke(LockSafe);
+                //Stops thread
                 return;
             }
         }
@@ -503,15 +527,53 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void GlobalHotkeys(object sender, KeyEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.Control)
-                if ((e.Key == Key.S) && _needsSaving)
-                    StartSaveThread();
-                //Creates a new instance of AccountEditorWindow to create a new account when ctrl + n is pressed
-                else if (e.Key == Key.N)
-                    NewAccount();
-                //Creates a new instance of AccountEditorWindow to edit the currently selected account when ctrl + e is pressed
-                else if (e.Key == Key.E)
-                    EditAccount();
+            if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                switch (e.Key)
+                {
+                    case Key.S:
+                        SaveAs();
+                        break;
+                }
+            }
+
+            else if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                //TODO add in all the shorcuts here
+                switch (e.Key)
+                {
+                    case Key.N:
+                        NewSafe();
+                        break;
+                    case Key.O:
+                        LoginWindow loginWindow = new LoginWindow();
+                        loginWindow.Show();
+                        Close();
+                        break;
+                    case Key.S:
+                        StartSaveThread();
+                        break;
+                    case Key.L:
+                        LockSafe();
+                        _idleDetectionThread.Abort();
+                        break;
+                    case Key.X:
+                        Close();
+                        break;
+                    case Key.F:
+                        CreateNewFolder();
+                        break;
+                    case Key.Y:
+                        CreateNewAccount();
+                        break;
+                    case Key.E:
+                        EditAccount();
+                        break;
+                    case Key.D:
+                        DeleteAccount();
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -548,6 +610,63 @@ namespace PasswordSafe.Windows
 
         #region Buttons
 
+        #region Buttons - File
+
+        private void NewSafeOnClick(object sender, RoutedEventArgs e)
+        {
+            NewSafe();
+        }
+
+        private void NewSafe()
+        {
+            //Gets new name
+            string newName = DialogBox.TextInputDialogBox("Please enter the name for your new Safe:", "Create", "Cancel",
+                this);
+
+            if (string.IsNullOrEmpty(newName)) return;
+
+            //Checks that safe name isn't already being used
+            string[] files = Directory.GetFiles(@"Resources", "*.json");
+
+            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.json => test
+            files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
+
+            if (files.Any(x => x == newName) &&
+                !DialogBox.QuestionDialogBox(
+                    "A file with that name already exists, are you sure you want to override it?", false, this))
+                return;
+
+            //Checks that that file name is valid
+            if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+            {
+                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                return;
+            }
+
+            //Creates and opens new safe
+            File.Create($"Resources\\{newName}.json").Close();
+            MainWindow mainWindow = new MainWindow($"{newName}.json");
+            try
+            {
+                mainWindow.Show();
+            }
+            catch (InvalidOperationException)
+            {
+                //The window mush have already closed itself for some reason and an error has already been displayed to the user
+            }
+            Close();
+        }
+
+        /// <summary>
+        /// Returns to login window
+        /// </summary>
+        private void OpenOnClick(object sender, RoutedEventArgs e)
+        {
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.Show();
+            Close();
+        }
+
         /// <summary>
         ///     Saves the safe
         /// </summary>
@@ -559,19 +678,83 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
+        /// Asks for a new safe name and saves it when the button is clicked
+        /// </summary>
+        private void SaveAsOnClick(object sender, RoutedEventArgs e)
+        {
+            SaveAs();
+        }
+
+        /// <summary>
+        /// Asks for a new safe name and saves it
+        /// </summary>
+        private void SaveAs()
+        {
+            //Gets new name
+            string newName = DialogBox.TextInputDialogBox("Please enter the name for your new Safe:", "Create", "Cancel",
+                this);
+
+            if (string.IsNullOrEmpty(newName)) return;
+
+            //Checks that safe name isn't already being used
+            string[] files = Directory.GetFiles(@"Resources", "*.json");
+
+            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.json => test
+            files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
+
+            if (files.Any(x => x == newName) &&
+                !DialogBox.QuestionDialogBox(
+                    "A file with that name already exists, are you sure you want to override it?", false, this))
+                return;
+
+            //Checks that that file name is valid
+            if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+            {
+                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                return;
+            }
+
+            File.Create($"Resources\\{newName}.json").Close();
+            _openFile = $"{newName}.json";
+
+            StartSaveThread();
+        }
+
+        /// <summary>
+        /// Locks the safe
+        /// </summary>
+        private void LockOnClick(object sender, RoutedEventArgs e)
+        {
+            LockSafe();
+            _idleDetectionThread.Abort();
+        }
+
+        /// <summary>
         ///     Closes the window
         /// </summary>
-        private void CloseOnClick(object sender, RoutedEventArgs e)
+        private void ExitOnClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        #endregion
+
+        #region Buttons - Edit
+
+        /// <summary>
+        /// Creates a new folder when the button is clicked
+        /// </summary>
+        private void CreateNewFolderOnClick(object sender, RoutedEvent e)
+        {
+            CreateNewFolder();
         }
 
         /// <summary>
         ///     Creates a new instance of AccountEditorWindow to create a new account when the button is clicked
         /// </summary>
-        private void NewAccountOnClick(object sender, RoutedEventArgs e)
+        private void CreateNewAccountOnClick(object sender, RoutedEventArgs e)
         {
-            NewAccount();
+            CreateNewAccount();
         }
 
         /// <summary>
@@ -589,6 +772,127 @@ namespace PasswordSafe.Windows
         {
             DeleteAccount();
         }
+
+        #endregion
+
+        #region Buttons - Folders
+
+        /// <summary>
+        ///     Gets new folder name from user and renames folder
+        /// </summary>
+        private void RenameFolderOnClick(object sender, RoutedEventArgs e)
+        {
+            //Gets the folder
+            UIElement clickedObject = ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget;
+            FolderExpander folder;
+            if (clickedObject is Rectangle)
+                folder = (FolderExpander) ((Rectangle) clickedObject).TemplatedParent;
+            else
+                folder = (FolderExpander) ((ContentPresenter) clickedObject).TemplatedParent;
+
+            //Gets name to rename to
+            string newFolderName = DialogBox.TextInputDialogBox("Enter new folder name", "Enter", "Cancel", this);
+            if (string.IsNullOrWhiteSpace(newFolderName)) return;
+
+            //Checks folder name is valid
+            if (!VerifyFolderName(newFolderName))
+            {
+                DialogBox.MessageDialogBox(
+                    "A folder's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                return;
+            }
+
+            //Creates new path for the folder
+            string newFolderPath = folder.Path;
+
+            string[] splitPath = newFolderPath.Split('/');
+            splitPath[splitPath.Length - 1] = newFolderName;
+            newFolderPath = string.Join("/", splitPath);
+
+            //Checks folder doesn't already exist
+            if (FolderPathExists(newFolderPath))
+            {
+                DialogBox.MessageDialogBox("A folder with that name already exists", this);
+                return;
+            }
+
+            //Gets folders index
+            FolderExpander temp = folder;
+            int index = ((StackPanel) temp.Parent).Children.IndexOf(temp);
+            int numberOfDefaults = ((StackPanel) temp.Parent).Children.Cast<FolderExpander>().Count(x => x.Default);
+
+            //Renames folder
+            ChangeFolder(newFolderPath, index, numberOfDefaults, folder);
+        }
+
+        private void CreateNewFolderOnClick(object sender, RoutedEventArgs e)
+        {
+            //Gets the folder
+            UIElement clickedObject = ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget;
+            FolderExpander folderToPutNewFolderIn;
+            if (clickedObject is Rectangle)
+                folderToPutNewFolderIn = (FolderExpander) ((Rectangle) clickedObject).TemplatedParent;
+            else
+                folderToPutNewFolderIn = (FolderExpander) ((ContentPresenter) clickedObject).TemplatedParent;
+
+            //Creates new folder
+            CreateNewFolder(folderToPutNewFolderIn.Path);
+        }
+
+        /// <summary>
+        ///     Checks if a folder name is valid
+        /// </summary>
+        /// <param name="name">The folder name to check</param>
+        /// <returns>True if folder name is valid</returns>
+        private static bool VerifyFolderName(string name)
+        {
+            if (name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        ///     Checks that a folder path exist
+        /// </summary>
+        /// <param name="path">The path to check</param>
+        /// <returns>True if the path exists</returns>
+        private static bool FolderPathExists(string path)
+        {
+            string[] pathParts = path.Split('/').Skip(1).ToArray();
+
+            List<Folder> currentFolderList = SafeData.Folders;
+            foreach (string pathPart in pathParts)
+                if (currentFolderList.Exists(x => x.Name == pathPart))
+                    currentFolderList = currentFolderList.Find(x => x.Name == pathPart).Children;
+                else
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Filters the Accounts to only those in the folder when double clicked
+        /// </summary>
+        private void FilterByFolderOnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount != 2) return;
+
+            FolderExpander parent;
+
+            if (sender is ContentPresenter)
+                parent = (FolderExpander)((Grid)((ContentPresenter)sender).Parent).TemplatedParent;
+            else
+                parent = (FolderExpander)((Grid)((Rectangle)sender).Parent).TemplatedParent;
+
+
+            _folderFilter = parent.Path == "All" ? "" : parent.Path;
+
+            FilterDataGrid();
+        }
+
+        #endregion
+
+        #region Buttons - DataGrid
 
         /// <summary>
         ///     Hides and unhides columns when the context menu is checked and unchecked
@@ -629,22 +933,7 @@ namespace PasswordSafe.Windows
             }
         }
 
-        private void FilterByFolderOnDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount != 2) return;
-
-            FolderExpander parent;
-
-            if (sender is ContentPresenter)
-                parent = (FolderExpander) ((Grid) ((ContentPresenter) sender).Parent).TemplatedParent;
-            else
-                parent = (FolderExpander) ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
-
-
-            _folderFilter = parent.Path == "All" ? "" : parent.Path;
-
-            FilterDataGrid();
-        }
+        #endregion
 
         #endregion
 
@@ -762,80 +1051,59 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        ///     Gets new folder name from user and renames folder
+        ///     Creates a new folder
         /// </summary>
-        private void RenameFolderOnClick(object sender, RoutedEventArgs e)
+        /// <param name="locationPath">Path of location to create the new folder, if blank it is places in the top level</param>
+        private void CreateNewFolder(string locationPath = "")
         {
-            //Gets the folder
-            UIElement clickedObject = ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget;
-            FolderExpander folder;
-            if (clickedObject is Rectangle)
-                folder = (FolderExpander) ((Rectangle) clickedObject).TemplatedParent;
-            else
-                folder = (FolderExpander) ((ContentPresenter) clickedObject).TemplatedParent;
+            StackPanel location;
+            FolderExpander folderNewFolderGoesIn = null;
 
-            string newFolderName = DialogBox.TextInputDialogBox("Enter new folder name", "Enter", "Cancel", this);
-            if (string.IsNullOrWhiteSpace(newFolderName)) return;
+            //Gets name
+            string folderName = DialogBox.TextInputDialogBox("Enter new folder name", "Enter", "Cancel", this);
+            if (string.IsNullOrWhiteSpace(folderName)) return;
 
             //Checks folder name is valid
-            if (!VerifyFolderName(newFolderName))
+            if (!VerifyFolderName(folderName))
             {
-                DialogBox.ErrorMessageDialogBox("That is not a valid file name", this);
+                DialogBox.MessageDialogBox(
+                    "A folder's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
-
-            //Creates new path for the folder
-            string newFolderPath = folder.Path;
-
-            string[] splitPath = newFolderPath.Split('/');
-            splitPath[splitPath.Length - 1] = newFolderName;
-            newFolderPath = string.Join("/", splitPath);
 
             //Checks folder doesn't already exist
-            if (FolderPathExists(newFolderPath))
+            if (FolderPathExists($"{locationPath}/{folderName}"))
             {
-                DialogBox.ErrorMessageDialogBox("That folder already exists", this);
+                DialogBox.MessageDialogBox("A folder with that name already exists", this);
                 return;
             }
 
-            //Gets folders index
-            FolderExpander temp = folder;
-            int index = ((StackPanel) temp.Parent).Children.IndexOf(temp);
-            int numberOfDefaults = ((StackPanel) temp.Parent).Children.Cast<FolderExpander>().Count(x => x.Default);
+            //Gets stackpanel that new folder goes in
+            if (locationPath == "")
+                location = Folders;
+            else
+            {
+                folderNewFolderGoesIn = GetFolderFromPath(locationPath);
+                location = (StackPanel) folderNewFolderGoesIn.Content;
+            }
 
-            //Renames folder
-            ChangeFolder(newFolderPath, index, numberOfDefaults, folder);
-        }
+            //Sets up parent folder if it currently has no children
+            if (location == null)
+            {
+                location = new StackPanel();
+                folderNewFolderGoesIn.Content = location;
+                folderNewFolderGoesIn.HasSubFolders = true;
+            }
 
-        /// <summary>
-        ///     Checks if a folder name is valid
-        /// </summary>
-        /// <param name="name">The folder name to check</param>
-        /// <returns>True if folder name is valid</returns>
-        private static bool VerifyFolderName(string name)
-        {
-            if (name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
-                return false;
-            return true;
-        }
-
-        /// <summary>
-        ///     Checks that a folder path exist
-        /// </summary>
-        /// <param name="path">The path to check</param>
-        /// <returns>True if the path exists</returns>
-        private static bool FolderPathExists(string path)
-        {
-            string[] pathParts = path.Split('/').Skip(1).ToArray();
-
-            List<Folder> currentFolderList = SafeData.Folders;
-            foreach (string pathPart in pathParts)
-                if (currentFolderList.Exists(x => x.Name == pathPart))
-                    currentFolderList = currentFolderList.Find(x => x.Name == pathPart).Children;
-                else
-                    return false;
-
-            return true;
+            //Creates new folder
+            location.Children.Add(new FolderExpander
+            {
+                Path = $"{locationPath}/{folderName}",
+                Header = folderName,
+                Indentation = ($"{locationPath}/{folderName}".Count(x => x == '/') - 1) * 10 + 10,
+                Style = (Style) FindResource("DropDownFolder"),
+                HasSubFolders = false
+            });
         }
 
         /// <summary>
@@ -881,60 +1149,60 @@ namespace PasswordSafe.Windows
 
             /*Then changes the already existing folder controls*/
             //Gets the folder
-            FolderExpander folderExpanderBeingModified =
-                Folders.Children.Cast<FolderExpander>().ToList().Find(x => (string) x.Header == oldPathParts[0]);
-            FolderExpander originalParentFolderExpander = null;
-            for (int i = 1; i < oldPathParts.Length; i++)
-            {
-                if (i == oldPathParts.Length - 1)
-                    originalParentFolderExpander = folderExpanderBeingModified;
+            FolderExpander folderBeingMoved = GetFolderFromPath(oldPath);
 
-                folderExpanderBeingModified =
-                    ((StackPanel) folderExpanderBeingModified.Content).Children.Cast<FolderExpander>()
-                        .ToList()
-                        .Find(x => (string) x.Header == oldPathParts[i]);
-            }
+            FolderExpander folderBeingMovedParentFolder =
+                ((StackPanel) folderBeingMoved.Parent).Parent as FolderExpander;
 
             //Removes the folder from its current location
-            ((StackPanel) folderExpanderBeingModified.Parent).Children.Remove(folderExpanderBeingModified);
+            ((StackPanel) folderBeingMoved.Parent).Children.Remove(folderBeingMoved);
 
             //If the parent folder is now empty it removes the dropdown
-            if ((originalParentFolderExpander != null) &&
-                (((StackPanel) originalParentFolderExpander.Content).Children.Count == 0))
+            if ((folderBeingMovedParentFolder != null) &&
+                (((StackPanel) folderBeingMovedParentFolder.Content).Children.Count == 0))
             {
-                originalParentFolderExpander.Content = null;
-                originalParentFolderExpander.HasSubFolders = false;
-                originalParentFolderExpander.IsExpanded = false;
+                folderBeingMovedParentFolder.Content = null;
+                folderBeingMovedParentFolder.HasSubFolders = false;
+                folderBeingMovedParentFolder.IsExpanded = false;
             }
 
             //Gets where the folding is going to be moved to
-            StackPanel folderExpanderStackPanel = Folders;
-            FolderExpander tempFolderStorage = null;
-            for (int i = 0; i < newPathParts.Length - 1; i++)
-            {
-                tempFolderStorage =
-                    folderExpanderStackPanel.Children.Cast<FolderExpander>()
-                        .ToList()
-                        .Find(x => (string) x.Header == newPathParts[i]);
-                folderExpanderStackPanel = (StackPanel) tempFolderStorage.Content;
-            }
+            FolderExpander folderMovedInto =
+                GetFolderFromPath("/" + string.Join("/", newPathParts.Take(newPathParts.Length - 1)));
 
             //Modifies the folder being dropped into if it had no subfolders before hand
-            if (folderExpanderStackPanel == null)
+            if (folderMovedInto.Content == null)
             {
-                folderExpanderStackPanel = new StackPanel();
-                tempFolderStorage.Content = folderExpanderStackPanel;
-                tempFolderStorage.HasSubFolders = true;
+                folderMovedInto.Content = new StackPanel();
+                folderMovedInto.HasSubFolders = true;
             }
 
             //Changes folder values and places it in its new location
-            folderExpanderBeingModified.Header = newPathParts.Last();
-            folderExpanderBeingModified.Path = newPath;
-            folderExpanderBeingModified.Indentation = (newPath.Count(x => x == '/') - 1) * 10 + 10;
-            folderExpanderStackPanel.Children.Insert(newPathIndex, folderExpanderBeingModified);
+            folderBeingMoved.Header = newPathParts.Last();
+            folderBeingMoved.Path = newPath;
+            folderBeingMoved.Indentation = (newPath.Count(x => x == '/') - 1) * 10 + 10;
+            ((StackPanel) folderMovedInto.Content).Children.Insert(newPathIndex, folderBeingMoved);
 
             //Changes the path of all the sub folders
             ChangeSubFolderPathsAndIndentations(folder);
+        }
+
+        /// <summary>
+        ///     Gets folder from path
+        /// </summary>
+        /// <param name="path">Path the folder is located at</param>
+        /// <returns>The FolderExpander the path points to</returns>
+        private FolderExpander GetFolderFromPath(string path)
+        {
+            string[] pathParts = path.Split('/').Skip(1).ToArray();
+            FolderExpander folder =
+                Folders.Children.Cast<FolderExpander>().ToList().Find(x => (string) x.Header == pathParts[0]);
+            for (int i = 1; i < pathParts.Length; i++)
+                folder =
+                    ((StackPanel) folder.Content).Children.Cast<FolderExpander>()
+                        .ToList()
+                        .Find(x => (string) x.Header == pathParts[i]);
+            return folder;
         }
 
         /// <summary>
@@ -964,7 +1232,7 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Creates a new instance of AccountEditorWindow to create a new account
         /// </summary>
-        private void NewAccount()
+        private void CreateNewAccount()
         {
             if (Application.Current.Windows.OfType<MetroWindow>().Any(x => x.Title == "AccountEditorWindow"))
                 return; //Check if a account editor window is already open
@@ -1321,7 +1589,7 @@ namespace PasswordSafe.Windows
 
         #endregion
 
-        #region Drop Evernts
+        #region Drop Events
 
         /// <summary>
         ///     Changes an account or folder's path an account or folder is dropped on it
@@ -1374,7 +1642,7 @@ namespace PasswordSafe.Windows
 
                     if (folder == null) return;
                     //Checks you arn't putting the folder in itself
-                    if (dropTarget.Path.StartsWith(folder.Path)) return;
+                    if (dropTarget.Path.StartsWith(folder.Path)) return;//TODO this stops the background prevention thread from running
 
                     //Checks if you are putting a folder in the folder it is already in
                     if (dropTarget.Path ==
@@ -1467,7 +1735,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Re-enables the the ability to drop folder onto the folder area after 100ms
+        ///     Re-enables the the ability to drop folder onto the folder area after 100ms
         /// </summary>
         private void ReEnableBackgroundDrops()
         {

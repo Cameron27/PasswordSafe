@@ -4,7 +4,7 @@ using MahApps.Metro.Controls;
 namespace PasswordSafe.DialogBoxes
 {
     /// <summary>
-    ///     Interaction logic for ErrorMessageDialogBox.xaml
+    ///     Interaction logic for QuestionDialogBox.xaml
     /// </summary>
     public partial class QuestionDialogBox : MetroWindow
     {
@@ -16,7 +16,7 @@ namespace PasswordSafe.DialogBoxes
         public QuestionDialogBox(string question, bool defaultYes)
         {
             InitializeComponent();
-            Information.Content = question;
+            Information.Text = question;
             if (defaultYes)
                 YesButton.Focus();
             else

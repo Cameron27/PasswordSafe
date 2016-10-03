@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -73,18 +74,18 @@ namespace PasswordSafe.Windows
 
             if (string.IsNullOrEmpty(name)) return;
 
-            if (SafeSelector.Items.Cast<string>().Any(x => x == name))
-            {
-                DialogBox.ErrorMessageDialogBox("A safe with that name already exists", this);
+            if (SafeSelector.Items.Cast<string>().Any(x => x == name) &&
+                !DialogBox.QuestionDialogBox(
+                    "A file with that name already exists, are you sure you want to override it?", false, this))
                 return;
-            }
+
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                DialogBox.ErrorMessageDialogBox("That is not a valid file name", this);
+                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
 
-            File.Create($"Resources\\{name}.json");
+            File.Create($"Resources\\{name}.json").Close();
             LoadSafeOptions(name);
         }
 
@@ -94,15 +95,22 @@ namespace PasswordSafe.Windows
         private void LoginOnClick(object sender, RoutedEventArgs e)
         {
             //Check if file still exists
-            if (!File.Exists($"Resources/{SafeSelector.SelectedValue}.json"))
+            if (!File.Exists($"Resources\\{SafeSelector.SelectedValue}.json"))
             {
                 LoadSafeOptions();
-                DialogBox.ErrorMessageDialogBox("This safe does not exist", this);
+                DialogBox.MessageDialogBox("This safe does not exist", this);
                 return;
             }
 
             MainWindow mainWindow = new MainWindow($"{SafeSelector.SelectedValue}.json");
-            mainWindow.Show();
+            try
+            {
+                mainWindow.Show();
+            }
+            catch (InvalidOperationException)
+            {
+                //The window mush have already closed itself for some reason and an error has already been displayed to the user
+            }
             Close();
         }
 

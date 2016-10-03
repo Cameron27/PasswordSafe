@@ -7,11 +7,11 @@ namespace PasswordSafe.DialogBoxes
         /// <summary>
         ///     Dialog box to inform user of an error
         /// </summary>
-        /// <param name="errorMessage">Error message</param>
+        /// <param name="message">Error message</param>
         /// <param name="owner">Owner of the window</param>
-        public static void ErrorMessageDialogBox(string errorMessage, MetroWindow owner)
+        public static void MessageDialogBox(string message, MetroWindow owner)
         {
-            ErrorMessageDialogBox dialogBox = new ErrorMessageDialogBox(errorMessage)
+            MessageDialogBox dialogBox = new MessageDialogBox(message)
             {
                 Owner = owner
             };

@@ -75,7 +75,7 @@
             </Setter>
         </Style>
         <ContextMenu x:Key="FolderExpanderContextMenu">
-            <MenuItem Header="New Folder" />
+            <MenuItem Click="CreateNewFolderOnClick" Header="New Folder" />
             <MenuItem Click="RenameFolderOnClick" Header="Rename" />
         </ContextMenu>
         <Style x:Key="DropDownFolder" TargetType="customControls:FolderExpander">
@@ -179,7 +179,7 @@
         <!--  EndRegion  -->
         <!--  Region Account List View  -->
         <ContextMenu x:Key="CellBackgroundContextMenu">
-            <MenuItem Click="NewAccountOnClick" Header="Add" />
+            <MenuItem Click="CreateNewAccountOnClick" Header="Add" />
             <MenuItem Click="EditAccountOnClick" Header="Edit" />
             <MenuItem Click="DeleteAccountOnClick" Header="Delete" />
         </ContextMenu>
@@ -191,7 +191,7 @@
         </Style>
         <ContextMenu x:Key="CellTextBlockContextMenu">
             <MenuItem Click="CopyCellOnClick" Header="Copy" />
-            <MenuItem Click="NewAccountOnClick" Header="Add" />
+            <MenuItem Click="CreateNewAccountOnClick" Header="Add" />
             <MenuItem Click="EditAccountOnClick" Header="Edit" />
             <MenuItem Click="DeleteAccountOnClick" Header="Delete" />
         </ContextMenu>
@@ -327,20 +327,30 @@
         <Menu x:Name="MenuBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
               Background="{DynamicResource AccentColorBrush}">
             <MenuItem Header="_File" Style="{StaticResource TopLevelMenu}">
-                <MenuItem Header="_Open" Style="{StaticResource SubMenu}" />
-                <MenuItem Click="SaveOnClick" Header="_Save"
+                <MenuItem Click="NewSafeOnClick" Header="_New" InputGestureText="Ctrl+N"
                           Style="{StaticResource SubMenu}" />
-                <MenuItem Header="Save _As" InputGestureText="Ctrl + S"
+                <MenuItem Click="OpenOnClick" Header="_Open" InputGestureText="Ctrl+O"
                           Style="{StaticResource SubMenu}" />
-                <MenuItem Click="CloseOnClick" Header="_Exit"
+                <Separator />
+                <MenuItem Click="SaveOnClick" Header="_Save" InputGestureText="Ctrl+S"
+                          Style="{StaticResource SubMenu}" />
+                <MenuItem Click="SaveAsOnClick" Header="Save _As" InputGestureText="Shift+Ctrl+S"
+                          Style="{StaticResource SubMenu}" />
+                <Separator />
+                <MenuItem Click="LockOnClick" Header="_Lock" InputGestureText="Ctrl+L"
+                          Style="{StaticResource SubMenu}" />
+                <MenuItem Click="ExitOnClick" Header="_Exit" InputGestureText="Ctrl+X"
                           Style="{StaticResource SubMenu}" />
             </MenuItem>
-            <MenuItem Header="_Entries" Style="{StaticResource TopLevelMenu}">
-                <MenuItem Click="NewAccountOnClick" Header="_New Account" InputGestureText="Ctrl + N"
+            <MenuItem Header="_Edit" Style="{StaticResource TopLevelMenu}">
+                <MenuItem Click="CreateNewFolderOnClick" Header="New _Folder" InputGestureText="Ctrl+F"
                           Style="{StaticResource SubMenu}" />
-                <MenuItem Click="EditAccountOnClick" Header="_Edit Account" InputGestureText="Ctrl + E"
+                <Separator />
+                <MenuItem Click="CreateNewAccountOnClick" Header="_New Account" InputGestureText="Ctrl+Y"
                           Style="{StaticResource SubMenu}" />
-                <MenuItem Click="DeleteAccountOnClick" Header="_Delete Account" InputGestureText="DEL"
+                <MenuItem Click="EditAccountOnClick" Header="_Edit Account" InputGestureText="Ctrl+E"
+                          Style="{StaticResource SubMenu}" />
+                <MenuItem Click="DeleteAccountOnClick" Header="_Delete Account" InputGestureText="Ctrl+D"
                           Style="{StaticResource SubMenu}" />
             </MenuItem>
         </Menu>
@@ -362,7 +372,13 @@
               Background="{DynamicResource GrayBrush9}">
             <DataGrid Name="AccountList" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                       CanUserReorderColumns="False" CanUserResizeRows="False" ColumnWidth="*" IsReadOnly="True"
-                      MouseMove="StartDraggingofAccount" />
+                      MouseMove="StartDraggingofAccount">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Click="CreateNewAccountOnClick" Header="Add" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+            </DataGrid>
         </Grid>
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                 BorderBrush="{DynamicResource GrayBrush7}"
