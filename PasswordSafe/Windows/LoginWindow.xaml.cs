@@ -9,6 +9,7 @@ using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
 using static PasswordSafe.GlobalClasses.ModifySettings;
 
+
 namespace PasswordSafe.Windows
 {
     /// <summary>
@@ -81,7 +82,8 @@ namespace PasswordSafe.Windows
 
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                DialogBox.MessageDialogBox(
+                    "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
 

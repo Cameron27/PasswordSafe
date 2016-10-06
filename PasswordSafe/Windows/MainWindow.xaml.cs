@@ -31,7 +31,6 @@ namespace PasswordSafe.Windows
     {
         public static RootObject SafeData;
         public static double TimeToLock;
-        private string _openFile;
         private readonly Xml _profile = new Xml("config.xml");
         private CollectionViewSource _accountsCollectionViewSource;
         private ICollectionView _accountsICollectionView;
@@ -41,6 +40,7 @@ namespace PasswordSafe.Windows
         private string _folderFilter = "";
         private Thread _idleDetectionThread;
         private bool _needsSaving;
+        private string _openFile;
         private bool _preventFolderDropOntoFolderArea;
         private Thread _saveThread;
 
@@ -71,7 +71,6 @@ namespace PasswordSafe.Windows
             }
 
             if (contentOfFile != "")
-            {
                 try
                 {
                     SafeData = JsonConvert.DeserializeObject<RootObject>(contentOfFile);
@@ -83,11 +82,8 @@ namespace PasswordSafe.Windows
                     loginWindow.Show();
                     Close();
                 }
-            }
             else
-            {
                 SafeData = new RootObject {Folders = new List<Folder>(), Accounts = new List<Account>()};
-            }
 
             ConstructFolders(SafeData.Folders);
 
@@ -151,6 +147,24 @@ namespace PasswordSafe.Windows
 
         #endregion
 
+        /// <summary>
+        ///     Changes the filter based on what is in the search box when enter is pressed
+        /// </summary>
+        private void FilterDataBySearchOnEnterPress(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                FilterDataGrid();
+        }
+
+        /// <summary>
+        ///     Clears the search box and filters the DataGrid
+        /// </summary>
+        private void ClearSearchOnClick(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Text = "";
+            FilterDataGrid();
+        }
+
         #region Locking Safe
 
         /// <summary>
@@ -165,7 +179,7 @@ namespace PasswordSafe.Windows
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (idleTime.IdleTime.TotalMinutes < TimeToLock || (TimeToLock == 0)) continue;
+                if ((idleTime.IdleTime.TotalMinutes < TimeToLock) || (TimeToLock == 0)) continue;
                 Dispatcher.Invoke(LockSafe);
                 //Stops thread
                 return;
@@ -528,18 +542,14 @@ namespace PasswordSafe.Windows
         private void GlobalHotkeys(object sender, KeyEventArgs e)
         {
             if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
-            {
                 switch (e.Key)
                 {
                     case Key.S:
                         SaveAs();
                         break;
                 }
-            }
 
             else if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                //TODO add in all the shorcuts here
                 switch (e.Key)
                 {
                     case Key.N:
@@ -573,7 +583,6 @@ namespace PasswordSafe.Windows
                         DeleteAccount();
                         break;
                 }
-            }
         }
 
         /// <summary>
@@ -639,7 +648,8 @@ namespace PasswordSafe.Windows
             //Checks that that file name is valid
             if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
             {
-                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                DialogBox.MessageDialogBox(
+                    "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
 
@@ -658,7 +668,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Returns to login window
+        ///     Returns to login window
         /// </summary>
         private void OpenOnClick(object sender, RoutedEventArgs e)
         {
@@ -678,7 +688,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Asks for a new safe name and saves it when the button is clicked
+        ///     Asks for a new safe name and saves it when the button is clicked
         /// </summary>
         private void SaveAsOnClick(object sender, RoutedEventArgs e)
         {
@@ -686,7 +696,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Asks for a new safe name and saves it
+        ///     Asks for a new safe name and saves it
         /// </summary>
         private void SaveAs()
         {
@@ -710,7 +720,8 @@ namespace PasswordSafe.Windows
             //Checks that that file name is valid
             if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
             {
-                DialogBox.MessageDialogBox("A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                DialogBox.MessageDialogBox(
+                    "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
 
@@ -721,7 +732,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Locks the safe
+        ///     Locks the safe
         /// </summary>
         private void LockOnClick(object sender, RoutedEventArgs e)
         {
@@ -742,7 +753,7 @@ namespace PasswordSafe.Windows
         #region Buttons - Edit
 
         /// <summary>
-        /// Creates a new folder when the button is clicked
+        ///     Creates a new folder when the button is clicked
         /// </summary>
         private void CreateNewFolderOnClick(object sender, RoutedEvent e)
         {
@@ -871,7 +882,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Filters the Accounts to only those in the folder when double clicked
+        ///     Filters the Accounts to only those in the folder when double clicked
         /// </summary>
         private void FilterByFolderOnDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -880,9 +891,9 @@ namespace PasswordSafe.Windows
             FolderExpander parent;
 
             if (sender is ContentPresenter)
-                parent = (FolderExpander)((Grid)((ContentPresenter)sender).Parent).TemplatedParent;
+                parent = (FolderExpander) ((Grid) ((ContentPresenter) sender).Parent).TemplatedParent;
             else
-                parent = (FolderExpander)((Grid)((Rectangle)sender).Parent).TemplatedParent;
+                parent = (FolderExpander) ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
 
 
             _folderFilter = parent.Path == "All" ? "" : parent.Path;
@@ -1432,10 +1443,22 @@ namespace PasswordSafe.Windows
             Dispatcher.Invoke(() => MessageBox.Content = "");
         }
 
+        /// <summary>
+        ///     Filters the DataGrid based on what is in the search box and what folder has been selected
+        /// </summary>
         private void FilterDataGrid()
         {
-            _filter = item => ((Account) item).Path.StartsWith(_folderFilter);
+            DateTime start = DateTime.Now;
+            _filter = x =>
+            {
+                Account account = (Account) x;
+                return account.Path.StartsWith(_folderFilter) &&
+                       (account.AccountName.ToUpper().Contains(SearchBox.Text.ToUpper()) ||
+                        account.Notes.ToUpper().Contains(SearchBox.Text.ToUpper()));
+            };
+
             _accountsICollectionView.Filter = _filter;
+            Debug.WriteLine(DateTime.Now - start);
         }
 
         #endregion
@@ -1642,7 +1665,8 @@ namespace PasswordSafe.Windows
 
                     if (folder == null) return;
                     //Checks you arn't putting the folder in itself
-                    if (dropTarget.Path.StartsWith(folder.Path)) return;//TODO this stops the background prevention thread from running
+                    if (dropTarget.Path.StartsWith(folder.Path))
+                        return; //TODO this stops the background prevention thread from running
 
                     //Checks if you are putting a folder in the folder it is already in
                     if (dropTarget.Path ==

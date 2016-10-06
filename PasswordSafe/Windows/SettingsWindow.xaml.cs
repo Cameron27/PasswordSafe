@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -6,6 +7,7 @@ using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using static PasswordSafe.GlobalClasses.ModifySettings;
+
 
 namespace PasswordSafe.Windows
 {
@@ -28,6 +30,16 @@ namespace PasswordSafe.Windows
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
             FontSizeSelector.Value = (double?) Application.Current.Resources["MainFontSize"];
             LockTimeSelector.Value = MainWindow.TimeToLock;
+        }
+
+        /// <summary>
+        ///     Restores settings before the window closes (intended for if the X button is clicked)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MetroWindowClosing(object sender, CancelEventArgs e)
+        {
+            Restore();
         }
 
         #region Settings Changed
@@ -99,6 +111,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void CancelOnClick(object sender, RoutedEventArgs e)
         {
+            Restore();
             Close();
         }
 
@@ -120,7 +133,7 @@ namespace PasswordSafe.Windows
                 ChangeProgramsAccent(ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue")));
 
             if (_modifiedSettings[1])
-                ChangeProgramsTheme(Profile.GetValue("Global", "Theme", "BaseLight") == "LightBase");
+                ChangeProgramsTheme(Profile.GetValue("Global", "Theme", "BaseLight") == "BaseLight");
 
             if (_modifiedSettings[2])
                 ChangeProgramsFont(new FontFamily(Profile.GetValue("Global", "MainFont", "Arial")));

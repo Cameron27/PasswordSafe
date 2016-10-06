@@ -1,8 +1,12 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro;
 using PasswordSafe.Windows;
+
+#endregion
 
 namespace PasswordSafe.GlobalClasses
 {

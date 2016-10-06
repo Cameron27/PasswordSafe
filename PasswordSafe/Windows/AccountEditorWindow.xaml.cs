@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
@@ -16,8 +14,6 @@ namespace PasswordSafe.Windows
     /// </summary>
     public partial class AccountEditorWindow : MetroWindow
     {
-        private readonly List<string> _folders = new List<string>();
-
         public AccountEditorWindow(bool addAccount, Account accountToModify)
         {
             InitializeComponent();
@@ -55,7 +51,8 @@ namespace PasswordSafe.Windows
             PasswordField.Password = account.Password;
             ConfirmPasswordField.Password = account.Password;
             UrlField.Text = account.Url;
-            FolderField.SelectedIndex = _folders.IndexOf(account.Path);
+            FolderField.SelectedValue =
+                FolderField.Items.OfType<FolderComboBoxItem>().First(x => (string) x.Content == account.Path);
             NotesField.Text = account.Notes;
         }
 
@@ -73,15 +70,12 @@ namespace PasswordSafe.Windows
         {
             //Creates initial blank option
             if (depth == 0)
-            {
                 FolderField.Items.Add(new FolderComboBoxItem
                 {
                     FolderName = "None",
                     Content = "",
                     Style = (Style) FindResource("FolderOptionsInContextMenu")
                 });
-                _folders.Add("");
-            }
 
             IEnumerable<Folder> foldersEnumerable = folders as Folder[] ?? folders.ToArray();
             foreach (Folder folder in foldersEnumerable)
@@ -94,7 +88,6 @@ namespace PasswordSafe.Windows
                     EndOfPath = foldersEnumerable.Last() == folder ? Visibility.Hidden : Visibility.Visible,
                     Style = (Style) FindResource("FolderOptionsInContextMenu")
                 });
-                _folders.Add($"{currentPath}/{folder.Name}");
 
                 if (folder.Children.Count != 0)
                     CreateFolderList(folder.Children, $"{currentPath}/{folder.Name}", depth + 1);
@@ -108,7 +101,8 @@ namespace PasswordSafe.Windows
         /// <returns>True if the folder exists</returns>
         private bool VerifyFolder(string path)
         {
-            return _folders.Contains(path) || string.IsNullOrWhiteSpace(path);
+            return FolderField.Items.OfType<FolderComboBoxItem>().Any(x => (string) x.Content == path) ||
+                   string.IsNullOrWhiteSpace(path);
         }
 
         #endregion
