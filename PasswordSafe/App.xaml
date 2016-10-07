@@ -14,8 +14,8 @@
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="MainFont">Arial</FontFamily>
             <system:Double x:Key="MainFontSize">12</system:Double>
-            <!--  This is always 2 larger than the main font size  -->
             <system:Double x:Key="MainFontSizePlus2">14</system:Double>
+            <system:Double x:Key="MainFontSizePlus4">16</system:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

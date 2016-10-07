@@ -1,13 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Input;
 using AMS.Profile;
-using MahApps.Metro;
 using MahApps.Metro.Controls;
-using static PasswordSafe.GlobalClasses.ModifySettings;
-
+using PasswordSafe.GlobalClasses.CustomControls;
 
 namespace PasswordSafe.Windows
 {
@@ -24,15 +21,15 @@ namespace PasswordSafe.Windows
         {
             InitializeComponent();
 
-            if (ThemeManager.DetectAppStyle(Application.Current).Item1 == ThemeManager.GetAppTheme("BaseDark"))
+            /*if (ThemeManager.DetectAppStyle(Application.Current).Item1 == ThemeManager.GetAppTheme("BaseDark"))
                 DarkModeToggle.IsChecked = true;
             AccentSelector.SelectedValue = ThemeManager.DetectAppStyle(Application.Current).Item2;
             FontSelector.SelectedValue = Application.Current.Resources["MainFont"];
             FontSizeSelector.Value = (double?) Application.Current.Resources["MainFontSize"];
-            LockTimeSelector.Value = MainWindow.TimeToLock;
+            LockTimeSelector.Value = MainWindow.TimeToLock;*/
         }
 
-        /// <summary>
+        /*/// <summary>
         ///     Restores settings before the window closes (intended for if the X button is clicked)
         /// </summary>
         /// <param name="sender"></param>
@@ -168,6 +165,12 @@ namespace PasswordSafe.Windows
             _modifiedSettings = new bool[NumberOfSettings];
         }
 
-        #endregion
+        #endregion*/
+
+        private void ChangeSettingsWindow(object sender, MouseButtonEventArgs e)
+        {
+            SettingsLabels.Children.Cast<SettingsLabel>().ToList().ForEach(x => x.IsSelected = false);
+            ((SettingsLabel) sender).IsSelected = true;      
+        }
     }
 }

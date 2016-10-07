@@ -4,12 +4,8 @@
  * User Timothy Khouri
  */
 
-#region
-
 using System;
 using System.Runtime.InteropServices;
-
-#endregion
 
 namespace PasswordSafe.GlobalClasses
 {

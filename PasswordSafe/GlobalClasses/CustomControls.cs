@@ -11,27 +11,27 @@ namespace PasswordSafe.GlobalClasses
     {
         public class FolderExpander : Expander
         {
-            public static readonly DependencyProperty PathProperty = DependencyProperty.Register("Path", typeof(string),
+            public static DependencyProperty PathProperty = DependencyProperty.Register("Path", typeof(string),
                 typeof(string));
 
-            public static readonly DependencyProperty HasSubFoldersProperty =
+            public static DependencyProperty HasSubFoldersProperty =
                 DependencyProperty.Register("HasSubFolders", typeof(bool), typeof(FolderExpander));
 
-            public static readonly DependencyProperty DefaultProperty = DependencyProperty.Register("Default",
+            public static DependencyProperty DefaultProperty = DependencyProperty.Register("Default",
                 typeof(bool), typeof(FolderExpander));
 
-            public static readonly DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
+            public static DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
                 typeof(double), typeof(FolderExpander));
 
-            public static readonly DependencyProperty IsHighlightedProperty =
+            public static DependencyProperty IsHighlightedProperty =
                 DependencyProperty.Register("IsHighlighted",
                     typeof(bool), typeof(FolderExpander));
 
-            public static readonly DependencyProperty DisplayTopBlackBarProperty =
+            public static DependencyProperty DisplayTopBlackBarProperty =
                 DependencyProperty.Register("DisplayTopBlackBar",
                     typeof(bool), typeof(FolderExpander));
 
-            public static readonly DependencyProperty DisplayBottomBlackBarProperty =
+            public static DependencyProperty DisplayBottomBlackBarProperty =
                 DependencyProperty.Register("DisplayBottomBlackBar", typeof(bool), typeof(FolderExpander));
 
             public string Path
@@ -91,13 +91,13 @@ namespace PasswordSafe.GlobalClasses
 
         public class FolderComboBoxItem : ComboBoxItem
         {
-            public static readonly DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
+            public static DependencyProperty IndentationProperty = DependencyProperty.Register("Indentation",
                 typeof(double), typeof(FolderComboBoxItem));
 
-            public static readonly DependencyProperty EndOfPathProperty = DependencyProperty.Register("EndOfPath",
+            public static DependencyProperty EndOfPathProperty = DependencyProperty.Register("EndOfPath",
                 typeof(Visibility), typeof(FolderComboBoxItem));
 
-            public static readonly DependencyProperty FolderNameProperty = DependencyProperty.Register("FolderName",
+            public static DependencyProperty FolderNameProperty = DependencyProperty.Register("FolderName",
                 typeof(string), typeof(FolderComboBoxItem));
 
             public double Indentation
@@ -116,6 +116,18 @@ namespace PasswordSafe.GlobalClasses
             {
                 get { return (string) GetValue(FolderNameProperty); }
                 set { SetValue(FolderNameProperty, value); }
+            }
+        }
+
+        public class SettingsLabel : Label
+        {
+            public static DependencyProperty IsSelectedProperty =
+                DependencyProperty.Register("IsSelected", typeof(bool), typeof(SettingsLabel));
+
+            public bool IsSelected
+            {
+                get { return (bool) GetValue(IsSelectedProperty); }
+                set { SetValue(IsSelectedProperty, value); }
             }
         }
     }
