@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -85,7 +86,9 @@ namespace PasswordSafe.Windows
             else
                 SafeData = new RootObject {Folders = new List<Folder>(), Accounts = new List<Account>()};
 
+            DateTime start = DateTime.Now;
             ConstructFolders(SafeData.Folders);
+            Debug.WriteLine(DateTime.Now - start);
 
             //A list of all the column headers and the name of the corresponding binding
             List<Tuple<string, string>> columnsToGenerate = new List<Tuple<string, string>>
@@ -147,6 +150,8 @@ namespace PasswordSafe.Windows
 
         #endregion
 
+        #region Search Bar
+
         /// <summary>
         ///     Changes the filter based on what is in the search box when enter is pressed
         /// </summary>
@@ -164,6 +169,8 @@ namespace PasswordSafe.Windows
             SearchBox.Text = "";
             FilterDataGrid();
         }
+
+        #endregion
 
         #region Locking Safe
 
@@ -755,7 +762,7 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Creates a new folder when the button is clicked
         /// </summary>
-        private void CreateNewFolderOnClick(object sender, RoutedEvent e)
+        private void CreateNewFolderOnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             CreateNewFolder();
         }
@@ -836,7 +843,7 @@ namespace PasswordSafe.Windows
             ChangeFolder(newFolderPath, index, numberOfDefaults, folder);
         }
 
-        private void CreateNewFolderOnClick(object sender, RoutedEventArgs e)
+        private void CreateNewFolderOnClickContextMenu(object sender, RoutedEventArgs e)
         {
             //Gets the folder
             UIElement clickedObject = ((ContextMenu) ((MenuItem) sender).Parent).PlacementTarget;
@@ -1089,6 +1096,14 @@ namespace PasswordSafe.Windows
                 return;
             }
 
+            //Puts folder in the SafeData
+            List<Folder> currentFolderList = SafeData.Folders;
+            List<string> pathParts = locationPath.Split('/').Skip(1).ToList();
+            currentFolderList = pathParts.Aggregate(currentFolderList,
+                (current, part) => current.Find(x => x.Name == part).Children);
+
+            currentFolderList.Add(new Folder {Name = folderName, Children = new List<Folder>()});
+
             //Gets stackpanel that new folder goes in
             if (locationPath == "")
                 location = Folders;
@@ -1130,7 +1145,6 @@ namespace PasswordSafe.Windows
 
             string oldPath = folder.Path;
 
-            //TODO optimize for folder location not moving maybe
             string[] oldPathParts = oldPath.Split('/').Skip(1).ToArray();
             string[] newPathParts = newPath.Split('/').Skip(1).ToArray();
 
@@ -1182,17 +1196,21 @@ namespace PasswordSafe.Windows
                 GetFolderFromPath("/" + string.Join("/", newPathParts.Take(newPathParts.Length - 1)));
 
             //Modifies the folder being dropped into if it had no subfolders before hand
-            if (folderMovedInto.Content == null)
-            {
-                folderMovedInto.Content = new StackPanel();
-                folderMovedInto.HasSubFolders = true;
-            }
+            if (folderMovedInto != null)
+                if (folderMovedInto.Content == null)
+                {
+                    folderMovedInto.Content = new StackPanel();
+                    folderMovedInto.HasSubFolders = true;
+                }
 
             //Changes folder values and places it in its new location
             folderBeingMoved.Header = newPathParts.Last();
             folderBeingMoved.Path = newPath;
             folderBeingMoved.Indentation = (newPath.Count(x => x == '/') - 1) * 10 + 10;
-            ((StackPanel) folderMovedInto.Content).Children.Insert(newPathIndex, folderBeingMoved);
+            if (folderMovedInto != null)
+                ((StackPanel) folderMovedInto.Content).Children.Insert(newPathIndex, folderBeingMoved);
+            else
+                Folders.Children.Insert(newPathIndex, folderBeingMoved);
 
             //Changes the path of all the sub folders
             ChangeSubFolderPathsAndIndentations(folder);
@@ -1629,6 +1647,8 @@ namespace PasswordSafe.Windows
             if (dropTarget.DisplayBottomBlackBar)
                 dropTarget.DisplayBottomBlackBar = false;
 
+            Thread reEnableBackgroundDropsThread;
+
             if (e.Data.GetData(typeof(Account)) is Account)
             {
                 Account account = (Account) e.Data.GetData(typeof(Account));
@@ -1666,7 +1686,13 @@ namespace PasswordSafe.Windows
                     if (folder == null) return;
                     //Checks you arn't putting the folder in itself
                     if (dropTarget.Path.StartsWith(folder.Path))
-                        return; //TODO this stops the background prevention thread from running
+                    {
+                        //Prevents folder from being moved as if it was dropped on blank space
+                        _preventFolderDropOntoFolderArea = true;
+                        reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+                        reEnableBackgroundDropsThread.Start();
+                        return;
+                    }
 
                     //Checks if you are putting a folder in the folder it is already in
                     if (dropTarget.Path ==
@@ -1688,7 +1714,7 @@ namespace PasswordSafe.Windows
 
             //Prevents folder from being moved as if it was dropped on blank space
             _preventFolderDropOntoFolderArea = true;
-            Thread reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+            reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
             reEnableBackgroundDropsThread.Start();
         }
 
@@ -1728,7 +1754,6 @@ namespace PasswordSafe.Windows
             ChangeFolder(newPath, newIndex, numberOfDefaults, folderBeingMoved);
         }
 
-        //TODO get this working
         /// <summary>
         ///     Changes a folder's path when a folder is dropped on it
         /// </summary>

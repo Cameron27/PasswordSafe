@@ -11,7 +11,7 @@
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
                       PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" WindowStartupLocation="CenterScreen">
     <controls:MetroWindow.Resources>
-        <!--  Region Menu Bar  -->
+        <!--  Region Menu Bar Resources  -->
         <Style x:Key="TopLevelMenu" TargetType="MenuItem">
             <Setter Property="Width" Value="Auto" />
             <Setter Property="Height" Value="23" />
@@ -27,7 +27,7 @@
             </Style.Triggers>
         </Style>
         <!--  EndRegion  -->
-        <!--  Region Folders  -->
+        <!--  Region Folders Resources  -->
         <Style x:Key="DropDownButton" TargetType="ToggleButton">
             <Setter Property="Template">
                 <Setter.Value>
@@ -71,7 +71,7 @@
             </Setter>
         </Style>
         <ContextMenu x:Key="FolderExpanderContextMenu">
-            <MenuItem Click="CreateNewFolderOnClick" Header="New Folder" />
+            <MenuItem Click="CreateNewFolderOnClickContextMenu" Header="New Folder" />
             <MenuItem Click="RenameFolderOnClick" Header="Rename" />
         </ContextMenu>
         <Style x:Key="DropDownFolder" TargetType="customControls:FolderExpander">
@@ -173,7 +173,7 @@
             </Style.Triggers>
         </Style>
         <!--  EndRegion  -->
-        <!--  Region Account List View  -->
+        <!--  Region Account DataGrid Resources  -->
         <ContextMenu x:Key="CellBackgroundContextMenu">
             <MenuItem Click="CreateNewAccountOnClick" Header="Add" />
             <MenuItem Click="EditAccountOnClick" Header="Edit" />
@@ -302,31 +302,6 @@
             </Setter>
         </Style>
         <!--  EndRegion  -->
-        <!--  Region SearchBox  -->
-        <Style x:Key="SearchBarButton" TargetType="Button">
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Width" Value="24" />
-            <Setter Property="Foreground" Value="{DynamicResource GrayBrush7}" />
-            <Setter Property="Background" Value="Transparent" />
-            <EventSetter Event="Click" Handler="ClearSearchOnClick" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid Background="{TemplateBinding Background}">
-                            <Path Name="XPath" Width="10" Height="10" Data="M 0 0 L 1 1 M 0 1 L 1 0" Stretch="Fill"
-                                  Stroke="{TemplateBinding Foreground}"
-                                  StrokeThickness="1" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="XPath" Property="Stroke" Value="{DynamicResource BlackBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <!--  EndRegion  -->
     </controls:MetroWindow.Resources>
     <controls:MetroWindow.RightWindowCommands>
         <controls:WindowCommands>
@@ -345,6 +320,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="23" />
         </Grid.RowDefinitions>
+        <!--  Region Menu  -->
         <Menu x:Name="MenuBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
               Background="{DynamicResource AccentColorBrush}">
             <MenuItem Header="_File" Style="{StaticResource TopLevelMenu}">
@@ -375,6 +351,8 @@
                           Style="{StaticResource SubMenu}" />
             </MenuItem>
         </Menu>
+        <!--  EndRegion  -->
+        <!--  Region Searchbox  -->
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
               Background="{DynamicResource AccentColorBrush}">
             <Grid.ColumnDefinitions>
@@ -397,7 +375,33 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <ScrollViewer Name="PART_ContentHost" Grid.Column="0" Margin="2,0,0,0" VerticalAlignment="Center" />
-                                    <Button Grid.Column="2" Style="{StaticResource SearchBarButton}" />
+                                    <Button Grid.Column="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                                <Setter Property="Width" Value="24" />
+                                                <Setter Property="Foreground" Value="{DynamicResource GrayBrush7}" />
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <EventSetter Event="Click" Handler="ClearSearchOnClick" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Grid Background="{TemplateBinding Background}">
+                                                                <Path Name="XPath" Width="10" Height="10" Data="M 0 0 L 1 1 M 0 1 L 1 0" Stretch="Fill"
+                                                                      Stroke="{TemplateBinding Foreground}"
+                                                                      StrokeThickness="1" />
+                                                            </Grid>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="XPath" Property="Stroke" Value="{DynamicResource BlackBrush}" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -429,6 +433,8 @@
                 </TextBlock.Style>
             </TextBlock>
         </Grid>
+        <!--  EndRegion  -->
+        <!--  Region Folders  -->
         <ScrollViewer Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="Folders" Width="Auto"
@@ -439,8 +445,10 @@
                         Background="{DynamicResource AccentColorBrush}"
                         Drop="DropOntoFolderArea" SnapsToDevicePixels="True" />
         </ScrollViewer>
+        <!--  EndRegion  -->
         <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"
                       Background="{DynamicResource GrayBrush7}" />
+        <!--  Region DataGrid  -->
         <Grid Grid.Row="2" Grid.Column="2"
               Background="{DynamicResource GrayBrush9}">
             <DataGrid Name="AccountList" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
@@ -453,6 +461,8 @@
                 </DataGrid.ContextMenu>
             </DataGrid>
         </Grid>
+        <!--  EndRegion  -->
+        <!--  Region Footer  -->
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                 BorderBrush="{DynamicResource GrayBrush7}"
                 BorderThickness="0,1,0,0">
@@ -460,5 +470,6 @@
                 <Label Name="MessageBox" />
             </Grid>
         </Border>
+        <!--  EndRegion  -->
     </Grid>
 </controls:MetroWindow>
