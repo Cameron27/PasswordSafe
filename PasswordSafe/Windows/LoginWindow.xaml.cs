@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using AMS.Profile;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
@@ -17,8 +16,6 @@ namespace PasswordSafe.Windows
     /// </summary>
     public partial class LoginWindow : MetroWindow
     {
-        private static readonly Xml Profile = new Xml("config.xml");
-
         public LoginWindow()
         {
             InitializeComponent();
@@ -27,6 +24,7 @@ namespace PasswordSafe.Windows
             LoadSafeOptions();
             SetStyle();
             SetFont();
+            DeterminePeakVisibility();
         }
 
         /// <summary>
@@ -34,8 +32,8 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void SetStyle()
         {
-            ChangeProgramsAccent(ThemeManager.GetAccent(Profile.GetValue("Global", "Accent", "Blue")));
-            ChangeProgramsTheme(Profile.GetValue("Global", "Theme", "BaseLight") == "BaseLight");
+            ChangeProgramsAccent(ThemeManager.GetAccent(MainWindow.Profile.GetValue("Appearance", "Accent", "Blue")));
+            ChangeProgramsTheme(MainWindow.Profile.GetValue("Appearance", "Theme", "BaseLight") == "BaseLight");
         }
 
         /// <summary>
@@ -43,8 +41,8 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void SetFont()
         {
-            ChangeProgramsFont(new FontFamily(Profile.GetValue("Global", "MainFont", "Arial")));
-            ChangeProgramsFontSize(double.Parse(Profile.GetValue("Global", "MainFontSize", "12")));
+            ChangeProgramsFont(new FontFamily(MainWindow.Profile.GetValue("Appearance", "Font", "Arial")));
+            ChangeProgramsFontSize(double.Parse(MainWindow.Profile.GetValue("Appearance", "FontSize", "12")));
         }
 
         /// <summary>
@@ -63,6 +61,15 @@ namespace PasswordSafe.Windows
                 SafeSelector.SelectedIndex = 0;
             else
                 SafeSelector.SelectedValue = fileToAutoSelect;
+        }
+
+        /// <summary>
+        ///     Determines is the peak button should be visible or not
+        /// </summary>
+        private void DeterminePeakVisibility()
+        {
+            if (MainWindow.Profile.GetValue("Advanced", "DisablePasswordPeaking", "false") == "true")
+                PeakToggleButton.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -122,6 +129,21 @@ namespace PasswordSafe.Windows
         private void ExitOnClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        ///     Toggles the password boxes to hide and show the text
+        /// </summary>
+        private void TogglePeakOnClick(object sender, RoutedEventArgs e)
+        {
+            bool? isChecked = PeakToggleButton.IsChecked;
+            if ((isChecked != null) && (bool) isChecked)
+            {
+                PeakBox.Visibility = Visibility.Visible;
+                PeakBox.Text = PasswordInput.Password;
+            }
+            else
+                PeakBox.Visibility = Visibility.Collapsed;
         }
     }
 }

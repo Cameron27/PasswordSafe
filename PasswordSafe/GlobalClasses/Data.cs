@@ -1,9 +1,6 @@
-﻿#region
-
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-#endregion
 
 namespace PasswordSafe.GlobalClasses
 {
@@ -14,11 +11,14 @@ namespace PasswordSafe.GlobalClasses
             [JsonProperty("name")]
             public string Name { get; set; }
 
+            [JsonProperty("expanded")]
+            public bool Expanded { get; set; }
+
             [JsonProperty("children")]
             public List<Folder> Children { get; set; }
         }
 
-        public class Account
+        public class Account : ICloneable
         {
             [JsonProperty("id")]
             public int Id { get; set; }
@@ -41,12 +41,47 @@ namespace PasswordSafe.GlobalClasses
             [JsonProperty("notes")]
             public string Notes { get; set; }
 
+            [JsonProperty("dateCreated")]
+            public DateTime DateCreated { get; set; }
+
+            [JsonProperty("dateLastEdited")]
+            public DateTime DateLastEdited { get; set; }
+
+            [JsonProperty("backup")]
+            public bool Backup { get; set; }
+
             [JsonProperty("path")]
             public string Path { get; set; }
+
+            /// <summary>
+            ///     Creates a clone of the object
+            /// </summary>
+            /// <returns>Returns a clone of the object</returns>
+            public object Clone()
+            {
+                return MemberwiseClone();
+            }
+
+            /// <summary>
+            ///     Checks if this is equal to another object
+            /// </summary>
+            /// <param name="account">The account to check if it is equal to</param>
+            /// <returns>Returns true if this is equal to the other account</returns>
+            public bool Equals(Account account)
+            {
+                return (Id == account.Id) && (AccountName == account.AccountName) && (Username == account.Username) &&
+                       (Email == account.Email) && (Password == account.Password) && (Url == account.Url) &&
+                       (Notes == account.Notes) && (DateCreated == account.DateCreated) &&
+                       (DateLastEdited == account.DateLastEdited) && (Backup == account.Backup) &&
+                       (Path == account.Path);
+            }
         }
 
         public class RootObject
         {
+            [JsonProperty("versionNumber")]
+            public string VersionNumber { get; set; }
+
             [JsonProperty("folders")]
             public List<Folder> Folders { get; set; }
 

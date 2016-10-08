@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using AMS.Profile;
 using MahApps.Metro.Controls;
@@ -170,7 +168,7 @@ namespace PasswordSafe.Windows
         private void ChangeSettingsWindow(object sender, MouseButtonEventArgs e)
         {
             SettingsLabels.Children.Cast<SettingsLabel>().ToList().ForEach(x => x.IsSelected = false);
-            ((SettingsLabel) sender).IsSelected = true;      
+            ((SettingsLabel) sender).IsSelected = true;
         }
     }
 }

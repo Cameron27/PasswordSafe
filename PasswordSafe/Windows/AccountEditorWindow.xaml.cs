@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using PasswordSafe.DialogBoxes;
+using PasswordSafe.GlobalClasses;
 using PasswordSafe.GlobalClasses.CustomControls;
 using PasswordSafe.GlobalClasses.Data;
 
@@ -14,14 +17,19 @@ namespace PasswordSafe.Windows
     /// </summary>
     public partial class AccountEditorWindow : MetroWindow
     {
-        public AccountEditorWindow(bool addAccount, Account accountToModify)
+        private readonly bool _addingNewAccount;
+        private readonly Account _originalAccountClone;
+
+        public AccountEditorWindow(bool addingNewAccount, Account accountToModify)
         {
             InitializeComponent();
 
             CreateFolderList(MainWindow.SafeData.Folders);
 
             AccountBeingEdited = accountToModify;
-            if (addAccount)
+            _originalAccountClone = (Account) accountToModify.Clone();
+
+            if (addingNewAccount)
             {
                 Header.Content = "ADD ACCOUNT:";
                 ComfirmButton.Content = "Create";
@@ -33,6 +41,10 @@ namespace PasswordSafe.Windows
                 ComfirmButton.Content = "Apply";
                 SetTextBoxValues(accountToModify);
             }
+
+            DeterminePeakVisibility();
+
+            _addingNewAccount = addingNewAccount;
         }
 
         public Account AccountBeingEdited { get; }
@@ -54,6 +66,18 @@ namespace PasswordSafe.Windows
             FolderField.SelectedValue =
                 FolderField.Items.OfType<FolderComboBoxItem>().First(x => (string) x.Content == account.Path);
             NotesField.Text = account.Notes;
+
+            if (AccountBeingEdited.Backup)
+                RestoreButton.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        ///     Determines is the peak button should be visible or not
+        /// </summary>
+        private void DeterminePeakVisibility()
+        {
+            if (MainWindow.Profile.GetValue("Advanced", "DisablePasswordPeaking", "false") == "true")
+                PeakToggleButton.Visibility = Visibility.Collapsed;
         }
 
         #endregion
@@ -130,7 +154,7 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Sets values of accountBeingEdited to be equal to the values in the input boxes then closes the window
         /// </summary>
-        private void Confirm()
+        private void Confirm(bool restoreBackup = false)
         {
             //Checks the passwords match
             if (PasswordField.Password != ConfirmPasswordField.Password)
@@ -156,9 +180,29 @@ namespace PasswordSafe.Windows
             AccountBeingEdited.Password = PasswordField.Password;
             AccountBeingEdited.Url = UrlField.Text;
             AccountBeingEdited.Path = FolderField.Text;
+            if (_addingNewAccount)
+                AccountBeingEdited.DateCreated = DateTime.Now;
             AccountBeingEdited.Notes = NotesField.Text;
 
-            DialogResult = true;
+            if (!_originalAccountClone.Equals(AccountBeingEdited))
+            {
+                DialogResult = true;
+                AccountBeingEdited.DateLastEdited = DateTime.Now;
+                //Create backup
+                if (MainWindow.Profile.GetValue("Advanced", "AutoBackup", "true") == "true")
+                {
+                    _originalAccountClone.Id = MainWindow.SafeData.Accounts.Last().Id + 1;
+                    _originalAccountClone.Backup = true;
+                    ((MainWindow) Owner).AccountsObservableCollection.Add(_originalAccountClone);
+                }
+            }
+            if (restoreBackup)
+            {
+                if (_originalAccountClone.Equals(AccountBeingEdited))
+                    AccountBeingEdited.DateLastEdited = DateTime.Now;
+                AccountBeingEdited.Backup = false;
+            }
+
             Close();
         }
 
@@ -168,6 +212,56 @@ namespace PasswordSafe.Windows
         private void CancelOnClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        ///     Re-adds the entry to the safe
+        /// </summary>
+        private void RestoreBackup(object sender, RoutedEventArgs e)
+        {
+            Confirm(true);
+        }
+
+        #endregion
+
+        #region Other
+
+        /// <summary>
+        ///     Toggles the password boxes to hide and show the text
+        /// </summary>
+        private void TogglePeakOnClick(object sender, RoutedEventArgs e)
+        {
+            bool? isChecked = PeakToggleButton.IsChecked;
+            if ((isChecked != null) && (bool) isChecked)
+            {
+                PeakBox.Visibility = Visibility.Visible;
+                ConfirmPeakBox.Visibility = Visibility.Visible;
+                PeakBox.Text = PasswordField.Password;
+                ConfirmPeakBox.Text = ConfirmPasswordField.Password;
+            }
+            else
+            {
+                PeakBox.Visibility = Visibility.Collapsed;
+                ConfirmPeakBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        ///     Generates a random password
+        /// </summary>
+        private void GenerateRandomPasswordOnClick(object sender, RoutedEventArgs e)
+        {
+            string randomPassword = "";
+            int passwordLength = int.Parse(MainWindow.Profile.GetValue("Security", "RandomPasswordLength", "24"));
+            while (randomPassword.Length < passwordLength)
+                randomPassword +=
+                    Encoding.UTF8.GetString(AESThenHMAC.NewKey().Where(x => (x <= 126) && (x >= 32)).ToArray()); //TODO make this range a setting
+            randomPassword = randomPassword.Substring(0, passwordLength);
+
+            PasswordField.Password = randomPassword;
+            ConfirmPasswordField.Password = randomPassword;
+            PeakBox.Text = randomPassword;
+            ConfirmPeakBox.Text = randomPassword;
         }
 
         #endregion

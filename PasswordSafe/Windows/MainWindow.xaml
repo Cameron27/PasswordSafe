@@ -9,7 +9,7 @@
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       KeyDown="GlobalHotkeys"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" WindowStartupLocation="CenterScreen">
+                      PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" StateChanged="WindowStateChanged">
     <controls:MetroWindow.Resources>
         <!--  Region Menu Bar Resources  -->
         <Style x:Key="TopLevelMenu" TargetType="MenuItem">
@@ -83,6 +83,8 @@
             <Setter Property="DisplayTopBlackBar" Value="False" />
             <Setter Property="DisplayBottomBlackBar" Value="False" />
             <EventSetter Event="MouseMove" Handler="StartDraggingOfFolder" />
+            <EventSetter Event="Expanded" Handler="FolderExpanderExpanded" />
+            <EventSetter Event="Collapsed" Handler="FolderExpanderCollapsed" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="customControls:FolderExpander">
@@ -280,7 +282,7 @@
                                   VerticalAlignment="Center" Data="M 0 0 L 1 0 0.5 1"
                                   Fill="{DynamicResource BlackBrush}"
                                   Opacity="0.9" RenderTransformOrigin="0.5,0.4" Stretch="Fill" Visibility="Collapsed" />
-                            <Thumb Grid.Column="2" Width="3" HorizontalAlignment="Right"
+                            <Thumb Name="PART_RightHeaderGripper" Grid.Column="2" Width="3" HorizontalAlignment="Right"
                                    BorderBrush="{DynamicResource GrayBrush9}"
                                    BorderThickness="2" Cursor="SizeWE" />
                         </Grid>
@@ -334,7 +336,7 @@
                 <MenuItem Click="SaveAsOnClick" Header="Save _As" InputGestureText="Shift+Ctrl+S"
                           Style="{StaticResource SubMenu}" />
                 <Separator />
-                <MenuItem Click="LockOnClick" Header="_Lock" InputGestureText="Ctrl+L"
+                <MenuItem Name="LockMenuItem" Click="LockOnClick" Header="_Lock" InputGestureText="Ctrl+L"
                           Style="{StaticResource SubMenu}" />
                 <MenuItem Click="ExitOnClick" Header="_Exit" InputGestureText="Ctrl+X"
                           Style="{StaticResource SubMenu}" />

@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using AMS.Profile;
 using MahApps.Metro.Controls;
@@ -21,7 +19,6 @@ using PasswordSafe.DialogBoxes;
 using PasswordSafe.GlobalClasses;
 using PasswordSafe.GlobalClasses.CustomControls;
 using PasswordSafe.GlobalClasses.Data;
-using Path = System.Windows.Shapes.Path;
 
 namespace PasswordSafe.Windows
 {
@@ -31,11 +28,9 @@ namespace PasswordSafe.Windows
     public partial class MainWindow : MetroWindow
     {
         public static RootObject SafeData;
-        public static double TimeToLock;
-        private readonly Xml _profile = new Xml("config.xml");
+        public static readonly Xml Profile = new Xml("config.xml");
         private CollectionViewSource _accountsCollectionViewSource;
         private ICollectionView _accountsICollectionView;
-        private ObservableCollection<Account> _accountsObservableCollection;
         private Thread _clearClipboardThread;
         private Predicate<object> _filter;
         private string _folderFilter = "";
@@ -44,6 +39,8 @@ namespace PasswordSafe.Windows
         private string _openFile;
         private bool _preventFolderDropOntoFolderArea;
         private Thread _saveThread;
+        public ObservableCollection<Account> AccountsObservableCollection;
+        private bool _safeLocked;
 
         public MainWindow(string openFile)
         {
@@ -51,8 +48,12 @@ namespace PasswordSafe.Windows
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
             _openFile = openFile;
-            TimeToLock = double.Parse(_profile.GetValue("Global", "Locktime", "5"));
 
+            Setup();
+        }
+
+        private void Setup()
+        {
             //Creates a thread that will check if the user is idle, this has to start first otherwise the program will crash if there is an error loading the safe
             _idleDetectionThread = new Thread(IdleDetectorThread);
             _idleDetectionThread.Start();
@@ -84,11 +85,18 @@ namespace PasswordSafe.Windows
                     Close();
                 }
             else
-                SafeData = new RootObject {Folders = new List<Folder>(), Accounts = new List<Account>()};
+            {
+                string versionNumber = string.Join(".",
+                    Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.').Take(2));
+                SafeData = new RootObject
+                {
+                    Folders = new List<Folder>(),
+                    Accounts = new List<Account>(),
+                    VersionNumber = versionNumber
+                };
+            }
 
-            DateTime start = DateTime.Now;
             ConstructFolders(SafeData.Folders);
-            Debug.WriteLine(DateTime.Now - start);
 
             //A list of all the column headers and the name of the corresponding binding
             List<Tuple<string, string>> columnsToGenerate = new List<Tuple<string, string>>
@@ -106,6 +114,7 @@ namespace PasswordSafe.Windows
                 ConstructAccountListColumn(columnsToGenerate[i].Item1, columnsToGenerate[i].Item2, i);
 
             ConstructAccountEntries();
+            FilterDataGrid();
 
             AccountList.SelectedItem = null; //Rows can be randomly selected on startup
         }
@@ -186,7 +195,8 @@ namespace PasswordSafe.Windows
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if ((idleTime.IdleTime.TotalMinutes < TimeToLock) || (TimeToLock == 0)) continue;
+                double lockTime = double.Parse(Profile.GetValue("Security", "LockTime", "5"));
+                if ((idleTime.IdleTime.TotalMinutes < lockTime) || (lockTime == 0)) continue;
                 Dispatcher.Invoke(LockSafe);
                 //Stops thread
                 return;
@@ -198,345 +208,59 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void LockSafe()
         {
+            if (_needsSaving)
+                Save();
+
+            _safeLocked = true;
+
             //Closes all other windows
             foreach (Window window in Application.Current.Windows)
                 if (!(window is MainWindow))
                     window.Close();
 
-            ResizeMode = ResizeMode.NoResize;
-            RightWindowCommands.Visibility = Visibility.Hidden;
+            Folders.Children.Clear();
+            SafeData = null;
+            AccountsObservableCollection = null;
+            _accountsCollectionViewSource = null;
+            _accountsICollectionView = null;
+            AccountList.ItemsSource = null;
+            AccountList.Columns.Clear();
 
-            RibbonFade();
-            CreateBackground();
-            CreateLock();
-            CreatePasswordBox();
-        }
-
-        /// <summary>
-        ///     Fades the biddon from its current color to gray
-        /// </summary>
-        private void RibbonFade()
-        {
-            //Creates the brush for the ribbon that will be animated
-            SolidColorBrush ribbonBrushAnimation = new SolidColorBrush
+            //Deactivates menu items
+            foreach (object menuBarItem in MenuBar.Items)
             {
-                Color = ((SolidColorBrush) FindResource("AccentColorBrush")).Color
-            };
-
-            WindowTitleBrush = ribbonBrushAnimation;
-            NonActiveWindowTitleBrush = ribbonBrushAnimation;
-            GlowBrush = ribbonBrushAnimation;
-
-            ColorAnimation ribbonColorAnimation = new ColorAnimation
-            {
-                To = Brushes.LightGray.Color,
-                Duration = TimeSpan.FromSeconds(1)
-            };
-
-            ribbonBrushAnimation.BeginAnimation(SolidColorBrush.ColorProperty, ribbonColorAnimation);
-        }
-
-        /// <summary>
-        ///     Creates a gray background that fades in
-        /// </summary>
-        private void CreateBackground()
-        {
-            //Create background
-            Rectangle lockBackground = new Rectangle
-            {
-                Fill = Brushes.LightGray,
-                Height = WindowGrid.ActualHeight,
-                Width = WindowGrid.ActualWidth,
-                Opacity = 0
-            };
-            Grid.SetColumn(lockBackground, 0);
-            Grid.SetColumnSpan(lockBackground, 3);
-            Grid.SetRow(lockBackground, 0);
-            Grid.SetRowSpan(lockBackground, 4);
-
-            DoubleAnimation fadeInAnimation = new DoubleAnimation
-            {
-                To = 1,
-                Duration = TimeSpan.FromSeconds(1)
-            };
-            lockBackground.BeginAnimation(OpacityProperty, fadeInAnimation);
-
-            WindowGrid.Children.Add(lockBackground);
-        }
-
-        /// <summary>
-        ///     Creates a lock picture and plays its animation
-        /// </summary>
-        private void CreateLock()
-        {
-            //Checks how much the lock has to be scaled by
-            double scale;
-            if (WindowGrid.ActualWidth * (650D / 480D) > WindowGrid.ActualHeight)
-                scale = WindowGrid.ActualHeight / 1300D;
-            else
-                scale = WindowGrid.ActualWidth / 960D;
-
-            List<Path> lockParts = new List<Path>();
-
-            Tuple<string, SolidColorBrush>[] pathInformationArray =
-            {
-                Tuple.Create(
-                    "M 0 330 L 0 600 C 0 650 0 650 50 650 L 430 650 C 480 650 480 650 480 600 L 480 330 C 480 280 480 280 430 280 L 50 280 C 0 280 0 280 0 330 Z",
-                    Brushes.DarkGray), //Main Part
-                Tuple.Create(
-                    "M 40 230 L 40 200 A 200 200 180 0 1 440 200 L 440 280 L 380 280 L 380 200 A 140 140 180 0 0 100 200 L 100 230 Z",
-                    Brushes.DarkGray), //Top lock bit
-                Tuple.Create(
-                    "M 180 400 A 60 60 180 0 1 300 400 L 180 400 A 60 60 59.4897626 0 0 209.5384615 451.6923077 L 180 560 L 300 560 L 270.4615385 451.6923077 A 60 60 59.4897626 0 0 300 400",
-                    Brushes.Black) //Key hole
-            };
-
-            foreach (Tuple<string, SolidColorBrush> pathInformation in pathInformationArray)
-            {
-                Path temp = CreateLockPart(pathInformation.Item1, pathInformation.Item2, scale);
-                lockParts.Add(temp);
-                WindowGrid.Children.Add(temp);
+                foreach (object item in ((MenuItem) menuBarItem).Items)
+                {
+                    if (item is MenuItem)
+                        ((MenuItem) item).IsEnabled = false;
+                }
             }
 
-            //Animate locking the lock
-            ThicknessAnimation moveAnimation = new ThicknessAnimation
-            {
-                To =
-                    new Thickness(WindowGrid.ActualWidth / 2D - 240,
-                        WindowGrid.ActualHeight * (5D / 14D) - 325 + 55 * scale, 0, 0),
-                Duration = TimeSpan.FromSeconds(1),
-                BeginTime = TimeSpan.FromSeconds(3)
-            };
-
-            lockParts[1].BeginAnimation(MarginProperty, moveAnimation);
+            //Changes lock menu
+            LockMenuItem.IsEnabled = true;
+            LockMenuItem.Header = "Un_lock";
         }
 
         /// <summary>
-        ///     Creates a path with the specified data
-        /// </summary>
-        /// <param name="pathData">The data for the path</param>
-        /// <param name="color">The fill color of the path</param>
-        /// <param name="scale">The amount to scale the path, base size is 480x650</param>
-        /// <returns>Path based on the data given</returns>
-        private Path CreateLockPart(string pathData, Brush color, double scale)
-        {
-            TransformGroup tg = new TransformGroup();
-            ScaleTransform st = new ScaleTransform(scale * 4, scale * 4);
-            tg.Children.Add(st);
-
-            //Creates path
-            Path path = new Path
-            {
-                Fill = color,
-                Width = 480,
-                Height = 650,
-                VerticalAlignment = VerticalAlignment.Top,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Data =
-                    (Geometry)
-                    TypeDescriptor.GetConverter(typeof(Geometry))
-                        .ConvertFrom(
-                            pathData),
-                RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = tg,
-                Margin =
-                    new Thickness(WindowGrid.ActualWidth / 2D - 240, WindowGrid.ActualHeight * (5D / 14D) - 325, 0, 0),
-                Opacity = 0
-            };
-
-            Grid.SetColumn(path, 0);
-            Grid.SetColumnSpan(path, 3);
-            Grid.SetRow(path, 0);
-            Grid.SetRowSpan(path, 4);
-
-            DoubleAnimation scaleAnimation = new DoubleAnimation
-            {
-                To = scale,
-                Duration = TimeSpan.FromSeconds(2),
-                BeginTime = TimeSpan.FromSeconds(1)
-            };
-
-            st.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
-            st.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
-
-            DoubleAnimation fadeInAnimation = new DoubleAnimation
-            {
-                To = 1,
-                Duration = TimeSpan.FromSeconds(2),
-                BeginTime = TimeSpan.FromSeconds(1)
-            };
-            path.BeginAnimation(OpacityProperty, fadeInAnimation);
-
-            return path;
-        }
-
-        /// <summary>
-        ///     Creates the password input box to unlock the safe
-        /// </summary>
-        private void CreatePasswordBox()
-        {
-            PasswordBox passwordBox = new PasswordBox
-            {
-                Height = 25,
-                Width = 280,
-                Margin = new Thickness(WindowGrid.ActualWidth / 2D - 140, WindowGrid.ActualHeight * (18D / 28D), 0, 0),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Opacity = 0
-            };
-
-            passwordBox.KeyDown += UnlockOnEnterPress;
-
-            Grid.SetColumn(passwordBox, 0);
-            Grid.SetColumnSpan(passwordBox, 3);
-            Grid.SetRow(passwordBox, 0);
-            Grid.SetRowSpan(passwordBox, 4);
-
-            DoubleAnimation opacityAnimation = new DoubleAnimation
-            {
-                To = 1,
-                Duration = TimeSpan.FromSeconds(1),
-                BeginTime = TimeSpan.FromSeconds(4)
-            };
-
-            passwordBox.BeginAnimation(OpacityProperty, opacityAnimation);
-
-            WindowGrid.Children.Add(passwordBox);
-
-            passwordBox.Focus();
-        }
-
-        /// <summary>
-        ///     Unlocks the safe when enter is pressed TODO Make this check the password
-        /// </summary>
-        private void UnlockOnEnterPress(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-                UnlockSafe();
-        }
-
-        /// <summary>
-        ///     Unlockes the safe
+        /// Unlocks the safe
         /// </summary>
         private void UnlockSafe()
         {
-            UIElementCollection childrenOfWindowGrid = WindowGrid.Children;
+            _safeLocked = false;
+            Setup();
 
-            //Makes background fade out
-            Rectangle lockBackground = (Rectangle) childrenOfWindowGrid[childrenOfWindowGrid.Count - 5];
-
-            DoubleAnimation backgroundFadeoutAnimation = new DoubleAnimation
+            //Unlocks menu bar items
+            foreach (object menuBarItem in MenuBar.Items)
             {
-                To = 0,
-                Duration = TimeSpan.FromSeconds(1),
-                BeginTime = TimeSpan.FromSeconds(3)
-            };
-            lockBackground.BeginAnimation(OpacityProperty, backgroundFadeoutAnimation);
-
-            //Makes lock zoom out again
-            double scale;
-            if (WindowGrid.ActualWidth * (650D / 480D) > WindowGrid.ActualHeight)
-                scale = WindowGrid.ActualHeight / 1300D;
-            else
-                scale = WindowGrid.ActualWidth / 960D;
-
-            DoubleAnimation scaleAnimation = new DoubleAnimation
-            {
-                To = scale * 4,
-                Duration = TimeSpan.FromSeconds(2),
-                BeginTime = TimeSpan.FromSeconds(1)
-            };
-
-            DoubleAnimation lockFadeoutAnimation = new DoubleAnimation
-            {
-                To = 0,
-                Duration = TimeSpan.FromSeconds(2),
-                BeginTime = TimeSpan.FromSeconds(1)
-            };
-
-            for (int i = childrenOfWindowGrid.Count - 4; i < childrenOfWindowGrid.Count - 1; i++)
-            {
-                Path lockPart = (Path) childrenOfWindowGrid[i];
-
-                lockPart.BeginAnimation(OpacityProperty, lockFadeoutAnimation);
-
-                ScaleTransform st = (ScaleTransform) ((TransformGroup) lockPart.RenderTransform).Children[0];
-                st.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
-                st.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+                foreach (object item in ((MenuItem)menuBarItem).Items)
+                {
+                    if (item is MenuItem)
+                        ((MenuItem)item).IsEnabled = true;
+                }
             }
 
-            //Unlocks the lock
-            ThicknessAnimation moveAnimation = new ThicknessAnimation
-            {
-                To = new Thickness(WindowGrid.ActualWidth / 2D - 240, WindowGrid.ActualHeight * (5D / 14D) - 325, 0, 0),
-                Duration = TimeSpan.FromSeconds(1)
-            };
-
-            childrenOfWindowGrid[childrenOfWindowGrid.Count - 3].BeginAnimation(MarginProperty, moveAnimation);
-
-            //Fadeout password box
-            DoubleAnimation passwordboxFadeoutAnimation = new DoubleAnimation
-            {
-                To = 0,
-                Duration = TimeSpan.FromSeconds(1)
-            };
-
-            childrenOfWindowGrid[childrenOfWindowGrid.Count - 1].BeginAnimation(OpacityProperty,
-                passwordboxFadeoutAnimation);
-
-            //Fade the ribbon back to its normal color
-            SolidColorBrush ribbonBrush = new SolidColorBrush
-            {
-                Color = Brushes.LightGray.Color
-            };
-
-            WindowTitleBrush = ribbonBrush;
-            NonActiveWindowTitleBrush = ribbonBrush;
-            GlowBrush = ribbonBrush;
-
-            ColorAnimation ribbonColorAnimation = new ColorAnimation
-            {
-                To = ((SolidColorBrush) FindResource("AccentColorBrush")).Color,
-                Duration = TimeSpan.FromSeconds(1),
-                BeginTime = TimeSpan.FromSeconds(3)
-            };
-
-            ribbonBrush.BeginAnimation(SolidColorBrush.ColorProperty, ribbonColorAnimation);
-
-            //Changes window things back to normal
-            ResizeMode = ResizeMode.CanResizeWithGrip;
-            RightWindowCommands.Visibility = Visibility.Visible;
-
-            Thread delayFinalUnlockSafeChanges = new Thread(DelayFinalUnlockSafeChanges);
-            delayFinalUnlockSafeChanges.Start();
-        }
-
-        /// <summary>
-        ///     Waits 4 seconds before running the final steps to unlock the safe
-        /// </summary>
-        private void DelayFinalUnlockSafeChanges()
-        {
-            Thread.Sleep(4000);
-            Dispatcher.Invoke(FinalUnlockSafeChanges);
-        }
-
-        /// <summary>
-        ///     Runs the final steps to unlock the safe
-        /// </summary>
-        private void FinalUnlockSafeChanges()
-        {
-            SetResourceReference(WindowTitleBrushProperty, "AccentColorBrush");
-            SetResourceReference(NonActiveWindowTitleBrushProperty, "AccentColorBrush");
-            SetResourceReference(GlowBrushProperty, "AccentColorBrush");
-
-            //Removes the lock elements
-            int count = WindowGrid.Children.Count;
-            for (int i = count - 5; i < count; i++)
-                WindowGrid.Children.RemoveAt(count - 5);
-
-            //Restarts the lock thread
-            _idleDetectionThread = new Thread(IdleDetectorThread);
-            _idleDetectionThread.Start();
+            //Changes lock menu
+            LockMenuItem.Header = "_Lock";
         }
 
         #endregion region
@@ -548,48 +272,57 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void GlobalHotkeys(object sender, KeyEventArgs e)
         {
-            if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
-                switch (e.Key)
-                {
-                    case Key.S:
-                        SaveAs();
-                        break;
-                }
+            if (!_safeLocked)
+            {
+                if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+                    switch (e.Key)
+                    {
+                        case Key.S:
+                            SaveAs();
+                            break;
+                    }
 
-            else if (Keyboard.Modifiers == ModifierKeys.Control)
-                switch (e.Key)
-                {
-                    case Key.N:
-                        NewSafe();
-                        break;
-                    case Key.O:
-                        LoginWindow loginWindow = new LoginWindow();
-                        loginWindow.Show();
-                        Close();
-                        break;
-                    case Key.S:
-                        StartSaveThread();
-                        break;
-                    case Key.L:
-                        LockSafe();
-                        _idleDetectionThread.Abort();
-                        break;
-                    case Key.X:
-                        Close();
-                        break;
-                    case Key.F:
-                        CreateNewFolder();
-                        break;
-                    case Key.Y:
-                        CreateNewAccount();
-                        break;
-                    case Key.E:
-                        EditAccount();
-                        break;
-                    case Key.D:
-                        DeleteAccount();
-                        break;
-                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                    switch (e.Key)
+                    {
+                        case Key.N:
+                            NewSafe();
+                            break;
+                        case Key.O:
+                            LoginWindow loginWindow = new LoginWindow();
+                            loginWindow.Show();
+                            Close();
+                            break;
+                        case Key.S:
+                            StartSaveThread();
+                            break;
+                        case Key.L:
+                            LockSafe();
+                            _idleDetectionThread.Abort();
+                            break;
+                        case Key.X:
+                            Close();
+                            break;
+                        case Key.F:
+                            CreateNewFolder();
+                            break;
+                        case Key.Y:
+                            CreateNewAccount();
+                            break;
+                        case Key.E:
+                            EditAccount();
+                            break;
+                        case Key.D:
+                            DeleteAccount();
+                            break;
+                    }
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.L)
+            {
+                UnlockSafe();
+                _idleDetectionThread.Abort();
+            }
+
         }
 
         /// <summary>
@@ -615,11 +348,23 @@ namespace PasswordSafe.Windows
             }
 
             //Checks if the user wants to save
-            if (_needsSaving && DialogBox.QuestionDialogBox("Do you want to save before you quit?", true, this))
+            if (_needsSaving &&
+                ((Profile.GetValue("Advanced", "AutoSave", "false") == "true") ||
+                 DialogBox.QuestionDialogBox("Do you want to save before you quit?", true, this)))
                 Save();
 
             //Stops idle detection tread
             _idleDetectionThread.Abort();
+        }
+
+        /// <summary>
+        /// Locks the safe when the window is minimised if the program is set to
+        /// </summary>
+        private void WindowStateChanged(object sender, EventArgs e)
+        {
+            if (((MetroWindow) sender).WindowState == WindowState.Minimized &&
+                Profile.GetValue("Security", "LockOnMinimise", "false") == "true")
+                LockSafe();
         }
 
         #endregion
@@ -743,8 +488,13 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void LockOnClick(object sender, RoutedEventArgs e)
         {
-            LockSafe();
-            _idleDetectionThread.Abort();
+            if (!_safeLocked)
+            {
+                LockSafe();
+                _idleDetectionThread.Abort();
+            }
+            else
+                UnlockSafe();
         }
 
         /// <summary>
@@ -903,7 +653,7 @@ namespace PasswordSafe.Windows
                 parent = (FolderExpander) ((Grid) ((Rectangle) sender).Parent).TemplatedParent;
 
 
-            _folderFilter = parent.Path == "All" ? "" : parent.Path;
+            _folderFilter = parent.Path == "All" ? "" : (parent.Path == "Backup" ? "Backup" : parent.Path);
 
             FilterDataGrid();
         }
@@ -928,9 +678,9 @@ namespace PasswordSafe.Windows
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
                 charArray[indexToChange] = '1';
-                _profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                Profile.SetValue("Global", "VisibleColumns", new string(charArray));
             }
 
             else
@@ -942,9 +692,9 @@ namespace PasswordSafe.Windows
                         Visibility.Collapsed;
                     //Changes the settings file
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                    char[] charArray = _profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                    char[] charArray = Profile.GetValue("General", "VisibleColumns", "111111").ToCharArray();
                     charArray[indexToChange] = '0';
-                    _profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                    Profile.SetValue("Global", "VisibleColumns", new string(charArray));
                 }
                 else
                     menuItemClicked.IsChecked = true;
@@ -995,6 +745,16 @@ namespace PasswordSafe.Windows
                 HasSubFolders = false
             });
 
+            Folders.Children.Add(new FolderExpander
+            {
+                Path = "Backup",
+                Header = "Backup",
+                Indentation = 10,
+                Style = (Style) FindResource("DropDownFolder"),
+                Default = true,
+                HasSubFolders = false
+            });
+
             foreach (Folder folder in folders) //Creates a folder for every folder in the SafeData
                 if (folder.Children.Count == 0)
                     Folders.Children.Add(new FolderExpander
@@ -1003,7 +763,8 @@ namespace PasswordSafe.Windows
                         Header = folder.Name,
                         Indentation = 10,
                         Style = (Style) FindResource("DropDownFolder"),
-                        HasSubFolders = false
+                        HasSubFolders = false,
+                        IsExpanded = folder.Expanded
                     });
                 else
                     Folders.Children.Add(MakeDropDownFolder(folder, $"/{folder.Name}"));
@@ -1023,7 +784,8 @@ namespace PasswordSafe.Windows
                 Header = folder.Name,
                 Indentation = (currentPath.Count(x => x == '/') - 1) * 10 + 10,
                 Style = (Style) FindResource("DropDownFolder"),
-                HasSubFolders = true
+                HasSubFolders = true,
+                IsExpanded = folder.Expanded
             };
 
             StackPanel stackPanel = new StackPanel();
@@ -1035,7 +797,8 @@ namespace PasswordSafe.Windows
                         Header = childFolder.Name,
                         Indentation = ($"{currentPath}/{childFolder.Name}".Count(x => x == '/') - 1) * 10 + 10,
                         Style = (Style) FindResource("DropDownFolder"),
-                        HasSubFolders = false
+                        HasSubFolders = false,
+                        IsExpanded = folder.Expanded
                     });
                 else
                     stackPanel.Children.Add(MakeDropDownFolder(childFolder, $"{currentPath}/{childFolder.Name}"));
@@ -1097,19 +860,18 @@ namespace PasswordSafe.Windows
             }
 
             //Puts folder in the SafeData
-            List<Folder> currentFolderList = SafeData.Folders;
-            List<string> pathParts = locationPath.Split('/').Skip(1).ToList();
-            currentFolderList = pathParts.Aggregate(currentFolderList,
-                (current, part) => current.Find(x => x.Name == part).Children);
-
-            currentFolderList.Add(new Folder {Name = folderName, Children = new List<Folder>()});
+            if (locationPath != "")
+                GetFolderFromPath(locationPath)
+                    .Children.Add(new Folder {Name = folderName, Children = new List<Folder>()});
+            else
+                SafeData.Folders.Add(new Folder {Name = folderName, Children = new List<Folder>()});
 
             //Gets stackpanel that new folder goes in
             if (locationPath == "")
                 location = Folders;
             else
             {
-                folderNewFolderGoesIn = GetFolderFromPath(locationPath);
+                folderNewFolderGoesIn = GetFolderExpanderFromPath(locationPath);
                 location = (StackPanel) folderNewFolderGoesIn.Content;
             }
 
@@ -1145,36 +907,33 @@ namespace PasswordSafe.Windows
 
             string oldPath = folder.Path;
 
-            string[] oldPathParts = oldPath.Split('/').Skip(1).ToArray();
             string[] newPathParts = newPath.Split('/').Skip(1).ToArray();
 
             /*First changes everything in the main data structure*/
             //Finds and deletes the folder using the path
-            List<Folder> currentFolderList = SafeData.Folders;
-            for (int i = 0; i < oldPathParts.Length - 1; i++)
-                currentFolderList = currentFolderList.Find(x => x.Name == oldPathParts[i]).Children;
+            Folder folderToModify = GetFolderFromPath(oldPath);
 
-            Folder folderToModify = currentFolderList.Find(x => x.Name == oldPathParts.Last());
-
-            currentFolderList.Remove(folderToModify);
+            if (oldPath.Count(x => x == '/') != 1)
+                GetFolderFromPath(oldPath, 1).Children.Remove(folderToModify);
+            else
+                SafeData.Folders.Remove(folderToModify);
 
             //Recreates the folder at the new path
-            currentFolderList = SafeData.Folders;
-            for (int i = 0; i < newPathParts.Length - 1; i++)
-                currentFolderList = currentFolderList.Find(x => x.Name == newPathParts[i]).Children;
-
-            currentFolderList.Insert(newPathIndex - numberOfDefaults, folderToModify);
+            if (newPath.Count(x => x == '/') != 1)
+                GetFolderFromPath(newPath, 1).Children.Insert(newPathIndex - numberOfDefaults, folderToModify);
+            else
+                SafeData.Folders.Insert(newPathIndex - numberOfDefaults, folderToModify);
 
             folderToModify.Name = newPathParts.Last();
 
             //Changes account path data
-            foreach (Account account in _accountsObservableCollection)
+            foreach (Account account in AccountsObservableCollection)
                 if (account.Path.StartsWith(oldPath))
                     account.Path = newPath + account.Path.Substring(oldPath.Length);
 
             /*Then changes the already existing folder controls*/
             //Gets the folder
-            FolderExpander folderBeingMoved = GetFolderFromPath(oldPath);
+            FolderExpander folderBeingMoved = GetFolderExpanderFromPath(oldPath);
 
             FolderExpander folderBeingMovedParentFolder =
                 ((StackPanel) folderBeingMoved.Parent).Parent as FolderExpander;
@@ -1193,7 +952,7 @@ namespace PasswordSafe.Windows
 
             //Gets where the folding is going to be moved to
             FolderExpander folderMovedInto =
-                GetFolderFromPath("/" + string.Join("/", newPathParts.Take(newPathParts.Length - 1)));
+                GetFolderExpanderFromPath("/" + string.Join("/", newPathParts.Take(newPathParts.Length - 1)));
 
             //Modifies the folder being dropped into if it had no subfolders before hand
             if (folderMovedInto != null)
@@ -1217,11 +976,32 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        ///     Gets folder from path
+        ///     Gets Folder from path
+        /// </summary>
+        /// <param name="path">Path the folder is located at</param>
+        /// <param name="ignore">Number of path parts to ignore at the end</param>
+        /// <returns>The Fodler the path points to</returns>
+        private Folder GetFolderFromPath(string path, int ignore = 0)
+        {
+            List<string> pathParts = path.Split('/').Skip(1).ToList();
+
+            if (pathParts.Count <= ignore)
+                throw new IndexOutOfRangeException();
+
+            Folder currentFolder = SafeData.Folders.Find(x => x.Name == pathParts[0]);
+
+            for (int i = 1; i < pathParts.Count - ignore; i++)
+                currentFolder = currentFolder.Children.Find(x => x.Name == pathParts[i]);
+
+            return currentFolder;
+        }
+
+        /// <summary>
+        ///     Gets FolderExpander from path
         /// </summary>
         /// <param name="path">Path the folder is located at</param>
         /// <returns>The FolderExpander the path points to</returns>
-        private FolderExpander GetFolderFromPath(string path)
+        private FolderExpander GetFolderExpanderFromPath(string path)
         {
             string[] pathParts = path.Split('/').Skip(1).ToArray();
             FolderExpander folder =
@@ -1254,6 +1034,22 @@ namespace PasswordSafe.Windows
             }
         }
 
+        /// <summary>
+        ///     Modifies folder in SafeData to be expanded when the folder is expanded
+        /// </summary>
+        private void FolderExpanderExpanded(object sender, RoutedEventArgs e)
+        {
+            GetFolderFromPath(((FolderExpander) sender).Path).Expanded = true;
+        }
+
+        /// <summary>
+        ///     Modifies folder in SafeData to be collapsed when the folder is collapsed
+        /// </summary>
+        private void FolderExpanderCollapsed(object sender, RoutedEventArgs e)
+        {
+            GetFolderFromPath(((FolderExpander) sender).Path).Expanded = false;
+        }
+
         #endregion
 
         #region Account Modification
@@ -1270,7 +1066,7 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(true, newAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
-            _accountsObservableCollection.Add(accountEditorWindow.AccountBeingEdited);
+            AccountsObservableCollection.Add(accountEditorWindow.AccountBeingEdited);
         }
 
         /// <summary>
@@ -1286,8 +1082,8 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
-            _accountsObservableCollection[
-                    _accountsObservableCollection.ToList()
+            AccountsObservableCollection[
+                    AccountsObservableCollection.ToList()
                         .FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)
                 ] =
                 accountEditorWindow.AccountBeingEdited;
@@ -1308,7 +1104,11 @@ namespace PasswordSafe.Windows
             {
                 Account[] accountsToDelete = AccountList.SelectedItems.Cast<Account>().ToArray();
                 foreach (Account account in accountsToDelete)
-                    _accountsObservableCollection.Remove(account);
+                    if (Profile.GetValue("Advanced", "AutoBackup", "true") == "true")
+                        account.Backup = true;
+                    else
+                        AccountsObservableCollection.Remove(account);
+                FilterDataGrid();
                 _needsSaving = true;
             }
         }
@@ -1322,15 +1122,15 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void ConstructAccountEntries()
         {
-            _accountsObservableCollection = new ObservableCollection<Account>();
+            AccountsObservableCollection = new ObservableCollection<Account>();
             SafeData.Accounts.Where(
                     x =>
                         string.IsNullOrEmpty(_folderFilter) ||
                         (!string.IsNullOrEmpty(x.Path) && x.Path.StartsWith(_folderFilter)))
                 .ToList()
-                .ForEach(x => _accountsObservableCollection.Add(x));
+                .ForEach(x => AccountsObservableCollection.Add(x));
 
-            _accountsCollectionViewSource = new CollectionViewSource {Source = _accountsObservableCollection};
+            _accountsCollectionViewSource = new CollectionViewSource {Source = AccountsObservableCollection};
             _accountsICollectionView = _accountsCollectionViewSource.View;
 
             AccountList.ItemsSource = _accountsICollectionView;
@@ -1374,7 +1174,7 @@ namespace PasswordSafe.Windows
 
             dataTemplate.VisualTree = grid;
 
-            bool isHidden = _profile.GetValue("Global", "VisibleColumns", "111111")[index] == '0';
+            bool isHidden = Profile.GetValue("General", "VisibleColumns", "111111")[index] == '0';
             DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,
@@ -1417,7 +1217,8 @@ namespace PasswordSafe.Windows
         private void CopyCellOnLeftClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
-                if (((TextBlock) sender).Name == "URL")
+                if ((((TextBlock) sender).Name == "URL") &&
+                    (Profile.GetValue("Advanced", "CopyUrlsToClipboard", "false") == "false"))
                     Process.Start(((TextBlock) sender).Text);
                 else
                     CopyCell((TextBlock) sender);
@@ -1447,7 +1248,9 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void ClearClipboard()
         {
-            for (int i = 10; i > 0; i--)
+            int numberOfSeconds = (int)double.Parse(Profile.GetValue("Security", "AutoClearClipboardTime", "10"));
+            if (numberOfSeconds == 0) return;
+            for (int i = numberOfSeconds; i > 0; i--)
             {
                 int secondsLeft = i;
                 Dispatcher.Invoke(
@@ -1466,17 +1269,24 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void FilterDataGrid()
         {
-            DateTime start = DateTime.Now;
-            _filter = x =>
-            {
-                Account account = (Account) x;
-                return account.Path.StartsWith(_folderFilter) &&
-                       (account.AccountName.ToUpper().Contains(SearchBox.Text.ToUpper()) ||
-                        account.Notes.ToUpper().Contains(SearchBox.Text.ToUpper()));
-            };
+            if (_folderFilter == "Backup")
+                _filter = x =>
+                {
+                    Account account = (Account) x;
+                    return account.Backup &&
+                           (account.AccountName.ToUpper().Contains(SearchBox.Text.ToUpper()) ||
+                            account.Notes.ToUpper().Contains(SearchBox.Text.ToUpper()));
+                };
+            else
+                _filter = x =>
+                {
+                    Account account = (Account) x;
+                    return account.Path.StartsWith(_folderFilter) && !account.Backup &&
+                           (account.AccountName.ToUpper().Contains(SearchBox.Text.ToUpper()) ||
+                            account.Notes.ToUpper().Contains(SearchBox.Text.ToUpper()));
+                };
 
             _accountsICollectionView.Filter = _filter;
-            Debug.WriteLine(DateTime.Now - start);
         }
 
         #endregion
@@ -1499,12 +1309,21 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void Save()
         {
+            //Deletes backups
+            if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "true") == "false")
+            {
+                List<Account> toDelete = AccountsObservableCollection.Where(account => account.Backup).ToList();
+                foreach (Account account in toDelete)
+                    Dispatcher.Invoke(() => AccountsObservableCollection.Remove(account));
+            }
+
             _needsSaving = false;
-            SafeData.Accounts = new List<Account>(_accountsObservableCollection);
+            SafeData.Accounts = new List<Account>(AccountsObservableCollection);
             string jsonText = JsonConvert.SerializeObject(SafeData);
             File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
             File.WriteAllText($"Resources\\{_openFile}", jsonText);
             File.Delete($"Resources\\{_openFile}.bak");
+
             Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
         }
 
@@ -1561,6 +1380,9 @@ namespace PasswordSafe.Windows
             else if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
             {
                 FolderExpander dropTarget = (FolderExpander) ((Grid) sender).TemplatedParent;
+
+                //Returns if drop target is a default folder
+                if (dropTarget.Default) return;
 
                 Point mousePosition = e.GetPosition(dropTarget);
 
@@ -1656,15 +1478,25 @@ namespace PasswordSafe.Windows
                 string newPath = dropTarget.Path;
 
                 if (newPath == "All")
-                    _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = "";
+                    AccountsObservableCollection[AccountsObservableCollection.IndexOf(account)].Path = "";
                 else
-                    _accountsObservableCollection[_accountsObservableCollection.IndexOf(account)].Path = newPath;
+                    AccountsObservableCollection[AccountsObservableCollection.IndexOf(account)].Path = newPath;
                 FilterDataGrid();
             }
 
             else if (e.Data.GetData(typeof(FolderExpander)) is FolderExpander)
             {
                 Point mousePosition = e.GetPosition(dropTarget);
+
+                //Returns if drop target is a default
+                if (dropTarget.Default)
+                {
+                    //Prevents folder from being moved as if it was dropped on blank space
+                    _preventFolderDropOntoFolderArea = true;
+                    reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+                    reEnableBackgroundDropsThread.Start();
+                    return;
+                }
 
                 //Folder was dropped above
                 if (mousePosition.Y <= 5)
@@ -1679,11 +1511,17 @@ namespace PasswordSafe.Windows
                 //Folder was dropped inside
                 else
                 {
-                    if (dropTarget.Default) return;
-
                     FolderExpander folder = (FolderExpander) e.Data.GetData(typeof(FolderExpander));
 
-                    if (folder == null) return;
+                    if (folder == null)
+                    {
+                        //Prevents folder from being moved as if it was dropped on blank space
+                        _preventFolderDropOntoFolderArea = true;
+                        reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+                        reEnableBackgroundDropsThread.Start();
+                        return;
+                    }
+
                     //Checks you arn't putting the folder in itself
                     if (dropTarget.Path.StartsWith(folder.Path))
                     {
@@ -1697,7 +1535,13 @@ namespace PasswordSafe.Windows
                     //Checks if you are putting a folder in the folder it is already in
                     if (dropTarget.Path ==
                         string.Join("/", folder.Path.Split('/').Take(folder.Path.Split('/').Length - 1)))
+                    {
+                        //Prevents folder from being moved as if it was dropped on blank space
+                        _preventFolderDropOntoFolderArea = true;
+                        reEnableBackgroundDropsThread = new Thread(ReEnableBackgroundDrops);
+                        reEnableBackgroundDropsThread.Start();
                         return;
+                    }
 
                     //Generates new path
                     string newPath = $"{dropTarget.Path}/{folder.Header}";

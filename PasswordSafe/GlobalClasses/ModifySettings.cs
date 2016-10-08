@@ -58,15 +58,5 @@ namespace PasswordSafe.GlobalClasses
             Application.Current.Resources["MainFontSize"] = fontSize;
             Application.Current.Resources["LargerFontSize"] = fontSize;
         }
-
-        /// <summary>
-        ///     Applies the auto lock time change when the value of the selector is changed
-        /// </summary>
-        /// <param name="time">The length of time to set the auto lock timer to in minutes</param>
-        public static void ChangeLockTime(double time)
-        {
-            double newTime = time;
-            MainWindow.TimeToLock = newTime;
-        }
     }
 }
