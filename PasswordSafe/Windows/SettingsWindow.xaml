@@ -4,6 +4,7 @@
                       xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
                       xmlns:customControls="clr-namespace:PasswordSafe.GlobalClasses.CustomControls"
                       xmlns:metro="clr-namespace:MahApps.Metro;assembly=MahApps.Metro" Title="Settings"
+                      Closing="MetroWindowClosing"
                       FontFamily="{DynamicResource MainFont}"
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
@@ -25,7 +26,7 @@
                         SnapsToDevicePixels="True">
                 <StackPanel.Resources>
                     <Style TargetType="customControls:SettingsLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource GrayBrush7}" />
+                        <Setter Property="Foreground" Value="{DynamicResource IdealForegroundDisabledBrush}" />
                         <Setter Property="FontSize" Value="{DynamicResource MainFontSizePlus2}" />
                         <Setter Property="Padding" Value="10" />
                         <Setter Property="MinWidth" Value="170" />
@@ -33,7 +34,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="customControls:SettingsLabel">
-                                    <Grid>
+                                    <Grid Background="Transparent">
                                         <Rectangle Name="WhiteBacking" Width="5" HorizontalAlignment="Left"
                                                    Fill="{DynamicResource WhiteBrush}"
                                                    Visibility="Collapsed" />
@@ -56,7 +57,7 @@
                         </Setter>
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource WhiteBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentColorBrush3}" />
                                 <Setter Property="BorderThickness" Value="5,0,0,0" />
                                 <Setter Property="Padding" Value="5,10,10,10" />
@@ -64,13 +65,13 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
-                <customControls:SettingsLabel Content="Security" />
+                <customControls:SettingsLabel Content="Security" IsSelected="True" />
                 <customControls:SettingsLabel Content="Appearance" />
                 <customControls:SettingsLabel Content="Advanced" />
             </StackPanel>
         </ScrollViewer>
         <!--  EndRegion  -->
-        <Grid Grid.Column="1" Width="600" Height="600">
+        <Grid Name="MainRegion" Grid.Column="1" Width="600" Height="600">
             <Grid.Resources>
                 <Style x:Key="GeneralLabel" TargetType="Label">
                     <Setter Property="HorizontalAlignment" Value="Left" />
@@ -92,6 +93,13 @@
                     <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
                     <Setter Property="Margin" Value="10,20,0,0" />
                 </Style>
+                <Style x:Key="GeneralNumbericUpDown" TargetType="controls:NumericUpDown">
+                    <Setter Property="Width" Value="200" />
+                    <Setter Property="Height" Value="25" />
+                    <Setter Property="HorizontalAlignment" Value="Left" />
+                    <Setter Property="VerticalAlignment" Value="Top" />
+                    <Setter Property="Margin" Value="10,10,0,0" />
+                </Style>
             </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -99,54 +107,52 @@
             </Grid.RowDefinitions>
             <!--  Region Security  -->
             <Grid Name="Security" Grid.Row="0" ZIndex="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <CheckBox Grid.Row="0" Content="Lock safe when window is minimised"
-                          Style="{StaticResource GeneralCheckBox}" />
-                <CheckBox Name="LockTimeCheckBox" Grid.Row="1"
-                          Content="Automatically lock the safe after the following number of minutes:"
-                          Style="{StaticResource GeneralCheckBox}" />
-                <controls:NumericUpDown  Grid.Row="2" Width="200" Height="25" Margin="10,10,5,5" HorizontalAlignment="Left"
-                                        VerticalAlignment="Top" HasDecimals="True" Minimum="1">
-                    <controls:NumericUpDown.Style>
-                        <Style TargetType="controls:NumericUpDown">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=LockTimeCheckBox}" Value="False">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </controls:NumericUpDown.Style>
-                </controls:NumericUpDown>
-                <Label Grid.Row="3" Content="Length of automatically generated passwords:"
-                       Style="{StaticResource GeneralLabel}" />
-                <controls:NumericUpDown Grid.Row="4" Width="200" Height="25" Margin="10,10,5,5" HorizontalAlignment="Left"
-                                        VerticalAlignment="Top" HasDecimals="True" Minimum="1" />
-                <CheckBox Name="ClipBoardClearTimeCheckBox" Grid.Row="5"
-                          Content="Automatically clear clipboard after the following number of seconds:"
-                          Style="{StaticResource GeneralCheckBox}" />
-                <controls:NumericUpDown Grid.Row="6" Width="200" Height="25" Margin="10,10,5,5" HorizontalAlignment="Left"
-                                        VerticalAlignment="Top" HasDecimals="True" Minimum="1">
-                    <controls:NumericUpDown.Style>
-                        <Style TargetType="controls:NumericUpDown">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=ClipBoardClearTimeCheckBox}" Value="False">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </controls:NumericUpDown.Style>
-                </controls:NumericUpDown>
+                <StackPanel>
+                    <Label Content="Locking" Style="{StaticResource HeadingLabel}" />
+                    <CheckBox Name="LockOnMinimiseCheck" Checked="LockOnMinimiseCheckChanged"
+                              Content="Lock safe when window is minimised"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="LockOnMinimiseCheckChanged" />
+                    <CheckBox Name="AutoLockTimeCheck" Checked="AutoLockTimeCheckChanged"
+                              Content="Automatically lock the safe after the following number of minutes:"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="AutoLockTimeCheckChanged" />
+                    <controls:NumericUpDown Name="AutoLockTimeValue" HasDecimals="True" Minimum="0.5" ValueChanged="AutoLockTimeValueChanged">
+                        <controls:NumericUpDown.Style>
+                            <Style BasedOn="{StaticResource GeneralNumbericUpDown}" TargetType="controls:NumericUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=AutoLockTimeCheck}" Value="False">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:NumericUpDown.Style>
+                    </controls:NumericUpDown>
+                    <Label Content="Password Generation" Style="{StaticResource HeadingLabel}" />
+                    <Label Content="Length of automatically generated passwords:" Style="{StaticResource GeneralLabel}" />
+                    <controls:NumericUpDown Name="PasswordLength" Maximum="64" Minimum="1"
+                                            Style="{StaticResource GeneralNumbericUpDown}"
+                                            ValueChanged="PasswordLengthChanged" />
+                    <Label Content="Clipboard" Style="{StaticResource HeadingLabel}" />
+                    <CheckBox Name="AutoClearClipboardCheck" Checked="ClearClipboardCheckChanged"
+                              Content="Automatically clear clipboard after the following number of seconds:"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="ClearClipboardCheckChanged" />
+                    <controls:NumericUpDown Name="AutoClearClipboardValue" Minimum="1" ValueChanged="ClearClipboardValueChanged">
+                        <controls:NumericUpDown.Style>
+                            <Style BasedOn="{StaticResource GeneralNumbericUpDown}" TargetType="controls:NumericUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=AutoClearClipboardCheck}" Value="False">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:NumericUpDown.Style>
+                    </controls:NumericUpDown>
+                </StackPanel>
             </Grid>
             <!--  EndRegion  -->
-            <Rectangle Grid.Row="0" Fill="White" />
+            <Rectangle Grid.Row="0" Fill="{DynamicResource WhiteBrush}" />
             <!--  Region Appearance  -->
             <Grid Name="Appearance" Grid.Row="0" ZIndex="-1">
                 <Grid.ColumnDefinitions>
@@ -163,9 +169,10 @@
                        Style="{StaticResource HeadingLabel}" />
                 <Label Grid.Row="0" Grid.Column="1" Content="Theme"
                        Style="{StaticResource HeadingLabel}" />
-                <ComboBox Grid.Row="1" Grid.Column="0" Width="200" Height="25" Margin="10,5,5,5" HorizontalAlignment="Left"
-                          VerticalAlignment="Top"
-                          ItemsSource="{x:Static metro:ThemeManager.Accents}">
+                <ComboBox Name="AccentSelector" Grid.Row="1" Grid.Column="0" Width="200" Height="25" Margin="10,5,5,5"
+                          HorizontalAlignment="Left" VerticalAlignment="Top"
+                          ItemsSource="{x:Static metro:ThemeManager.Accents}"
+                          SelectionChanged="AccentSelectorChanged">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
@@ -173,10 +180,10 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,5,5,5" VerticalAlignment="Top">
-                    <RadioButton Margin="5" Content="Light Theme"
+                    <RadioButton Name="LightThemeButton" Margin="5" Checked="ThemeButtonChanged" Content="Light Theme"
                                  FontSize="{DynamicResource MainFontSizePlus2}"
                                  GroupName="ThemeRadioBoxGroup" />
-                    <RadioButton Margin="5" Content="Dark Theme"
+                    <RadioButton Name="DarkThemeButton" Margin="5" Checked="ThemeButtonChanged" Content="Dark Theme"
                                  FontSize="{DynamicResource MainFontSizePlus2}"
                                  GroupName="ThemeRadioBoxGroup" />
                 </StackPanel>
@@ -184,11 +191,13 @@
                        Style="{StaticResource HeadingLabel}" />
                 <Label Grid.Row="2" Grid.Column="1" Content="Font Size"
                        Style="{StaticResource HeadingLabel}" />
-                <ComboBox Grid.Row="3" Grid.Column="0" Width="200" Height="25" Margin="10,5,5,5" HorizontalAlignment="Left"
-                          VerticalAlignment="Top"
-                          ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" />
-                <controls:NumericUpDown Grid.Row="3" Grid.Column="1" Width="200" Height="25" Margin="10,5,5,5" HorizontalAlignment="Left"
-                                        VerticalAlignment="Top" />
+                <ComboBox Name="FontSelector" Grid.Row="3" Grid.Column="0" Width="200" Height="25" Margin="10,5,5,5"
+                          HorizontalAlignment="Left" VerticalAlignment="Top"
+                          ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
+                          SelectionChanged="FontSelectorChanged" />
+                <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Maximum="24" Minimum="1"
+                                        Style="{StaticResource GeneralNumbericUpDown}"
+                                        ValueChanged="FontSizeSelectorChanged" />
 
             </Grid>
             <!--  EndRegion  -->
@@ -196,14 +205,31 @@
             <Grid Name="Advanced" Grid.Row="0" ZIndex="-2">
                 <StackPanel>
                     <Label Content="Saving and Exiting" Style="{StaticResource HeadingLabel}" />
-                    <CheckBox Content="Save and exit instead of locking after specified time" Style="{StaticResource GeneralCheckBox}" />
-                    <CheckBox Content="Automatically save safe instead of asking" Style="{StaticResource GeneralCheckBox}" />
+                    <CheckBox Name="ExitOnAutoLockCheck" Checked="ExitOnAutoLockCheckChanged"
+                              Content="Save and exit instead of locking after specified time"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="ExitOnAutoLockCheckChanged" />
+                    <CheckBox Name="AutoSaveCheck" Checked="AutoSaveCheckChanged"
+                              Content="Automatically save safe instead of asking"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="AutoSaveCheckChanged" />
                     <Label Content="Backups" Style="{StaticResource HeadingLabel}" />
-                    <CheckBox Content="Backup entries when modified" Style="{StaticResource GeneralCheckBox}" />
-                    <CheckBox Content="Delete backups before saving" Style="{StaticResource GeneralCheckBox}" />
+                    <CheckBox Name="AutoBackupCheck" Checked="AutoBackupCheckChanged" Content="Backup entries when modified"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="AutoBackupCheckChanged" />
+                    <CheckBox Name="DeleteBackupsOnSaveCheck" Checked="DeleteBackupsOnSaveCheckChanged"
+                              Content="Delete backups before saving"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="DeleteBackupsOnSaveCheckChanged" />
                     <Label Content="Miscellaneous" Style="{StaticResource HeadingLabel}" />
-                    <CheckBox Content="Copy URLs to clipboard instead of opening them" Style="{StaticResource GeneralCheckBox}" />
-                    <CheckBox Content="Disable ablility to peak at passwords" Style="{StaticResource GeneralCheckBox}" />
+                    <CheckBox Name="CopyUrlsToClipboardCheck" Checked="CopyUrlsToClipboardCheckChanged"
+                              Content="Copy URLs to clipboard instead of opening them"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="CopyUrlsToClipboardCheckChanged" />
+                    <CheckBox Name="DisablePasswordPeakingCheck" Checked="DisablePasswordPeakingCheckChanged"
+                              Content="Disable ablility to peak at passwords"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="DisablePasswordPeakingCheckChanged" />
                 </StackPanel>
             </Grid>
             <!--  EndRegion  -->
@@ -218,9 +244,9 @@
                         <Setter Property="Margin" Value="5,0,5,0" />
                     </Style>
                 </StackPanel.Resources>
-                <Button Content="Apply" />
-                <Button Content="Cancel" />
-                <Button Content="Ok" />
+                <Button Click="ApplyOnClick" Content="Apply" />
+                <Button Click="CancelOnClick" Content="Cancel" />
+                <Button Click="OkOnClick" Content="Ok" />
             </StackPanel>
             <!--  EndRegion  -->
         </Grid>

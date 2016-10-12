@@ -42,10 +42,10 @@ namespace PasswordSafe.GlobalClasses
             public string Notes { get; set; }
 
             [JsonProperty("dateCreated")]
-            public DateTime DateCreated { get; set; }
+            public string DateCreated { get; set; }
 
             [JsonProperty("dateLastEdited")]
-            public DateTime DateLastEdited { get; set; }
+            public string DateLastEdited { get; set; }
 
             [JsonProperty("backup")]
             public bool Backup { get; set; }
@@ -80,6 +80,7 @@ namespace PasswordSafe.GlobalClasses
         public class RootObject
         {
             [JsonProperty("versionNumber")]
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global could be used one day if the data structure changes
             public string VersionNumber { get; set; }
 
             [JsonProperty("folders")]

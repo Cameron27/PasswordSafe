@@ -181,13 +181,13 @@ namespace PasswordSafe.Windows
             AccountBeingEdited.Url = UrlField.Text;
             AccountBeingEdited.Path = FolderField.Text;
             if (_addingNewAccount)
-                AccountBeingEdited.DateCreated = DateTime.Now;
+                AccountBeingEdited.DateCreated = DateTime.Now.ToShortDateString();
             AccountBeingEdited.Notes = NotesField.Text;
 
             if (!_originalAccountClone.Equals(AccountBeingEdited))
             {
                 DialogResult = true;
-                AccountBeingEdited.DateLastEdited = DateTime.Now;
+                AccountBeingEdited.DateLastEdited = DateTime.Now.ToShortDateString();
                 //Create backup
                 if (MainWindow.Profile.GetValue("Advanced", "AutoBackup", "true") == "true")
                 {
@@ -199,7 +199,7 @@ namespace PasswordSafe.Windows
             if (restoreBackup)
             {
                 if (_originalAccountClone.Equals(AccountBeingEdited))
-                    AccountBeingEdited.DateLastEdited = DateTime.Now;
+                    AccountBeingEdited.DateLastEdited = DateTime.Now.ToShortDateString();
                 AccountBeingEdited.Backup = false;
             }
 
@@ -252,7 +252,7 @@ namespace PasswordSafe.Windows
         private void GenerateRandomPasswordOnClick(object sender, RoutedEventArgs e)
         {
             string randomPassword = "";
-            int passwordLength = int.Parse(MainWindow.Profile.GetValue("Security", "RandomPasswordLength", "24"));
+            int passwordLength = (int) double.Parse(MainWindow.Profile.GetValue("Security", "RandomPasswordLength", "24"));
             while (randomPassword.Length < passwordLength)
                 randomPassword +=
                     Encoding.UTF8.GetString(AESThenHMAC.NewKey().Where(x => (x <= 126) && (x >= 32)).ToArray()); //TODO make this range a setting

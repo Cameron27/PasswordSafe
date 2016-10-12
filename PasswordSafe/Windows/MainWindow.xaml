@@ -258,6 +258,8 @@
             <MenuItem Header="Password" Style="{StaticResource ColumnHeaderContextMenuStyle}" />
             <MenuItem Header="URL" Style="{StaticResource ColumnHeaderContextMenuStyle}" />
             <MenuItem Header="Notes" Style="{StaticResource ColumnHeaderContextMenuStyle}" />
+            <MenuItem Header="Date Created" Style="{StaticResource ColumnHeaderContextMenuStyle}" />
+            <MenuItem Header="Last Edited" Style="{StaticResource ColumnHeaderContextMenuStyle}" />
         </ContextMenu>
         <Style x:Key="ColumnHeader" TargetType="DataGridColumnHeader">
             <Setter Property="Template">

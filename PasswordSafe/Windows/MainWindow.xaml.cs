@@ -106,7 +106,9 @@ namespace PasswordSafe.Windows
                 Tuple.Create("Email", "Email"),
                 Tuple.Create("Password", "Password"),
                 Tuple.Create("URL", "Url"),
-                Tuple.Create("Notes", "Notes")
+                Tuple.Create("Notes", "Notes"),
+                Tuple.Create("Date Created", "DateCreated"),
+                Tuple.Create("Last Edited", "DateLastEdited")
             };
 
             //Genterate all of the columns for AccountList
@@ -194,10 +196,10 @@ namespace PasswordSafe.Windows
 
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                double lockTime = double.Parse(Profile.GetValue("Security", "LockTime", "5"));
-                if ((idleTime.IdleTime.TotalMinutes < lockTime) || (lockTime == 0)) continue;
-                Dispatcher.Invoke(LockSafe);
+                if (Profile.GetValue("Security", "AutoLockTimeBool", "true") == "false" ||
+                    (idleTime.IdleTime.TotalMinutes <
+                     double.Parse(Profile.GetValue("Security", "AutoLockTimeValue", "5")))) continue;
+                Dispatcher.Invoke(() => LockSafe(true));
                 //Stops thread
                 return;
             }
@@ -206,8 +208,15 @@ namespace PasswordSafe.Windows
         /// <summary>
         ///     Locks the safe
         /// </summary>
-        private void LockSafe()
+        /// <param name="autoLock">Identifies if the lock was called from the idle timer</param>
+        private void LockSafe(bool autoLock = false)
         {
+            if (Profile.GetValue("Advanced", "ExitOnAutoLock", "false") == "true" && autoLock)
+            {
+                Save();
+                Close();
+            }
+
             if (_needsSaving)
                 Save();
 
@@ -678,7 +687,7 @@ namespace PasswordSafe.Windows
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "111111").ToCharArray();
+                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "11111100").ToCharArray();
                 charArray[indexToChange] = '1';
                 Profile.SetValue("Global", "VisibleColumns", new string(charArray));
             }
@@ -692,7 +701,7 @@ namespace PasswordSafe.Windows
                         Visibility.Collapsed;
                     //Changes the settings file
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                    char[] charArray = Profile.GetValue("General", "VisibleColumns", "111111").ToCharArray();
+                    char[] charArray = Profile.GetValue("General", "VisibleColumns", "11111100").ToCharArray();
                     charArray[indexToChange] = '0';
                     Profile.SetValue("Global", "VisibleColumns", new string(charArray));
                 }
@@ -879,6 +888,7 @@ namespace PasswordSafe.Windows
             if (location == null)
             {
                 location = new StackPanel();
+                Debug.Assert(folderNewFolderGoesIn != null, "folderNewFolderGoesIn != null");
                 folderNewFolderGoesIn.Content = location;
                 folderNewFolderGoesIn.HasSubFolders = true;
             }
@@ -1174,7 +1184,7 @@ namespace PasswordSafe.Windows
 
             dataTemplate.VisualTree = grid;
 
-            bool isHidden = Profile.GetValue("General", "VisibleColumns", "111111")[index] == '0';
+            bool isHidden = Profile.GetValue("General", "VisibleColumns", "11111100")[index] == '0';
             DataGridTemplateColumn column = new DataGridTemplateColumn
             {
                 Header = header,
@@ -1248,8 +1258,8 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void ClearClipboard()
         {
-            int numberOfSeconds = (int)double.Parse(Profile.GetValue("Security", "AutoClearClipboardTime", "10"));
-            if (numberOfSeconds == 0) return;
+            if (Profile.GetValue("Security", "AutoClearClipboardBool", "true") == "false") return;
+            int numberOfSeconds = (int)double.Parse(Profile.GetValue("Security", "AutoClearClipboardValue", "10"));
             for (int i = numberOfSeconds; i > 0; i--)
             {
                 int secondsLeft = i;
@@ -1310,7 +1320,7 @@ namespace PasswordSafe.Windows
         private void Save()
         {
             //Deletes backups
-            if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "true") == "false")
+            if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "false") == "false")
             {
                 List<Account> toDelete = AccountsObservableCollection.Where(account => account.Backup).ToList();
                 foreach (Account account in toDelete)

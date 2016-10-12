@@ -4,7 +4,6 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro;
-using PasswordSafe.Windows;
 
 #endregion
 
@@ -56,7 +55,8 @@ namespace PasswordSafe.GlobalClasses
         public static void ChangeProgramsFontSize(double fontSize)
         {
             Application.Current.Resources["MainFontSize"] = fontSize;
-            Application.Current.Resources["LargerFontSize"] = fontSize;
+            Application.Current.Resources["MainFontSizePlus2"] = fontSize + 2;
+            Application.Current.Resources["MainFontSizePlus2"] = fontSize + 4;
         }
     }
 }
