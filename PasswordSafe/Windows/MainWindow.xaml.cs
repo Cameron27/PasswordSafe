@@ -19,6 +19,7 @@ using PasswordSafe.DialogBoxes;
 using PasswordSafe.GlobalClasses;
 using PasswordSafe.GlobalClasses.CustomControls;
 using PasswordSafe.GlobalClasses.Data;
+using Path = System.IO.Path;
 
 namespace PasswordSafe.Windows
 {
@@ -37,17 +38,20 @@ namespace PasswordSafe.Windows
         private Thread _idleDetectionThread;
         private bool _needsSaving;
         private string _openFile;
+        private string _password;
         private bool _preventFolderDropOntoFolderArea;
+        private bool _safeLocked;
         private Thread _saveThread;
         public ObservableCollection<Account> AccountsObservableCollection;
-        private bool _safeLocked;
 
-        public MainWindow(string openFile)
+        public MainWindow(string openFile, RootObject safeData, string password)
         {
             InitializeComponent();
             Height = SystemParameters.PrimaryScreenHeight * 0.75;
             Width = SystemParameters.PrimaryScreenWidth * 0.75;
             _openFile = openFile;
+            SafeData = safeData;
+            _password = password;
 
             Setup();
         }
@@ -57,44 +61,6 @@ namespace PasswordSafe.Windows
             //Creates a thread that will check if the user is idle, this has to start first otherwise the program will crash if there is an error loading the safe
             _idleDetectionThread = new Thread(IdleDetectorThread);
             _idleDetectionThread.Start();
-
-            string contentOfFile = "";
-
-            try
-            {
-                contentOfFile = File.ReadAllText($"Resources/{_openFile}");
-            }
-            catch (IOException)
-            {
-                DialogBox.MessageDialogBox("There was an error trying to load that safe.", null);
-                LoginWindow loginWindow = new LoginWindow();
-                loginWindow.Show();
-                Close();
-            }
-
-            if (contentOfFile != "")
-                try
-                {
-                    SafeData = JsonConvert.DeserializeObject<RootObject>(contentOfFile);
-                }
-                catch (JsonReaderException)
-                {
-                    DialogBox.MessageDialogBox("That safe is not a valid file format.", null);
-                    LoginWindow loginWindow = new LoginWindow();
-                    loginWindow.Show();
-                    Close();
-                }
-            else
-            {
-                string versionNumber = string.Join(".",
-                    Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.').Take(2));
-                SafeData = new RootObject
-                {
-                    Folders = new List<Folder>(),
-                    Accounts = new List<Account>(),
-                    VersionNumber = versionNumber
-                };
-            }
 
             ConstructFolders(SafeData.Folders);
 
@@ -196,7 +162,7 @@ namespace PasswordSafe.Windows
 
                 IdleTimeInfo idleTime = IdleTimeDetector.GetIdleTimeInfo();
 
-                if (Profile.GetValue("Security", "AutoLockTimeBool", "true") == "false" ||
+                if ((Profile.GetValue("Security", "AutoLockTimeBool", "true") == "false") ||
                     (idleTime.IdleTime.TotalMinutes <
                      double.Parse(Profile.GetValue("Security", "AutoLockTimeValue", "5")))) continue;
                 Dispatcher.Invoke(() => LockSafe(true));
@@ -211,7 +177,7 @@ namespace PasswordSafe.Windows
         /// <param name="autoLock">Identifies if the lock was called from the idle timer</param>
         private void LockSafe(bool autoLock = false)
         {
-            if (Profile.GetValue("Advanced", "ExitOnAutoLock", "false") == "true" && autoLock)
+            if ((Profile.GetValue("Advanced", "ExitOnAutoLock", "false") == "true") && autoLock)
             {
                 Save();
                 Close();
@@ -237,13 +203,9 @@ namespace PasswordSafe.Windows
 
             //Deactivates menu items
             foreach (object menuBarItem in MenuBar.Items)
-            {
                 foreach (object item in ((MenuItem) menuBarItem).Items)
-                {
                     if (item is MenuItem)
                         ((MenuItem) item).IsEnabled = false;
-                }
-            }
 
             //Changes lock menu
             LockMenuItem.IsEnabled = true;
@@ -251,7 +213,7 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Unlocks the safe
+        ///     Unlocks the safe
         /// </summary>
         private void UnlockSafe()
         {
@@ -260,13 +222,9 @@ namespace PasswordSafe.Windows
 
             //Unlocks menu bar items
             foreach (object menuBarItem in MenuBar.Items)
-            {
-                foreach (object item in ((MenuItem)menuBarItem).Items)
-                {
+                foreach (object item in ((MenuItem) menuBarItem).Items)
                     if (item is MenuItem)
-                        ((MenuItem)item).IsEnabled = true;
-                }
-            }
+                        ((MenuItem) item).IsEnabled = true;
 
             //Changes lock menu
             LockMenuItem.Header = "_Lock";
@@ -303,7 +261,8 @@ namespace PasswordSafe.Windows
                             Close();
                             break;
                         case Key.S:
-                            StartSaveThread();
+                            if (_needsSaving)
+                                StartSaveThread();
                             break;
                         case Key.L:
                             LockSafe();
@@ -326,12 +285,11 @@ namespace PasswordSafe.Windows
                             break;
                     }
             }
-            else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.L)
+            else if ((Keyboard.Modifiers == ModifierKeys.Control) && (e.Key == Key.L))
             {
                 UnlockSafe();
                 _idleDetectionThread.Abort();
             }
-
         }
 
         /// <summary>
@@ -367,12 +325,12 @@ namespace PasswordSafe.Windows
         }
 
         /// <summary>
-        /// Locks the safe when the window is minimised if the program is set to
+        ///     Locks the safe when the window is minimised if the program is set to
         /// </summary>
         private void WindowStateChanged(object sender, EventArgs e)
         {
-            if (((MetroWindow) sender).WindowState == WindowState.Minimized &&
-                Profile.GetValue("Security", "LockOnMinimise", "false") == "true")
+            if ((((MetroWindow) sender).WindowState == WindowState.Minimized) &&
+                (Profile.GetValue("Security", "LockOnMinimise", "false") == "true"))
                 LockSafe();
         }
 
@@ -382,11 +340,17 @@ namespace PasswordSafe.Windows
 
         #region Buttons - File
 
+        /// <summary>
+        ///     Asks user for a name and creates a new safe on click
+        /// </summary>
         private void NewSafeOnClick(object sender, RoutedEventArgs e)
         {
             NewSafe();
         }
 
+        /// <summary>
+        ///     Asks user for a name and creates a new safe
+        /// </summary>
         private void NewSafe()
         {
             //Gets new name
@@ -395,10 +359,18 @@ namespace PasswordSafe.Windows
 
             if (string.IsNullOrEmpty(newName)) return;
 
-            //Checks that safe name isn't already being used
-            string[] files = Directory.GetFiles(@"Resources", "*.json");
+            //Checks that that file name is valid
+            if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                DialogBox.MessageDialogBox(
+                    "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
+                return;
+            }
 
-            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.json => test
+            //Checks that safe name isn't already being used
+            string[] files = Directory.GetFiles(@"Safes", "*.safe");
+
+            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.safe => test
             files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
 
             if (files.Any(x => x == newName) &&
@@ -406,25 +378,39 @@ namespace PasswordSafe.Windows
                     "A file with that name already exists, are you sure you want to override it?", false, this))
                 return;
 
-            //Checks that that file name is valid
-            if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
-            {
-                DialogBox.MessageDialogBox(
-                    "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
-                return;
-            }
+            //Gets password
+            string password;
+            if (!LoginWindow.GetAndConfirmNewPassword(out password, this)) return;
 
-            //Creates and opens new safe
-            File.Create($"Resources\\{newName}.json").Close();
-            MainWindow mainWindow = new MainWindow($"{newName}.json");
+            //Creates new RootObject
+            string versionNumber = string.Join(".",
+                Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.').Take(2));
+            RootObject rootObject = new RootObject
+            {
+                Folders = new List<Folder>(),
+                Accounts = new List<Account>(),
+                VersionNumber = versionNumber
+            };
+
+            //Turns it into json and encrypts it
+            string jsonText = JsonConvert.SerializeObject(rootObject);
+            string encryptedText = AESThenHMAC.SimpleEncryptWithPassword(jsonText, password);
+
+            //Creates file
+            File.Create($"Safes\\{newName}.safe").Close();
+            File.WriteAllText($"Safes\\{newName}.safe", encryptedText);
+
+            //Create MainWindow
+            MainWindow mainWindow = new MainWindow($"{newName}.safe", rootObject, password);
             try
             {
                 mainWindow.Show();
             }
             catch (InvalidOperationException)
             {
-                //The window mush have already closed itself for some reason and an error has already been displayed to the user
+                return;
             }
+
             Close();
         }
 
@@ -468,9 +454,9 @@ namespace PasswordSafe.Windows
             if (string.IsNullOrEmpty(newName)) return;
 
             //Checks that safe name isn't already being used
-            string[] files = Directory.GetFiles(@"Resources", "*.json");
+            string[] files = Directory.GetFiles(@"Safes", "*.safe");
 
-            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.json => test
+            //Takes the name of each json file e.g. C:/Users/John/Documents/Safe/test.safe => test
             files = files.Select(x => x.Split('\\').Last().Split('.')[0]).ToArray();
 
             if (files.Any(x => x == newName) &&
@@ -479,16 +465,46 @@ namespace PasswordSafe.Windows
                 return;
 
             //Checks that that file name is valid
-            if (newName.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+            if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
                 DialogBox.MessageDialogBox(
                     "A file's name cannot contain any of the following characters:\n\\/:*?\"<>|", this);
                 return;
             }
 
-            File.Create($"Resources\\{newName}.json").Close();
-            _openFile = $"{newName}.json";
+            File.Create($"Safes\\{newName}.safe").Close();
+            _openFile = $"{newName}.safe";
 
+            StartSaveThread();
+        }
+
+        /// <summary>
+        ///     Change safe password on click
+        /// </summary>
+        private void ChangeSafePasswordOnClick(object sender, RoutedEventArgs e)
+        {
+            ChangeSafePassword();
+        }
+
+        /// <summary>
+        ///     Change safe password on click
+        /// </summary>
+        private void ChangeSafePassword()
+        {
+            //Checks current password
+
+            //Gets password
+            string newPassword = "";
+            while (newPassword == "")
+            {
+                newPassword = DialogBox.PasswordDialogBox("Please enter the new password for this safe:", this);
+                if (newPassword == null) return;
+
+                if (newPassword == "")
+                    DialogBox.MessageDialogBox("You must enter a password", this);
+            }
+
+            _password = newPassword;
             StartSaveThread();
         }
 
@@ -623,7 +639,7 @@ namespace PasswordSafe.Windows
         /// <returns>True if folder name is valid</returns>
         private static bool VerifyFolderName(string name)
         {
-            if (name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
+            if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 return false;
             return true;
         }
@@ -687,9 +703,9 @@ namespace PasswordSafe.Windows
                     Visibility.Visible;
                 //Changes the settings file
                 int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
-                char[] charArray = Profile.GetValue("Global", "VisibleColumns", "11111100").ToCharArray();
+                char[] charArray = Profile.GetValue("General", "VisibleColumns", "11111100").ToCharArray();
                 charArray[indexToChange] = '1';
-                Profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                Profile.SetValue("General", "VisibleColumns", new string(charArray));
             }
 
             else
@@ -703,7 +719,7 @@ namespace PasswordSafe.Windows
                     int indexToChange = allMenuItems.FindIndex(menuItemClicked.Equals);
                     char[] charArray = Profile.GetValue("General", "VisibleColumns", "11111100").ToCharArray();
                     charArray[indexToChange] = '0';
-                    Profile.SetValue("Global", "VisibleColumns", new string(charArray));
+                    Profile.SetValue("General", "VisibleColumns", new string(charArray));
                 }
                 else
                     menuItemClicked.IsChecked = true;
@@ -1092,12 +1108,7 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
-            AccountsObservableCollection[
-                    AccountsObservableCollection.ToList()
-                        .FindIndex(x => x.Id == accountEditorWindow.AccountBeingEdited.Id)
-                ] =
-                accountEditorWindow.AccountBeingEdited;
-            AccountList.Items.Refresh();
+            FilterDataGrid();
         }
 
         /// <summary>
@@ -1259,7 +1270,7 @@ namespace PasswordSafe.Windows
         private void ClearClipboard()
         {
             if (Profile.GetValue("Security", "AutoClearClipboardBool", "true") == "false") return;
-            int numberOfSeconds = (int)double.Parse(Profile.GetValue("Security", "AutoClearClipboardValue", "10"));
+            int numberOfSeconds = (int) double.Parse(Profile.GetValue("Security", "AutoClearClipboardValue", "10"));
             for (int i = numberOfSeconds; i > 0; i--)
             {
                 int secondsLeft = i;
@@ -1319,6 +1330,10 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void Save()
         {
+            //Aborts _saveThread is this save is running on the main thread
+            if (SynchronizationContext.Current != null)
+                _saveThread?.Abort();
+
             //Deletes backups
             if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "false") == "false")
             {
@@ -1328,11 +1343,16 @@ namespace PasswordSafe.Windows
             }
 
             _needsSaving = false;
+
+            //Saves safe
             SafeData.Accounts = new List<Account>(AccountsObservableCollection);
             string jsonText = JsonConvert.SerializeObject(SafeData);
-            File.WriteAllText($"Resources\\{_openFile}.bak", jsonText);
-            File.WriteAllText($"Resources\\{_openFile}", jsonText);
-            File.Delete($"Resources\\{_openFile}.bak");
+            string encryptedText = AESThenHMAC.SimpleEncryptWithPassword(jsonText, _password);
+
+            File.Delete($"Safes\\{_openFile}.bak");
+            File.Copy($"Safes\\{_openFile}", $"Safes\\{_openFile}.bak");
+            File.WriteAllText($"Safes\\{_openFile}", encryptedText);
+            File.Delete($"Safes\\{_openFile}.bak");
 
             Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
         }

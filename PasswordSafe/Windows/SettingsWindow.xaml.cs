@@ -10,8 +10,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
-using PasswordSafe.GlobalClasses.CustomControls;
 using PasswordSafe.GlobalClasses;
+using PasswordSafe.GlobalClasses.CustomControls;
 
 namespace PasswordSafe.Windows
 {
@@ -30,6 +30,8 @@ namespace PasswordSafe.Windows
             LockOnMinimiseCheck.IsChecked = MainWindow.Profile.GetValue("Security", "LockOnMinimise", "false") == "true";
             AutoLockTimeCheck.IsChecked = MainWindow.Profile.GetValue("Security", "AutoLockTimeBool", "true") == "true";
             AutoLockTimeValue.Value = double.Parse(MainWindow.Profile.GetValue("Security", "AutoLockTimeValue", "5"));
+            LimitPasswordCharactersCheck.IsChecked =
+                MainWindow.Profile.GetValue("Security", "LimitPasswordCharacters", "true") == "true";
             PasswordLength.Value = double.Parse(MainWindow.Profile.GetValue("Security", "RandomPasswordLength", "24"));
             if (MainWindow.Profile.GetValue("Security", "AutoClearClipboardBool", "true") == "true")
                 AutoClearClipboardCheck.IsChecked = true;
@@ -94,12 +96,10 @@ namespace PasswordSafe.Windows
             string defalutSettingValue)
         {
             if (newSettingValue == "")
-            {
                 if (_changedSettings.ContainsKey(settingName))
                     newSettingValue = _changedSettings[settingName][1];
                 else
                     return;
-            }
 
             if (!_changedSettings.ContainsKey(settingName))
                 _changedSettings.Add(settingName,
@@ -135,6 +135,14 @@ namespace PasswordSafe.Windows
             LogSettingChange("Security", "AutoLockTimeValue", newValue, "5");
         }
 
+        private void LimitPasswordCharactersCheckChanged(object sender, RoutedEventArgs e)
+        {
+            Debug.Assert(LimitPasswordCharactersCheck.IsChecked != null,
+                "LimitPasswordCharactersCheck.IsChecked != null");
+            string newValue = (bool) LimitPasswordCharactersCheck.IsChecked ? "true" : "false";
+            LogSettingChange("Security", "LimitPasswordCharacters", newValue, "true");
+        }
+
         private void PasswordLengthChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             string newValue = PasswordLength.Value.ToString();
@@ -160,7 +168,7 @@ namespace PasswordSafe.Windows
 
         private void AccentSelectorChanged(object sender, SelectionChangedEventArgs e)
         {
-            string newValue = ((Accent)AccentSelector.SelectedItem).Name;
+            string newValue = ((Accent) AccentSelector.SelectedItem).Name;
 
             const string settingName = "Accent";
             if (!_changedSettings.ContainsKey(settingName))
@@ -174,13 +182,13 @@ namespace PasswordSafe.Windows
             else
                 _changedSettings[settingName][0] = newValue;
 
-            ModifySettings.ChangeProgramsAccent((Accent)AccentSelector.SelectedItem);
+            ModifySettings.ChangeProgramsAccent((Accent) AccentSelector.SelectedItem);
         }
 
         private void ThemeButtonChanged(object sender, RoutedEventArgs e)
         {
             Debug.Assert(LightThemeButton.IsChecked != null, "LightThemeButton.IsChecked != null");
-            string newValue = (bool)LightThemeButton.IsChecked ? "BaseLight" : "DarkBase";
+            string newValue = (bool) LightThemeButton.IsChecked ? "BaseLight" : "DarkBase";
 
             const string settingName = "Theme";
             if (!_changedSettings.ContainsKey(settingName))
@@ -194,12 +202,12 @@ namespace PasswordSafe.Windows
             else
                 _changedSettings[settingName][0] = newValue;
 
-            ModifySettings.ChangeProgramsTheme((bool)LightThemeButton.IsChecked);
+            ModifySettings.ChangeProgramsTheme((bool) LightThemeButton.IsChecked);
         }
 
         private void FontSelectorChanged(object sender, SelectionChangedEventArgs e)
         {
-            string newValue = ((FontFamily)FontSelector.SelectedItem).Source;
+            string newValue = ((FontFamily) FontSelector.SelectedItem).Source;
 
             const string settingName = "Font";
             if (!_changedSettings.ContainsKey(settingName))
@@ -213,7 +221,7 @@ namespace PasswordSafe.Windows
             else
                 _changedSettings[settingName][0] = newValue;
 
-            ModifySettings.ChangeProgramsFont((FontFamily)FontSelector.SelectedItem);
+            ModifySettings.ChangeProgramsFont((FontFamily) FontSelector.SelectedItem);
         }
 
         private void FontSizeSelectorChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
@@ -223,12 +231,10 @@ namespace PasswordSafe.Windows
             const string settingName = "FontSize";
 
             if (FontSizeSelector.Value == null)
-            {
                 if (_changedSettings.ContainsKey(settingName))
                     newValue = _changedSettings[settingName][1];
                 else
                     return;
-            }
 
 
             if (!_changedSettings.ContainsKey(settingName))
@@ -337,16 +343,18 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void Restore()
         {
-            if (_changedSettings.ContainsKey("Accent") && _changedSettings["Accent"][0] != _changedSettings["Accent"][1])
+            if (_changedSettings.ContainsKey("Accent") &&
+                (_changedSettings["Accent"][0] != _changedSettings["Accent"][1]))
                 ModifySettings.ChangeProgramsAccent(ThemeManager.GetAccent(_changedSettings["Accent"][1]));
 
-            if (_changedSettings.ContainsKey("Theme") && _changedSettings["Theme"][0] != _changedSettings["Theme"][1])
+            if (_changedSettings.ContainsKey("Theme") && (_changedSettings["Theme"][0] != _changedSettings["Theme"][1]))
                 ModifySettings.ChangeProgramsTheme(_changedSettings["Theme"][1] == "BaseLight");
 
-            if (_changedSettings.ContainsKey("Font") && _changedSettings["Font"][0] != _changedSettings["Font"][1])
+            if (_changedSettings.ContainsKey("Font") && (_changedSettings["Font"][0] != _changedSettings["Font"][1]))
                 ModifySettings.ChangeProgramsFont(new FontFamily(_changedSettings["Font"][1]));
 
-            if (_changedSettings.ContainsKey("FontSize") && _changedSettings["FontSize"][0] != _changedSettings["FontSize"][1])
+            if (_changedSettings.ContainsKey("FontSize") &&
+                (_changedSettings["FontSize"][0] != _changedSettings["FontSize"][1]))
                 ModifySettings.ChangeProgramsFontSize(double.Parse(_changedSettings["FontSize"][1]));
         }
 

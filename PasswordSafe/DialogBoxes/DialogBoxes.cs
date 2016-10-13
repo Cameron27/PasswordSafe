@@ -28,7 +28,8 @@ namespace PasswordSafe.DialogBoxes
         public static bool QuestionDialogBox(string question, bool defaultYes, MetroWindow owner)
         {
             QuestionDialogBox dialogBox = new QuestionDialogBox(question, defaultYes) {Owner = owner};
-            return (bool) dialogBox.ShowDialog();
+            bool? showDialog = dialogBox.ShowDialog();
+            return (showDialog != null) && (bool) showDialog;
         }
 
         /// <summary>
@@ -42,6 +43,22 @@ namespace PasswordSafe.DialogBoxes
         public static string TextInputDialogBox(string information, string confirm, string cancel, MetroWindow owner)
         {
             TextInputDialogBox dialogBox = new TextInputDialogBox(information, confirm, cancel) {Owner = owner};
+
+            if (dialogBox.ShowDialog() == true)
+                return dialogBox.Answer;
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Dialog box to get a password from the user
+        /// </summary>
+        /// <param name="information">Information to display above the password box</param>
+        /// <param name="owner">Owner of the window</param>
+        /// <returns>Password or null</returns>
+        public static string PasswordDialogBox(string information, MetroWindow owner)
+        {
+            PasswordDialogBox dialogBox = new PasswordDialogBox(information) {Owner = owner};
 
             if (dialogBox.ShowDialog() == true)
                 return dialogBox.Answer;

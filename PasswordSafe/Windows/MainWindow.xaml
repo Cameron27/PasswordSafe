@@ -9,7 +9,8 @@
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       KeyDown="GlobalHotkeys"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" StateChanged="WindowStateChanged">
+                      PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" StateChanged="WindowStateChanged"
+                      WindowStartupLocation="CenterScreen">
     <controls:MetroWindow.Resources>
         <!--  Region Menu Bar Resources  -->
         <Style x:Key="TopLevelMenu" TargetType="MenuItem">
@@ -336,6 +337,9 @@
                 <MenuItem Click="SaveOnClick" Header="_Save" InputGestureText="Ctrl+S"
                           Style="{StaticResource SubMenu}" />
                 <MenuItem Click="SaveAsOnClick" Header="Save _As" InputGestureText="Shift+Ctrl+S"
+                          Style="{StaticResource SubMenu}" />
+                <Separator />
+                <MenuItem Click="ChangeSafePasswordOnClick" Header="Change Safe Password"
                           Style="{StaticResource SubMenu}" />
                 <Separator />
                 <MenuItem Name="LockMenuItem" Click="LockOnClick" Header="_Lock" InputGestureText="Ctrl+L"

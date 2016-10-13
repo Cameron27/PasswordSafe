@@ -129,6 +129,10 @@
                         </controls:NumericUpDown.Style>
                     </controls:NumericUpDown>
                     <Label Content="Password Generation" Style="{StaticResource HeadingLabel}" />
+                    <CheckBox Name="LimitPasswordCharactersCheck" Checked="LimitPasswordCharactersCheckChanged"
+                              Content="Limit random passwords to a-z, A-Z and 0-9"
+                              Style="{StaticResource GeneralCheckBox}"
+                              Unchecked="LimitPasswordCharactersCheckChanged" />
                     <Label Content="Length of automatically generated passwords:" Style="{StaticResource GeneralLabel}" />
                     <controls:NumericUpDown Name="PasswordLength" Maximum="64" Minimum="1"
                                             Style="{StaticResource GeneralNumbericUpDown}"
