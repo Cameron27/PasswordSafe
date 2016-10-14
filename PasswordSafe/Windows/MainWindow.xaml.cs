@@ -52,6 +52,7 @@ namespace PasswordSafe.Windows
             _openFile = openFile;
             SafeData = safeData;
             _password = password;
+            Title += $" - {password}";
 
             Setup();
         }
