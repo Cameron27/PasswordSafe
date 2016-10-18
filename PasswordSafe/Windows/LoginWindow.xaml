@@ -5,8 +5,10 @@
                       FontFamily="{DynamicResource MainFont}"
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
+                      Loaded="LoginWindow_OnLoaded"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
+                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" TextOptions.TextFormattingMode="Display"
+                      WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,17 +18,17 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" Width="Auto" Height="45" Margin="10,5,10,5" HorizontalAlignment="Center"
-               Content="PASSWORD SAFE" FontSize="30" FontWeight="Bold" />
-        <Label Grid.Row="1" Width="Auto" Height="25" Margin="10,5,10,5" HorizontalAlignment="Left"
-               Content="Master Password:" FontWeight="Bold" />
+        <Label Grid.Row="0" Width="Auto" Margin="10,5,10,5" HorizontalAlignment="Center" Content="PASSWORD SAFE"
+               FontSize="30" FontWeight="Bold" />
+        <Label Grid.Row="1" Width="Auto" Margin="10,5,10,5" HorizontalAlignment="Left" Content="Master Password:"
+               FontWeight="Bold" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <PasswordBox Name="PasswordInput" Grid.Column="0" Height="25" Margin="10,5,10,5" />
-            <TextBox Name="PeakBox" Grid.Column="0" Height="25" Margin="10,5,10,5"
+            <PasswordBox Name="PasswordInput" Grid.Column="0" Height="25" MinWidth="200" Margin="10,5,10,5" MaxLength="255" />
+            <TextBox Name="PeakBox" Grid.Column="0" Height="25" Margin="10,5,10,5" MaxLength="255"
                      Text="{Binding ElementName=PasswordInput,
                                     Path=Password,
                                     UpdateSourceTrigger=PropertyChanged}"
@@ -34,14 +36,17 @@
             <ToggleButton Name="PeakToggleButton" Grid.Column="1" Width="30" Height="25" Margin="0,5,10,5"
                           VerticalAlignment="Center" Click="TogglePeakOnClick" Content="abc" />
         </Grid>
-        <Label Grid.Row="3" Width="Auto" Height="25" Margin="10,5,10,5" HorizontalAlignment="Left" Content="Safe:"
+        <Label Grid.Row="3" Width="Auto" Margin="10,5,10,5" HorizontalAlignment="Left" Content="Safe:"
                FontWeight="Bold" />
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
-
-            <ComboBox Name="SafeSelector" Width="175" Height="25" Margin="10,5,0,5" HorizontalAlignment="Center" />
-            <Button Width="100" Height="26" Margin="5,5,10,5" HorizontalAlignment="Left" Click="NewSafeOnClick"
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ComboBox Name="SafeSelector" Grid.Column="0" Height="25" Margin="10,5,0,5" />
+            <Button Grid.Column="1" Width="100" Height="26" Margin="5,5,10,5" Click="NewSafeOnClick"
                     Content="Create New Safe" />
-        </StackPanel>
+        </Grid>
         <StackPanel Grid.Row="5" FlowDirection="RightToLeft" Orientation="Horizontal">
             <Button Width="100" Height="25" Margin="10,10,10,10" HorizontalAlignment="Right" Click="ExitOnClick"
                     Content="Exit" />

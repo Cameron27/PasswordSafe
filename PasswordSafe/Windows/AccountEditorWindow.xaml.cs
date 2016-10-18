@@ -287,6 +287,15 @@ namespace PasswordSafe.Windows
             ConfirmPeakBox.Text = randomPassword;
         }
 
+        /// <summary>
+        ///     Prevents pasting into the PasswordBox
+        /// </summary>
+        private void PreventPasting(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+                e.Handled = true;
+        }
+
         #endregion
     }
 }

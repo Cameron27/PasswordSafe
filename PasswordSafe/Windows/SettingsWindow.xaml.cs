@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Text;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using PasswordSafe.GlobalClasses;
@@ -25,6 +26,14 @@ namespace PasswordSafe.Windows
         public SettingsWindow()
         {
             InitializeComponent();
+
+            //Setup fonts
+            InstalledFontCollection fontsCollection = new InstalledFontCollection();
+            FontFamily[] fontFamilies = fontsCollection.Families;
+            List<System.Windows.Media.FontFamily> fonts =
+                fontFamilies.Select(fontFamily => new System.Windows.Media.FontFamily(fontFamily.Name)).ToList();
+            fonts = fonts.OrderBy(x => x.Source).ToList();
+            FontSelector.ItemsSource = fonts;
 
             //Security
             LockOnMinimiseCheck.IsChecked = MainWindow.Profile.GetValue("Security", "LockOnMinimise", "false") == "true";
@@ -207,7 +216,7 @@ namespace PasswordSafe.Windows
 
         private void FontSelectorChanged(object sender, SelectionChangedEventArgs e)
         {
-            string newValue = ((FontFamily) FontSelector.SelectedItem).Source;
+            string newValue = ((System.Windows.Media.FontFamily) FontSelector.SelectedItem).Source;
 
             const string settingName = "Font";
             if (!_changedSettings.ContainsKey(settingName))
@@ -215,13 +224,13 @@ namespace PasswordSafe.Windows
                     new[]
                     {
                         newValue,
-                        ((FontFamily) Application.Current.Resources["MainFont"]).Source,
+                        ((System.Windows.Media.FontFamily) Application.Current.Resources["MainFont"]).Source,
                         "Appearance"
                     });
             else
                 _changedSettings[settingName][0] = newValue;
 
-            ModifySettings.ChangeProgramsFont((FontFamily) FontSelector.SelectedItem);
+            ModifySettings.ChangeProgramsFont((System.Windows.Media.FontFamily) FontSelector.SelectedItem);
         }
 
         private void FontSizeSelectorChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
@@ -351,7 +360,7 @@ namespace PasswordSafe.Windows
                 ModifySettings.ChangeProgramsTheme(_changedSettings["Theme"][1] == "BaseLight");
 
             if (_changedSettings.ContainsKey("Font") && (_changedSettings["Font"][0] != _changedSettings["Font"][1]))
-                ModifySettings.ChangeProgramsFont(new FontFamily(_changedSettings["Font"][1]));
+                ModifySettings.ChangeProgramsFont(new System.Windows.Media.FontFamily(_changedSettings["Font"][1]));
 
             if (_changedSettings.ContainsKey("FontSize") &&
                 (_changedSettings["FontSize"][0] != _changedSettings["FontSize"][1]))

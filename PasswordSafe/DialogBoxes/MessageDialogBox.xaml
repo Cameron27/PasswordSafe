@@ -6,15 +6,15 @@
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
+                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" TextOptions.TextFormattingMode="Display"
+                      WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Name="Information" Grid.Row="0" MaxWidth="300" Margin="5,5,5,0" HorizontalAlignment="Left"
-                   TextWrapping="Wrap" />
-        <Button Name="ConfirmButton" Grid.Row="1" Width="100" Height="25" Margin="5,5,5,5"
-                HorizontalAlignment="Right" Click="CancelButton_Click" Content="OK" IsCancel="True" IsDefault="True" />
+        <TextBlock Name="Information" Grid.Row="0" MaxWidth="300" Margin="5,5,5,0" TextWrapping="Wrap" />
+        <Button Grid.Row="1" Width="100" Height="25" Margin="5,5,5,5" Click="CancelButton_Click" Content="OK"
+                IsCancel="True" IsDefault="True" />
     </Grid>
 </controls:MetroWindow>

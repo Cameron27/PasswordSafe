@@ -301,5 +301,14 @@ namespace PasswordSafe.Windows
             else
                 PeakBox.Visibility = Visibility.Collapsed;
         }
+
+        /// <summary>
+        ///     Locks input box's the width to whatever it is when it loads
+        /// </summary>
+        private void LoginWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            PeakBox.Width = PeakBox.ActualWidth;
+            PasswordInput.Width = PasswordInput.ActualWidth;
+        }
     }
 }

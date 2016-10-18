@@ -9,7 +9,8 @@
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner">
+                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" TextOptions.TextFormattingMode="Display"
+                      WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="170" />
@@ -71,7 +72,7 @@
             </StackPanel>
         </ScrollViewer>
         <!--  EndRegion  -->
-        <Grid Name="MainRegion" Grid.Column="1" Width="600" Height="600">
+        <Grid Name="MainRegion" Grid.Column="1" MinWidth="600" MinHeight="600">
             <Grid.Resources>
                 <Style x:Key="GeneralLabel" TargetType="Label">
                     <Setter Property="HorizontalAlignment" Value="Left" />
@@ -196,9 +197,7 @@
                 <Label Grid.Row="2" Grid.Column="1" Content="Font Size"
                        Style="{StaticResource HeadingLabel}" />
                 <ComboBox Name="FontSelector" Grid.Row="3" Grid.Column="0" Width="200" Height="25" Margin="10,5,5,5"
-                          HorizontalAlignment="Left" VerticalAlignment="Top"
-                          ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                          SelectionChanged="FontSelectorChanged" />
+                          HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="FontSelectorChanged" />
                 <controls:NumericUpDown Name="FontSizeSelector" Grid.Row="3" Grid.Column="1" Maximum="24" Minimum="1"
                                         Style="{StaticResource GeneralNumbericUpDown}"
                                         ValueChanged="FontSizeSelectorChanged" />

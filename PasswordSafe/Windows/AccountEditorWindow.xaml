@@ -8,7 +8,8 @@
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       KeyDown="ConfirmOnEnterPress"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner">
+                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" TextOptions.TextFormattingMode="Display"
+                      WindowStartupLocation="CenterOwner">
     <controls:MetroWindow.Resources>
         <Style x:Key="FolderOptionsInContextMenu" TargetType="customControls:FolderComboBoxItem">
             <Setter Property="Template">
@@ -61,25 +62,28 @@
         <Label Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" FontSize="20"
                FontWeight="Bold" />
         <Label Grid.Row="1" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Account:" />
-        <TextBox Name="AccountField" Grid.Row="1" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+        <TextBox Name="AccountField" Grid.Row="1" Grid.Column="1" Width="250" Margin="5,5,10,5" MaxLength="255" />
         <Label Grid.Row="2" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Username:" />
-        <TextBox x:Name="UsernameField" Grid.Row="2" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+        <TextBox x:Name="UsernameField" Grid.Row="2" Grid.Column="1" Width="250" Margin="5,5,10,5" MaxLength="255" />
         <Label Grid.Row="3" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Email:" />
-        <TextBox x:Name="EmailField" Grid.Row="3" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+        <TextBox x:Name="EmailField" Grid.Row="3" Grid.Column="1" Width="250" Margin="5,5,10,5" MaxLength="255" />
         <Label Grid.Row="4" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Password:" />
         <Grid Grid.Row="4" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <PasswordBox Name="PasswordField" Width="210" Margin="5,5,10,5" HorizontalAlignment="Left" />
+            <PasswordBox Name="PasswordField" Width="210" Margin="5,5,10,5" HorizontalAlignment="Left"
+                         CommandManager.PreviewExecuted="PreventPasting" MaxLength="255" />
             <TextBox Name="PeakBox" Grid.Column="0" Width="210" Height="25" Margin="5,5,10,5" HorizontalAlignment="Left"
+                     MaxLength="255"
                      Text="{Binding ElementName=PasswordField,
                                     Path=Password,
                                     UpdateSourceTrigger=PropertyChanged}"
                      Visibility="Collapsed" />
             <ToggleButton Name="PeakToggleButton" Grid.Column="1" Width="30" Height="25" Margin="0,5,10,5"
-                          HorizontalAlignment="Stretch" Click="TogglePeakOnClick" Content="abc" />
+                          HorizontalAlignment="Stretch" Click="TogglePeakOnClick"
+                          CommandManager.PreviewExecuted="PreventPasting" Content="abc" />
         </Grid>
         <Label Grid.Row="5" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Confirm Password:" />
         <Grid Grid.Row="5" Grid.Column="1">
@@ -87,8 +91,10 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <PasswordBox Name="ConfirmPasswordField" Grid.Column="0" Width="210" Margin="5,5,10,5" />
+            <PasswordBox Name="ConfirmPasswordField" Grid.Column="0" Width="210" Margin="5,5,10,5"
+                         CommandManager.PreviewExecuted="PreventPasting" MaxLength="255" />
             <TextBox Name="ConfirmPeakBox" Grid.Column="0" Width="210" Height="25" Margin="5,5,10,5"
+                     CommandManager.PreviewExecuted="PreventPasting" MaxLength="255"
                      Text="{Binding ElementName=PasswordField,
                                     Path=Password,
                                     UpdateSourceTrigger=PropertyChanged}"
@@ -98,13 +104,13 @@
             </Button>
         </Grid>
         <Label Grid.Row="6" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="URL:" />
-        <TextBox Name="UrlField" Grid.Row="6" Grid.Column="1" Width="250" Margin="5,5,10,5" />
+        <TextBox Name="UrlField" Grid.Row="6" Grid.Column="1" Width="250" Margin="5,5,10,5" MaxLength="255" />
         <Label Grid.Row="7" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Folder:" />
         <ComboBox Name="FolderField" Grid.Row="7" Grid.Column="1" Width="250" Margin="5,5,10,5"
                   IsTextSearchEnabled="False" />
         <Label Grid.Row="8" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Center" Content="Notes:" />
         <TextBox Name="NotesField" Grid.Row="8" Grid.Column="1" Width="250" Height="60" Margin="5,5,10,5"
-                 TextWrapping="WrapWithOverflow" />
+                 MaxLength="16384" TextWrapping="WrapWithOverflow" />
         <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" FlowDirection="RightToLeft"
                     Orientation="Horizontal">
             <Button Width="100" Height="25" Margin="10" Click="CancelOnClick" Content="Cancel" IsCancel="True" />

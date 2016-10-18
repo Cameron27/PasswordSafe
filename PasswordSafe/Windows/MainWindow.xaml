@@ -10,7 +10,7 @@
                       KeyDown="GlobalHotkeys"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
                       PreviewKeyDown="GlobalHotkeys2" ResizeMode="CanResize" StateChanged="WindowStateChanged"
-                      WindowStartupLocation="CenterScreen">
+                      TextOptions.TextFormattingMode="Display" WindowStartupLocation="CenterScreen">
     <controls:MetroWindow.Resources>
         <!--  Region Menu Bar Resources  -->
         <Style x:Key="TopLevelMenu" TargetType="MenuItem">
@@ -329,7 +329,7 @@
         <Menu x:Name="MenuBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
               Background="{DynamicResource AccentColorBrush}">
             <MenuItem Header="_File" Style="{StaticResource TopLevelMenu}">
-                <MenuItem Click="NewSafeOnClick" Header="_New" InputGestureText="Ctrl+N"
+                <MenuItem Click="NewSafeOnClick" Header="_New Safe" InputGestureText="Ctrl+N"
                           Style="{StaticResource SubMenu}" />
                 <MenuItem Click="OpenOnClick" Header="_Open" InputGestureText="Ctrl+O"
                           Style="{StaticResource SubMenu}" />
@@ -368,7 +368,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox x:Name="SearchBox" Grid.Column="1" Width="250" Height="23" Margin="0,2,5,2"
-                     VerticalAlignment="Center" BorderThickness="1" KeyDown="FilterDataBySearchOnEnterPress">
+                     VerticalAlignment="Center" BorderThickness="1" KeyDown="FilterDataBySearchOnEnterPress"
+                     MaxLength="255">
                 <TextBox.Template>
                     <ControlTemplate TargetType="TextBox">
                         <Grid>
@@ -474,9 +475,10 @@
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                 BorderBrush="{DynamicResource GrayBrush7}"
                 BorderThickness="0,1,0,0">
-            <Grid>
+            <StackPanel Orientation="Horizontal">
+                <Label Name="SaveInfo" />
                 <Label Name="MessageBox" />
-            </Grid>
+            </StackPanel>
         </Border>
         <!--  EndRegion  -->
     </Grid>

@@ -6,17 +6,18 @@
                       FontSize="{DynamicResource MainFontSize}"
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush2}"
-                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
+                      ResizeMode="NoResize" SizeToContent="WidthAndHeight" TextOptions.TextFormattingMode="Display"
+                      WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Name="Information" Grid.Row="0" Height="25" MaxWidth="300" Margin="5,5,5,0"
-                   HorizontalAlignment="Left" TextWrapping="Wrap" />
-        <Button Name="YesButton" Grid.Row="1" Width="100" Height="25" Margin="5,5,110,5" HorizontalAlignment="Right"
-                Click="YesButton_Click" Content="Yes" />
-        <Button Name="NoButton" Grid.Row="1" Width="100" Height="25" Margin="0,5,5,5" HorizontalAlignment="Right"
-                Click="NoButton_Click" Content="No" IsCancel="True" IsDefault="True" />
+        <TextBlock Name="Information" Grid.Row="0" MaxWidth="300" Margin="5,5,5,0" TextWrapping="Wrap" />
+        <StackPanel Grid.Row="1" FlowDirection="RightToLeft" Orientation="Horizontal">
+            <Button Name="NoButton" Width="100" Height="25" Margin="5" Click="NoButton_Click" Content="No"
+                    IsCancel="True" IsDefault="True" />
+            <Button Name="YesButton" Width="100" Height="25" Margin="5" Click="YesButton_Click" Content="Yes" />
+        </StackPanel>
     </Grid>
 </controls:MetroWindow>

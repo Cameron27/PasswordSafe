@@ -43,5 +43,13 @@ namespace PasswordSafe.DialogBoxes
         {
             Close();
         }
+
+        /// <summary>
+        ///     Locks input box's the width to whatever it is when it loads
+        /// </summary>
+        private void TextInputDialogBox_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Input.Width = Input.ActualWidth;
+        }
     }
 }

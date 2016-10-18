@@ -52,7 +52,7 @@ namespace PasswordSafe.Windows
             _openFile = openFile;
             SafeData = safeData;
             _password = password;
-            Title += $" - {password}";
+            Title += $" - {openFile}";
 
             Setup();
         }
@@ -495,15 +495,8 @@ namespace PasswordSafe.Windows
             //Checks current password
 
             //Gets password
-            string newPassword = "";
-            while (newPassword == "")
-            {
-                newPassword = DialogBox.PasswordDialogBox("Please enter the new password for this safe:", this);
-                if (newPassword == null) return;
-
-                if (newPassword == "")
-                    DialogBox.MessageDialogBox("You must enter a password", this);
-            }
+            string newPassword;
+            if (LoginWindow.GetAndConfirmNewPassword(out newPassword, this)) return;
 
             _password = newPassword;
             StartSaveThread();
@@ -931,6 +924,7 @@ namespace PasswordSafe.Windows
         private void ChangeFolder(string newPath, int newPathIndex, int numberOfDefaults, FolderExpander folder)
         {
             _needsSaving = true;
+            SaveInfo.Content = "";
 
             string oldPath = folder.Path;
 
@@ -1093,6 +1087,7 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(true, newAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
+            SaveInfo.Content = "";
             AccountsObservableCollection.Add(accountEditorWindow.AccountBeingEdited);
         }
 
@@ -1109,6 +1104,7 @@ namespace PasswordSafe.Windows
             AccountEditorWindow accountEditorWindow = new AccountEditorWindow(false, editedAccount) {Owner = this};
             if (accountEditorWindow.ShowDialog() != true) return;
             _needsSaving = true;
+            SaveInfo.Content = "";
             FilterDataGrid();
         }
 
@@ -1132,6 +1128,7 @@ namespace PasswordSafe.Windows
                         AccountsObservableCollection.Remove(account);
                 FilterDataGrid();
                 _needsSaving = true;
+                SaveInfo.Content = "";
             }
         }
 
@@ -1336,7 +1333,7 @@ namespace PasswordSafe.Windows
                 _saveThread?.Abort();
 
             //Deletes backups
-            if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "false") == "false")
+            if (Profile.GetValue("Advanced", "DeleteBackupsOnSave", "false") == "true")
             {
                 List<Account> toDelete = AccountsObservableCollection.Where(account => account.Backup).ToList();
                 foreach (Account account in toDelete)
@@ -1355,7 +1352,7 @@ namespace PasswordSafe.Windows
             File.WriteAllText($"Safes\\{_openFile}", encryptedText);
             File.Delete($"Safes\\{_openFile}.bak");
 
-            Dispatcher.Invoke(() => MessageBox.Content = "Safe Saved");
+            Dispatcher.Invoke(() => SaveInfo.Content = "Safe Saved");
         }
 
         #endregion

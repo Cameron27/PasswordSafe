@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using MahApps.Metro.Controls;
 using PasswordSafe.Windows;
 
@@ -63,6 +64,24 @@ namespace PasswordSafe.DialogBoxes
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        ///     Prevents pasting into the PasswordBox
+        /// </summary>
+        private void PreventPasting(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+                e.Handled = true;
+        }
+
+        /// <summary>
+        ///     Locks input box's the width to whatever it is when it loads
+        /// </summary>
+        private void PasswordDialogBox_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            PeakBox.Width = PeakBox.ActualWidth;
+            PasswordInput.Width = PasswordInput.ActualWidth;
         }
     }
 }
