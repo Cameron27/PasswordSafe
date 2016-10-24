@@ -662,7 +662,7 @@ namespace PasswordSafe.Windows
         /// </summary>
         private void FilterByFolderOnDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount != 2) return;
+            //if (e.ClickCount != 2) return;
 
             FolderExpander parent;
 

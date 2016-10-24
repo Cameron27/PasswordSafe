@@ -31,7 +31,7 @@
                         <Setter Property="FontSize" Value="{DynamicResource MainFontSizePlus2}" />
                         <Setter Property="Padding" Value="10" />
                         <Setter Property="MinWidth" Value="170" />
-                        <EventSetter Event="MouseDown" Handler="ChangeSettingsWindow" />
+                        <EventSetter Event="MouseUp" Handler="ChangeSettingsWindow" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="customControls:SettingsLabel">

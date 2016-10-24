@@ -22,7 +22,7 @@ namespace PasswordSafe.GlobalClasses
 
         //Preconfigured Password Key Derivation Parameters
         private static readonly int SaltBitSize = 64;
-        private static readonly int Iterations = 10000;
+        private static readonly int Iterations = 10000; //TODO make this variable
         private static readonly int MinPasswordLength = 1;
 
         /// <summary>

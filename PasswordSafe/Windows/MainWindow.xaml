@@ -105,7 +105,7 @@
                                            ContextMenu="{StaticResource FolderExpanderContextMenu}"
                                            ContextMenuOpening="ModifyFolderLabelContextMenuOnOpening"
                                            Fill="{TemplateBinding Background}"
-                                           MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
+                                           MouseLeftButtonUp="FilterByFolderOnDoubleClick" />
                                 <Rectangle Name="TopBlackBar" Grid.Column="0" Grid.ColumnSpan="3" Height="2" HorizontalAlignment="Stretch"
                                            VerticalAlignment="Top"
                                            Fill="{DynamicResource BlackBrush}" />
@@ -122,7 +122,7 @@
                                 <ContentPresenter Grid.Column="2" Margin="0,5,5,5" VerticalAlignment="Center" ContentSource="Header"
                                                   ContextMenu="{StaticResource FolderExpanderContextMenu}"
                                                   ContextMenuOpening="ModifyFolderLabelContextMenuOnOpening"
-                                                  MouseLeftButtonDown="FilterByFolderOnDoubleClick" />
+                                                  MouseLeftButtonUp="FilterByFolderOnDoubleClick" />
                             </Grid>
                             <ContentPresenter x:Name="ExpanderContent" DockPanel.Dock="Bottom">
                                 <ContentPresenter.LayoutTransform>
